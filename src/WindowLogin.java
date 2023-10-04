@@ -14,6 +14,14 @@ import javax.swing.GroupLayout;
 public class WindowLogin extends JFrame {
     public WindowLogin() {
         initComponents();
+        registerButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                WindowRegister windowRegister = new WindowRegister();
+                windowRegister.setSize(300, 300);
+                windowRegister.setVisible(true);
+            }
+        });
     }
 
     private void thisKeyPressed(KeyEvent e) {
