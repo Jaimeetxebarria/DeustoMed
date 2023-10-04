@@ -69,13 +69,11 @@ public class WindowRegister extends JFrame {
 
         //======== panel1 ========
         {
-            panel1.setBorder ( new javax . swing. border .CompoundBorder ( new javax . swing. border .TitledBorder ( new javax .
-            swing. border .EmptyBorder ( 0, 0 ,0 , 0) ,  "JF\u006frmDesi\u0067ner Ev\u0061luatio\u006e" , javax. swing .border
-            . TitledBorder. CENTER ,javax . swing. border .TitledBorder . BOTTOM, new java. awt .Font ( "Dialo\u0067"
-            , java .awt . Font. BOLD ,12 ) ,java . awt. Color .red ) ,panel1. getBorder
-            () ) ); panel1. addPropertyChangeListener( new java. beans .PropertyChangeListener ( ){ @Override public void propertyChange (java
-            . beans. PropertyChangeEvent e) { if( "borde\u0072" .equals ( e. getPropertyName () ) )throw new RuntimeException
-            ( ) ;} } );
+            panel1.setBorder(new javax.swing.border.CompoundBorder(new javax.swing.border.TitledBorder(new javax.swing.border.EmptyBorder(
+            0,0,0,0), "JFor\u006dDesi\u0067ner \u0045valu\u0061tion",javax.swing.border.TitledBorder.CENTER,javax.swing.border.TitledBorder
+            .BOTTOM,new java.awt.Font("Dia\u006cog",java.awt.Font.BOLD,12),java.awt.Color.
+            red),panel1. getBorder()));panel1. addPropertyChangeListener(new java.beans.PropertyChangeListener(){@Override public void propertyChange(java.
+            beans.PropertyChangeEvent e){if("bord\u0065r".equals(e.getPropertyName()))throw new RuntimeException();}});
             panel1.setLayout(new GridLayout(2, 1, 40, 20));
         }
         contentPane.add(panel1);
@@ -121,7 +119,7 @@ public class WindowRegister extends JFrame {
         contentPane.add(label6);
         label6.setBounds(new Rectangle(new Point(180, 105), label6.getPreferredSize()));
         contentPane.add(textField3);
-        textField3.setBounds(180, 140, 120, 25);
+        textField3.setBounds(180, 135, 120, 25);
 
         //---- label7 ----
         label7.setText("Email:");
