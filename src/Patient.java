@@ -66,6 +66,10 @@ public class Patient {
         int newId = (int) (Math.random()*99999);
         while(ids.contains(newId)){
             newId = (int) (Math.random()*99999);
+            if (ids.size()>=99999){
+                System.out.println("Error: No more ids available");
+                return -1;
+            }
         }
         ids.add(newId);
         return newId;
