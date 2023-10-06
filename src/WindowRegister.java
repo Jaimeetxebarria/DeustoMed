@@ -1,6 +1,9 @@
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.GroupLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.regex.*;
 /*
  * Created by JFormDesigner on Fri Oct 06 09:12:16 CEST 2023
  */
@@ -14,6 +17,20 @@ public class WindowRegister extends JFrame {
     public WindowRegister() {
         initComponents();
     }
+
+    public boolean emailValidation(String email){
+        String regex = "^[A-Za-z0-9+_.-]+@(.+)$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(email);
+        return matcher.matches();
+    }
+    public boolean passwordValidation(String password){
+        String regex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\\S+$).{8,}$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(password);
+        return matcher.matches();
+    }
+
 
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
@@ -33,7 +50,7 @@ public class WindowRegister extends JFrame {
         registerButton = new JButton();
         questionLabel = new JLabel();
         button2 = new JButton();
-        label8 = new JLabel();
+        errorLabel = new JLabel();
         paswordField = new JPasswordField();
 
         //======== this ========
@@ -56,7 +73,7 @@ public class WindowRegister extends JFrame {
         nameLabel.setText("Name:");
 
         //---- surnameLabel ----
-        surnameLabel.setText("Surname");
+        surnameLabel.setText("Surname:");
 
         //---- emailLabel ----
         emailLabel.setText("Email:");
@@ -73,102 +90,135 @@ public class WindowRegister extends JFrame {
         //---- button2 ----
         button2.setText("Log in");
 
-        //---- label8 ----
-        label8.setText("Error");
+        //---- errorLabel ----
+        errorLabel.setForeground(Color.red);
 
         GroupLayout contentPaneLayout = new GroupLayout(contentPane);
         contentPane.setLayout(contentPaneLayout);
         contentPaneLayout.setHorizontalGroup(
             contentPaneLayout.createParallelGroup()
-                .addGroup(contentPaneLayout.createSequentialGroup()
-                    .addContainerGap()
+                .addGroup(GroupLayout.Alignment.TRAILING, contentPaneLayout.createSequentialGroup()
                     .addGroup(contentPaneLayout.createParallelGroup()
                         .addGroup(contentPaneLayout.createSequentialGroup()
-                            .addComponent(emailLabel)
-                            .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGroup(contentPaneLayout.createSequentialGroup()
-                            .addComponent(PasswordLabel)
-                            .addGap(0, 0, Short.MAX_VALUE))
-                        .addGroup(GroupLayout.Alignment.TRAILING, contentPaneLayout.createSequentialGroup()
+                            .addGap(15, 15, 15)
                             .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-                                .addComponent(emailTextField, GroupLayout.Alignment.LEADING)
-                                .addGroup(GroupLayout.Alignment.LEADING, contentPaneLayout.createSequentialGroup()
-                                    .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-                                        .addComponent(accountLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(patientRadioButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGroup(contentPaneLayout.createSequentialGroup()
                                     .addGap(18, 18, 18)
                                     .addComponent(doctorRadioButton, GroupLayout.PREFERRED_SIZE, 75, GroupLayout.PREFERRED_SIZE)
-                                    .addGap(39, 39, 39)
-                                    .addComponent(doctCodeLabel)
+                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(patientRadioButton, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE)
                                     .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(codePasswordField, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE))
+                                    .addComponent(doctCodeLabel))
                                 .addGroup(GroupLayout.Alignment.LEADING, contentPaneLayout.createSequentialGroup()
                                     .addGroup(contentPaneLayout.createParallelGroup()
-                                        .addComponent(nameLabel)
-                                        .addComponent(nameTextField, GroupLayout.PREFERRED_SIZE, 137, GroupLayout.PREFERRED_SIZE))
-                                    .addGap(25, 25, 25)
+                                        .addGroup(contentPaneLayout.createSequentialGroup()
+                                            .addGap(18, 18, 18)
+                                            .addComponent(nameLabel))
+                                        .addComponent(surnameLabel, GroupLayout.Alignment.TRAILING)
+                                        .addComponent(emailLabel, GroupLayout.Alignment.TRAILING))
+                                    .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                                     .addGroup(contentPaneLayout.createParallelGroup()
-                                        .addComponent(surnameLabel)
-                                        .addComponent(surnameTextField))))
-                            .addGap(44, 44, 44))))
+                                        .addComponent(nameTextField)
+                                        .addComponent(emailTextField)
+                                        .addGroup(contentPaneLayout.createSequentialGroup()
+                                            .addComponent(surnameTextField, GroupLayout.PREFERRED_SIZE, 179, GroupLayout.PREFERRED_SIZE)
+                                            .addGap(0, 0, Short.MAX_VALUE))))
+                                .addGroup(contentPaneLayout.createSequentialGroup()
+                                    .addComponent(PasswordLabel)
+                                    .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                                    .addComponent(paswordField, GroupLayout.PREFERRED_SIZE, 179, GroupLayout.PREFERRED_SIZE)
+                                    .addGap(0, 0, Short.MAX_VALUE))))
+                        .addGroup(GroupLayout.Alignment.TRAILING, contentPaneLayout.createSequentialGroup()
+                            .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(registerButton, GroupLayout.PREFERRED_SIZE, 88, GroupLayout.PREFERRED_SIZE)
+                            .addGap(9, 9, 9)))
+                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(codePasswordField, GroupLayout.PREFERRED_SIZE, 93, GroupLayout.PREFERRED_SIZE)
+                    .addGap(76, 76, 76))
                 .addGroup(contentPaneLayout.createSequentialGroup()
                     .addGroup(contentPaneLayout.createParallelGroup()
                         .addGroup(contentPaneLayout.createSequentialGroup()
-                            .addGap(143, 143, 143)
-                            .addComponent(registerButton))
+                            .addContainerGap()
+                            .addComponent(accountLabel))
                         .addGroup(contentPaneLayout.createSequentialGroup()
                             .addGap(14, 14, 14)
-                            .addGroup(contentPaneLayout.createParallelGroup()
-                                .addComponent(label8)
-                                .addGroup(contentPaneLayout.createSequentialGroup()
-                                    .addComponent(questionLabel)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(button2))))
+                            .addComponent(questionLabel)
+                            .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(button2))
                         .addGroup(contentPaneLayout.createSequentialGroup()
-                            .addContainerGap()
-                            .addComponent(paswordField, GroupLayout.DEFAULT_SIZE, 383, Short.MAX_VALUE)))
-                    .addGap(44, 44, 44))
+                            .addGap(69, 69, 69)
+                            .addComponent(errorLabel, GroupLayout.PREFERRED_SIZE, 239, GroupLayout.PREFERRED_SIZE)))
+                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         contentPaneLayout.setVerticalGroup(
             contentPaneLayout.createParallelGroup()
                 .addGroup(contentPaneLayout.createSequentialGroup()
                     .addContainerGap()
                     .addComponent(accountLabel)
-                    .addGap(18, 18, 18)
-                    .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                        .addComponent(patientRadioButton)
-                        .addComponent(doctorRadioButton)
-                        .addComponent(doctCodeLabel)
-                        .addComponent(codePasswordField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                    .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addGap(26, 26, 26)
                     .addGroup(contentPaneLayout.createParallelGroup()
-                        .addComponent(nameLabel)
-                        .addComponent(surnameLabel))
-                    .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                            .addComponent(doctorRadioButton)
+                            .addComponent(patientRadioButton)
+                            .addComponent(doctCodeLabel)
+                            .addComponent(codePasswordField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                        .addGroup(contentPaneLayout.createSequentialGroup()
+                            .addGap(45, 45, 45)
+                            .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                .addComponent(nameLabel)
+                                .addComponent(nameTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))))
+                    .addGap(21, 21, 21)
                     .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                        .addComponent(nameTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addComponent(surnameLabel)
                         .addComponent(surnameTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                    .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                    .addComponent(emailLabel)
-                    .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                    .addComponent(emailTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                    .addGap(20, 20, 20)
+                    .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                        .addComponent(emailLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(emailTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                     .addGap(18, 18, 18)
-                    .addComponent(PasswordLabel)
-                    .addGap(18, 18, 18)
-                    .addComponent(paswordField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                    .addGap(38, 38, 38)
+                    .addGroup(contentPaneLayout.createParallelGroup()
+                        .addComponent(PasswordLabel)
+                        .addComponent(paswordField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                    .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addComponent(errorLabel)
+                    .addGap(10, 10, 10)
                     .addComponent(registerButton)
-                    .addGap(18, 18, 18)
+                    .addGap(35, 35, 35)
                     .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                         .addComponent(questionLabel)
                         .addComponent(button2))
-                    .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                    .addComponent(label8)
-                    .addContainerGap(13, Short.MAX_VALUE))
+                    .addGap(58, 58, 58))
         );
         pack();
         setLocationRelativeTo(getOwner());
         // JFormDesigner - End of component initialization  //GEN-END:initComponents  @formatter:on
+
+       registerButton.addActionListener(new ActionListener() {
+           @Override
+           public void actionPerformed(ActionEvent e) {
+               if (patientRadioButton.isSelected()){
+                   if (nameTextField.getText().isEmpty() || surnameTextField.getText().isEmpty() || emailTextField.getText().isEmpty() || paswordField.getText().isEmpty()) {
+                       errorLabel.setText("You must fill all the fields");
+                   } else if (!emailValidation(emailTextField.getText())) {
+                       errorLabel.setText("The email is not valid");
+                   } else if (!passwordValidation(paswordField.getText())) {
+                       errorLabel.setText("The password is not valid");
+                   } else {
+                       errorLabel.setText("You have been registered"); //TODO añadir jpane y mandar email, recoger los datos en database
+                   }
+               }else{
+                   if (nameTextField.getText().isEmpty() || surnameTextField.getText().isEmpty() || emailTextField.getText().isEmpty() || paswordField.getText().isEmpty() || codePasswordField.getText().isEmpty()) {
+                       errorLabel.setText("You must fill all the fields");
+                   } else if (!emailValidation(emailTextField.getText())) {
+                       errorLabel.setText("The email is not valid");
+                   } else if (!passwordValidation(paswordField.getText())) {
+                       errorLabel.setText("The password is not valid");
+                   } else {
+                       errorLabel.setText("You have been registered");
+                   }
+               }
+           }
+       });
     }
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables  @formatter:off
@@ -188,7 +238,11 @@ public class WindowRegister extends JFrame {
     private JButton registerButton;
     private JLabel questionLabel;
     private JButton button2;
-    private JLabel label8;
+    private JLabel errorLabel;
     private JPasswordField paswordField;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
+
+
+
+
 }

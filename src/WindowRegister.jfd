@@ -4,8 +4,8 @@ new FormModel {
 	contentType: "form/swing"
 	root: new FormRoot {
 		add( new FormWindow( "javax.swing.JFrame", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-			"$horizontalGroup": "par l {seq {space :::p, par l {seq l {comp emailLabel:::p::p, space :::x}, seq {comp PasswordLabel:::p::p, space :0:0:x}, seq t {par t {comp emailTextField::l:::x, seq l {par l:::p {comp accountLabel:::::x, comp patientRadioButton:::::x}, space s:::p, comp doctorRadioButton:::p:75:p, space :p:39:p, comp doctCodeLabel:::p::p, space :::p, comp codePasswordField::::84:x}, seq l {par l {comp nameLabel::l:p::p, comp nameTextField::l:p:137:p}, space :p:25:p, par l {comp surnameLabel:::p::p, comp surnameTextField:::::x}}}, space :p:44:p}}}, seq {par l {seq l {space :p:143:p, comp registerButton:::p::p}, seq l {space :p:14:p, par l {comp label8:::p::p, seq {comp questionLabel:::p::p, space s:::p, comp button2:::p::p}}}, seq l {space :::p, comp paswordField::::383:x}}, space :p:44:p}}"
-			"$verticalGroup": "par l {seq l {space :::p, comp accountLabel:::p::p, space s:::p, par b {comp patientRadioButton::b:p::p, comp doctorRadioButton::b:p::p, comp doctCodeLabel::b:p::p, comp codePasswordField::b:p::p}, space u:::p, par l {comp nameLabel:::p::p, comp surnameLabel:::p::p}, space u:::p, par b {comp nameTextField::b:p::p, comp surnameTextField::b:p::p}, space u:::p, comp emailLabel:::p::p, space u:::p, comp emailTextField:::p::p, space s:::p, comp PasswordLabel:::p::p, space s:::p, comp paswordField:::p::p, space :p:38:p, comp registerButton:::p::p, space s:::p, par b {comp questionLabel::b:p::p, comp button2::b:p::p}, space u:::p, comp label8:::p::p, space ::13:x}}"
+			"$horizontalGroup": "par l {seq t {par l {seq {space :p:15:p, par t {seq t {space :p:18:p, comp doctorRadioButton:::p:75:p, space :::x, comp patientRadioButton:::p:69:p, space :p::p, comp doctCodeLabel:::p::p}, seq l {par l {seq l {space :p:18:p, comp nameLabel:::p::p}, comp surnameLabel::t:p::p, comp emailLabel::t:p::p}, space u:::p, par l {comp nameTextField:::::x, comp emailTextField::l:::x, seq l {comp surnameTextField:::p:179:p, space :0:0:x}}}, seq t {comp PasswordLabel:::p::p, space u:::p, comp paswordField:::p:179:p, space :0:0:x}}}, seq t {space :::x, comp registerButton:::p:88:p, space :p:9:p}}, space :p::p, comp codePasswordField:::p:93:p, space :p:76:p}, seq {par l {seq {space :::p, comp accountLabel:::p::p}, seq l {space :p:14:p, comp questionLabel:::p::p, space u:p::p, comp button2:::p::p}, seq l {space :p:69:p, comp errorLabel:::p:239:p}}, space :::x}}"
+			"$verticalGroup": "par l {seq l {space :p::p, comp accountLabel:::p::p, space :p:26:p, par l {par b:l {comp doctorRadioButton::b:p::p, comp patientRadioButton::b:p::p, comp doctCodeLabel::b:p::p, comp codePasswordField::b:p::p}, seq l {space :p:45:p, par b {comp nameLabel::b:p::p, comp nameTextField::b:p::p}}}, space :p:21:p, par b {comp surnameLabel::b:p::p, comp surnameTextField::b:p::p}, space :p:20:p, par b {comp emailLabel::b:::x, comp emailTextField::b:p::p}, space s:p::p, par l {comp PasswordLabel::l:p::p, comp paswordField::l:p::p}, space u:::p, comp errorLabel:::p::p, space :p:10:p, comp registerButton:::p::p, space :p:35:p, par b {comp questionLabel::b:p::p, comp button2::b:p::p}, space :p:58:p}}"
 		} ) {
 			name: "this"
 			"title": "Register"
@@ -37,7 +37,7 @@ new FormModel {
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "surnameLabel"
-				"text": "Surname"
+				"text": "Surname:"
 			} )
 			add( new FormComponent( "javax.swing.JTextField" ) {
 				name: "surnameTextField"
@@ -66,15 +66,15 @@ new FormModel {
 				"text": "Log in"
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
-				name: "label8"
-				"text": "Error"
+				name: "errorLabel"
+				"foreground": new java.awt.Color( 255, 0, 0, 255 )
 			} )
 			add( new FormComponent( "javax.swing.JPasswordField" ) {
 				name: "paswordField"
 			} )
 		}, new FormLayoutConstraints( null ) {
-			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 435, 485 )
+			"location": new java.awt.Point( 115, 5 )
+			"size": new java.awt.Dimension( 435, 440 )
 		} )
 	}
 }
