@@ -12,14 +12,19 @@ import javax.swing.GroupLayout;
  * @author Alvaro
  */
 public class WindowLogin extends JFrame {
+    WindowRegister windowRegister=null;
     public WindowLogin() {
         initComponents();
         registerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                WindowRegister windowRegister = new WindowRegister();
-                windowRegister.setSize(300, 300);
-                windowRegister.setVisible(true);
+                if(windowRegister==null) {
+                    windowRegister = new WindowRegister();
+                    //windowRegister.setSize(300, 600);
+                    windowRegister.setVisible(true);
+                }else{
+                    windowRegister.setVisible(true);
+                }
             }
         });
     }

@@ -1,7 +1,8 @@
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.GroupLayout;
 /*
- * Created by JFormDesigner on Wed Oct 04 10:05:20 CEST 2023
+ * Created by JFormDesigner on Fri Oct 06 09:12:16 CEST 2023
  */
 
 
@@ -17,158 +18,154 @@ public class WindowRegister extends JFrame {
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
         // Generated using JFormDesigner Evaluation license - Alvaro
-        label1 = new JLabel();
-        label2 = new JLabel();
-        radioButton1 = new JRadioButton();
-        radioButton2 = new JRadioButton();
-        label3 = new JLabel();
-        panel1 = new JPanel();
-        panel2 = new JPanel();
-        panel3 = new JPanel();
-        panel4 = new JPanel();
-        label10 = new JLabel();
-        textField5 = new JTextField();
-        textField1 = new JTextField();
-        label5 = new JLabel();
-        textField2 = new JTextField();
-        label6 = new JLabel();
-        textField3 = new JTextField();
-        label7 = new JLabel();
-        textField4 = new JTextField();
-        label8 = new JLabel();
-        passwordField1 = new JPasswordField();
-        button1 = new JButton();
-        label9 = new JLabel();
+        accountLabel = new JLabel();
+        patientRadioButton = new JRadioButton();
+        doctorRadioButton = new JRadioButton();
+        doctCodeLabel = new JLabel();
+        codePasswordField = new JPasswordField();
+        nameLabel = new JLabel();
+        nameTextField = new JTextField();
+        surnameLabel = new JLabel();
+        surnameTextField = new JTextField();
+        emailLabel = new JLabel();
+        emailTextField = new JTextField();
+        PasswordLabel = new JLabel();
+        registerButton = new JButton();
+        questionLabel = new JLabel();
         button2 = new JButton();
-        label11 = new JLabel();
+        label8 = new JLabel();
+        paswordField = new JPasswordField();
 
         //======== this ========
         setTitle("Register");
-        setUndecorated(true);
         var contentPane = getContentPane();
-        contentPane.setLayout(null);
-        contentPane.add(label1);
-        label1.setBounds(new Rectangle(new Point(15, 25), label1.getPreferredSize()));
 
-        //---- label2 ----
-        label2.setText("New account");
-        contentPane.add(label2);
-        label2.setBounds(25, 25, 100, 20);
+        //---- accountLabel ----
+        accountLabel.setText("New account");
 
-        //---- radioButton1 ----
-        radioButton1.setText("Patient");
-        contentPane.add(radioButton1);
-        radioButton1.setBounds(25, 65, 75, radioButton1.getPreferredSize().height);
+        //---- patientRadioButton ----
+        patientRadioButton.setText("Patient");
 
-        //---- radioButton2 ----
-        radioButton2.setText("Doctor");
-        contentPane.add(radioButton2);
-        radioButton2.setBounds(new Rectangle(new Point(120, 65), radioButton2.getPreferredSize()));
-        contentPane.add(label3);
-        label3.setBounds(new Rectangle(new Point(25, 115), label3.getPreferredSize()));
+        //---- doctorRadioButton ----
+        doctorRadioButton.setText("Doctor");
 
-        //======== panel1 ========
-        {
-            panel1.setBorder(new javax.swing.border.CompoundBorder(new javax.swing.border.TitledBorder(new javax.swing.border.EmptyBorder(
-            0,0,0,0), "JFor\u006dDesi\u0067ner \u0045valu\u0061tion",javax.swing.border.TitledBorder.CENTER,javax.swing.border.TitledBorder
-            .BOTTOM,new java.awt.Font("Dia\u006cog",java.awt.Font.BOLD,12),java.awt.Color.
-            red),panel1. getBorder()));panel1. addPropertyChangeListener(new java.beans.PropertyChangeListener(){@Override public void propertyChange(java.
-            beans.PropertyChangeEvent e){if("bord\u0065r".equals(e.getPropertyName()))throw new RuntimeException();}});
-            panel1.setLayout(new GridLayout(2, 1, 40, 20));
-        }
-        contentPane.add(panel1);
-        panel1.setBounds(-15, 110, 0, panel1.getPreferredSize().height);
+        //---- doctCodeLabel ----
+        doctCodeLabel.setText("Doctor code:");
 
-        //======== panel2 ========
-        {
-            panel2.setLayout(new GridLayout(2, 1, 200, 200));
-        }
-        contentPane.add(panel2);
-        panel2.setBounds(-175, 110, 0, panel2.getPreferredSize().height);
+        //---- nameLabel ----
+        nameLabel.setText("Name:");
 
-        //======== panel3 ========
-        {
-            panel3.setLayout(new GridLayout(2, 1, 100, 20));
-        }
-        contentPane.add(panel3);
-        panel3.setBounds(-75, 110, 0, panel3.getPreferredSize().height);
+        //---- surnameLabel ----
+        surnameLabel.setText("Surname");
 
-        //======== panel4 ========
-        {
-            panel4.setLayout(new GridLayout(1, 2));
+        //---- emailLabel ----
+        emailLabel.setText("Email:");
 
-            //---- label10 ----
-            label10.setText("Doctor code:");
-            panel4.add(label10);
-            panel4.add(textField5);
-        }
-        contentPane.add(panel4);
-        panel4.setBounds(220, 65, 145, 25);
-        contentPane.add(textField1);
-        textField1.setBounds(310, 90, 72, 0);
+        //---- PasswordLabel ----
+        PasswordLabel.setText("Password:");
 
-        //---- label5 ----
-        label5.setText("Name:");
-        contentPane.add(label5);
-        label5.setBounds(new Rectangle(new Point(25, 105), label5.getPreferredSize()));
-        contentPane.add(textField2);
-        textField2.setBounds(25, 135, 130, textField2.getPreferredSize().height);
+        //---- registerButton ----
+        registerButton.setText("Register");
 
-        //---- label6 ----
-        label6.setText("Surname:");
-        contentPane.add(label6);
-        label6.setBounds(new Rectangle(new Point(180, 105), label6.getPreferredSize()));
-        contentPane.add(textField3);
-        textField3.setBounds(180, 135, 120, 25);
-
-        //---- label7 ----
-        label7.setText("Email:");
-        contentPane.add(label7);
-        label7.setBounds(new Rectangle(new Point(25, 205), label7.getPreferredSize()));
-        contentPane.add(textField4);
-        textField4.setBounds(25, 230, 130, textField4.getPreferredSize().height);
-
-        //---- label8 ----
-        label8.setText("Password:");
-        contentPane.add(label8);
-        label8.setBounds(new Rectangle(new Point(25, 285), label8.getPreferredSize()));
-        contentPane.add(passwordField1);
-        passwordField1.setBounds(25, 315, 130, passwordField1.getPreferredSize().height);
-
-        //---- button1 ----
-        button1.setText("Register");
-        contentPane.add(button1);
-        button1.setBounds(new Rectangle(new Point(160, 355), button1.getPreferredSize()));
-
-        //---- label9 ----
-        label9.setText("Registered ?");
-        contentPane.add(label9);
-        label9.setBounds(35, 400, label9.getPreferredSize().width, 20);
+        //---- questionLabel ----
+        questionLabel.setText("Registered?");
 
         //---- button2 ----
         button2.setText("Log in");
-        contentPane.add(button2);
-        button2.setBounds(135, 400, 105, 25);
 
-        //---- label11 ----
-        label11.setText("Error...");
-        contentPane.add(label11);
-        label11.setBounds(40, 435, 330, label11.getPreferredSize().height);
+        //---- label8 ----
+        label8.setText("Error");
 
-        {
-            // compute preferred size
-            Dimension preferredSize = new Dimension();
-            for(int i = 0; i < contentPane.getComponentCount(); i++) {
-                Rectangle bounds = contentPane.getComponent(i).getBounds();
-                preferredSize.width = Math.max(bounds.x + bounds.width, preferredSize.width);
-                preferredSize.height = Math.max(bounds.y + bounds.height, preferredSize.height);
-            }
-            Insets insets = contentPane.getInsets();
-            preferredSize.width += insets.right;
-            preferredSize.height += insets.bottom;
-            contentPane.setMinimumSize(preferredSize);
-            contentPane.setPreferredSize(preferredSize);
-        }
+        GroupLayout contentPaneLayout = new GroupLayout(contentPane);
+        contentPane.setLayout(contentPaneLayout);
+        contentPaneLayout.setHorizontalGroup(
+            contentPaneLayout.createParallelGroup()
+                .addGroup(contentPaneLayout.createSequentialGroup()
+                    .addContainerGap()
+                    .addGroup(contentPaneLayout.createParallelGroup()
+                        .addGroup(contentPaneLayout.createSequentialGroup()
+                            .addComponent(emailLabel)
+                            .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(contentPaneLayout.createSequentialGroup()
+                            .addComponent(PasswordLabel)
+                            .addGap(0, 0, Short.MAX_VALUE))
+                        .addGroup(GroupLayout.Alignment.TRAILING, contentPaneLayout.createSequentialGroup()
+                            .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+                                .addComponent(emailTextField, GroupLayout.Alignment.LEADING)
+                                .addGroup(GroupLayout.Alignment.LEADING, contentPaneLayout.createSequentialGroup()
+                                    .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
+                                        .addComponent(accountLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(patientRadioButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                    .addGap(18, 18, 18)
+                                    .addComponent(doctorRadioButton, GroupLayout.PREFERRED_SIZE, 75, GroupLayout.PREFERRED_SIZE)
+                                    .addGap(39, 39, 39)
+                                    .addComponent(doctCodeLabel)
+                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(codePasswordField, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE))
+                                .addGroup(GroupLayout.Alignment.LEADING, contentPaneLayout.createSequentialGroup()
+                                    .addGroup(contentPaneLayout.createParallelGroup()
+                                        .addComponent(nameLabel)
+                                        .addComponent(nameTextField, GroupLayout.PREFERRED_SIZE, 137, GroupLayout.PREFERRED_SIZE))
+                                    .addGap(25, 25, 25)
+                                    .addGroup(contentPaneLayout.createParallelGroup()
+                                        .addComponent(surnameLabel)
+                                        .addComponent(surnameTextField))))
+                            .addGap(44, 44, 44))))
+                .addGroup(contentPaneLayout.createSequentialGroup()
+                    .addGroup(contentPaneLayout.createParallelGroup()
+                        .addGroup(contentPaneLayout.createSequentialGroup()
+                            .addGap(143, 143, 143)
+                            .addComponent(registerButton))
+                        .addGroup(contentPaneLayout.createSequentialGroup()
+                            .addGap(14, 14, 14)
+                            .addGroup(contentPaneLayout.createParallelGroup()
+                                .addComponent(label8)
+                                .addGroup(contentPaneLayout.createSequentialGroup()
+                                    .addComponent(questionLabel)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(button2))))
+                        .addGroup(contentPaneLayout.createSequentialGroup()
+                            .addContainerGap()
+                            .addComponent(paswordField, GroupLayout.DEFAULT_SIZE, 383, Short.MAX_VALUE)))
+                    .addGap(44, 44, 44))
+        );
+        contentPaneLayout.setVerticalGroup(
+            contentPaneLayout.createParallelGroup()
+                .addGroup(contentPaneLayout.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(accountLabel)
+                    .addGap(18, 18, 18)
+                    .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                        .addComponent(patientRadioButton)
+                        .addComponent(doctorRadioButton)
+                        .addComponent(doctCodeLabel)
+                        .addComponent(codePasswordField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                    .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addGroup(contentPaneLayout.createParallelGroup()
+                        .addComponent(nameLabel)
+                        .addComponent(surnameLabel))
+                    .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                        .addComponent(nameTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addComponent(surnameTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                    .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addComponent(emailLabel)
+                    .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addComponent(emailTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                    .addGap(18, 18, 18)
+                    .addComponent(PasswordLabel)
+                    .addGap(18, 18, 18)
+                    .addComponent(paswordField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                    .addGap(38, 38, 38)
+                    .addComponent(registerButton)
+                    .addGap(18, 18, 18)
+                    .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                        .addComponent(questionLabel)
+                        .addComponent(button2))
+                    .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addComponent(label8)
+                    .addContainerGap(13, Short.MAX_VALUE))
+        );
         pack();
         setLocationRelativeTo(getOwner());
         // JFormDesigner - End of component initialization  //GEN-END:initComponents  @formatter:on
@@ -176,29 +173,22 @@ public class WindowRegister extends JFrame {
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables  @formatter:off
     // Generated using JFormDesigner Evaluation license - Alvaro
-    private JLabel label1;
-    private JLabel label2;
-    private JRadioButton radioButton1;
-    private JRadioButton radioButton2;
-    private JLabel label3;
-    private JPanel panel1;
-    private JPanel panel2;
-    private JPanel panel3;
-    private JPanel panel4;
-    private JLabel label10;
-    private JTextField textField5;
-    private JTextField textField1;
-    private JLabel label5;
-    private JTextField textField2;
-    private JLabel label6;
-    private JTextField textField3;
-    private JLabel label7;
-    private JTextField textField4;
-    private JLabel label8;
-    private JPasswordField passwordField1;
-    private JButton button1;
-    private JLabel label9;
+    private JLabel accountLabel;
+    private JRadioButton patientRadioButton;
+    private JRadioButton doctorRadioButton;
+    private JLabel doctCodeLabel;
+    private JPasswordField codePasswordField;
+    private JLabel nameLabel;
+    private JTextField nameTextField;
+    private JLabel surnameLabel;
+    private JTextField surnameTextField;
+    private JLabel emailLabel;
+    private JTextField emailTextField;
+    private JLabel PasswordLabel;
+    private JButton registerButton;
+    private JLabel questionLabel;
     private JButton button2;
-    private JLabel label11;
+    private JLabel label8;
+    private JPasswordField paswordField;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
 }
