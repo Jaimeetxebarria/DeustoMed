@@ -53,7 +53,7 @@ public class WindowRegister extends JFrame {
         questionLabel = new JLabel();
         button2 = new JButton();
         errorLabel = new JLabel();
-        paswordField = new JPasswordField();
+        passwordField = new JPasswordField();
 
         //======== this ========
         setTitle("Register");
@@ -128,7 +128,7 @@ public class WindowRegister extends JFrame {
                                 .addGroup(contentPaneLayout.createSequentialGroup()
                                     .addComponent(PasswordLabel)
                                     .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(paswordField, GroupLayout.PREFERRED_SIZE, 179, GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(passwordField, GroupLayout.PREFERRED_SIZE, 179, GroupLayout.PREFERRED_SIZE)
                                     .addGap(0, 0, Short.MAX_VALUE))))
                         .addGroup(GroupLayout.Alignment.TRAILING, contentPaneLayout.createSequentialGroup()
                             .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -180,7 +180,7 @@ public class WindowRegister extends JFrame {
                     .addGap(18, 18, 18)
                     .addGroup(contentPaneLayout.createParallelGroup()
                         .addComponent(PasswordLabel)
-                        .addComponent(paswordField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                        .addComponent(passwordField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                     .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                     .addComponent(errorLabel)
                     .addGap(10, 10, 10)
@@ -199,21 +199,21 @@ public class WindowRegister extends JFrame {
            @Override
            public void actionPerformed(ActionEvent e) {
                if (patientRadioButton.isSelected()){
-                   if (nameTextField.getText().isEmpty() || surnameTextField.getText().isEmpty() || emailTextField.getText().isEmpty() || paswordField.getText().isEmpty()) {
+                   if (nameTextField.getText().isEmpty() || surnameTextField.getText().isEmpty() || emailTextField.getText().isEmpty() || passwordField.getText().isEmpty()) {
                        errorLabel.setText("You must fill all the fields");
                    } else if (!emailValidation(emailTextField.getText())) {
                        errorLabel.setText("The email is not valid");
-                   } else if (!passwordValidation(paswordField.getText())) {
+                   } else if (!passwordValidation(passwordField.getText())) {
                        errorLabel.setText("The password is not valid");
                    } else {
                        errorLabel.setText("You have been registered"); //TODO añadir jpane y mandar email, recoger los datos en database
                    }
                }else{
-                   if (nameTextField.getText().isEmpty() || surnameTextField.getText().isEmpty() || emailTextField.getText().isEmpty() || paswordField.getText().isEmpty() || codePasswordField.getText().isEmpty()) {
+                   if (nameTextField.getText().isEmpty() || surnameTextField.getText().isEmpty() || emailTextField.getText().isEmpty() || passwordField.getText().isEmpty() || codePasswordField.getText().isEmpty()) {
                        errorLabel.setText("You must fill all the fields");
                    } else if (!emailValidation(emailTextField.getText())) {
                        errorLabel.setText("The email is not valid");
-                   } else if (!passwordValidation(paswordField.getText())) {
+                   } else if (!passwordValidation(passwordField.getText())) {
                        errorLabel.setText("The password is not valid");
                    } else {
                        errorLabel.setText("You have been registered");
@@ -241,7 +241,7 @@ public class WindowRegister extends JFrame {
     private JLabel questionLabel;
     private JButton button2;
     private JLabel errorLabel;
-    private JPasswordField paswordField;
+    private JPasswordField passwordField;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
 
 
