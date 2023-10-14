@@ -1,15 +1,14 @@
 package main.java.ui;
 
-import java.awt.*;
 import javax.swing.*;
-import javax.swing.GroupLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.regex.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 /*
  * Created by JFormDesigner on Fri Oct 06 09:12:16 CEST 2023
  */
-
 
 
 /**
@@ -20,13 +19,14 @@ public class WindowRegister extends JFrame {
         initComponents();
     }
 
-    public boolean emailValidation(String email){
+    public boolean emailValidation(String email) {
         String regex = "^[A-Za-z0-9+_.-]+@(.+)$";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(email);
         return matcher.matches();
     }
-    public boolean passwordValidation(String password){
+
+    public boolean passwordValidation(String password) {
         String regex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\\S+$).{8,}$";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(password);
@@ -195,32 +195,32 @@ public class WindowRegister extends JFrame {
         setLocationRelativeTo(getOwner());
         // JFormDesigner - End of component initialization  //GEN-END:initComponents  @formatter:on
 
-       registerButton.addActionListener(new ActionListener() {
-           @Override
-           public void actionPerformed(ActionEvent e) {
-               if (patientRadioButton.isSelected()){
-                   if (nameTextField.getText().isEmpty() || surnameTextField.getText().isEmpty() || emailTextField.getText().isEmpty() || passwordField.getText().isEmpty()) {
-                       errorLabel.setText("You must fill all the fields");
-                   } else if (!emailValidation(emailTextField.getText())) {
-                       errorLabel.setText("The email is not valid");
-                   } else if (!passwordValidation(passwordField.getText())) {
-                       errorLabel.setText("The password is not valid");
-                   } else {
-                       errorLabel.setText("You have been registered"); //TODO añadir jpane y mandar email, recoger los datos en database
-                   }
-               }else{
-                   if (nameTextField.getText().isEmpty() || surnameTextField.getText().isEmpty() || emailTextField.getText().isEmpty() || passwordField.getText().isEmpty() || codePasswordField.getText().isEmpty()) {
-                       errorLabel.setText("You must fill all the fields");
-                   } else if (!emailValidation(emailTextField.getText())) {
-                       errorLabel.setText("The email is not valid");
-                   } else if (!passwordValidation(passwordField.getText())) {
-                       errorLabel.setText("The password is not valid");
-                   } else {
-                       errorLabel.setText("You have been registered");
-                   }
-               }
-           }
-       });
+        registerButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (patientRadioButton.isSelected()) {
+                    if (nameTextField.getText().isEmpty() || surnameTextField.getText().isEmpty() || emailTextField.getText().isEmpty() || passwordField.getText().isEmpty()) {
+                        errorLabel.setText("You must fill all the fields");
+                    } else if (!emailValidation(emailTextField.getText())) {
+                        errorLabel.setText("The email is not valid");
+                    } else if (!passwordValidation(passwordField.getText())) {
+                        errorLabel.setText("The password is not valid");
+                    } else {
+                        errorLabel.setText("You have been registered"); //TODO añadir jpane y mandar email, recoger los datos en database
+                    }
+                } else {
+                    if (nameTextField.getText().isEmpty() || surnameTextField.getText().isEmpty() || emailTextField.getText().isEmpty() || passwordField.getText().isEmpty() || codePasswordField.getText().isEmpty()) {
+                        errorLabel.setText("You must fill all the fields");
+                    } else if (!emailValidation(emailTextField.getText())) {
+                        errorLabel.setText("The email is not valid");
+                    } else if (!passwordValidation(passwordField.getText())) {
+                        errorLabel.setText("The password is not valid");
+                    } else {
+                        errorLabel.setText("You have been registered");
+                    }
+                }
+            }
+        });
     }
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables  @formatter:off
@@ -243,8 +243,6 @@ public class WindowRegister extends JFrame {
     private JLabel errorLabel;
     private JPasswordField passwordField;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
-
-
 
 
 }

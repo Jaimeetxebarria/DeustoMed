@@ -1,31 +1,32 @@
 package main.java.ui;
 
-import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.GroupLayout;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 /*
  * Created by JFormDesigner on Tue Oct 03 18:27:04 CEST 2023
  */
-
 
 
 /**
  * @author Alvaro
  */
 public class WindowLogin extends JFrame {
-    WindowRegister windowRegister=null;
+    WindowRegister windowRegister = null;
+
     public WindowLogin() {
         initComponents();
         registerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(windowRegister==null) {
+                if (windowRegister == null) {
                     windowRegister = new WindowRegister();
                     windowRegister.setSize(435, 420);
                     windowRegister.setResizable(false);
                     windowRegister.setVisible(true);
-                }else{
+                } else {
                     windowRegister.setVisible(true);
                 }
             }
