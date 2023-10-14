@@ -1,13 +1,18 @@
-import java.util.ArrayList;
-import java.util.Random;
+package main.java;
 
-public class Doctor {
+import java.util.ArrayList;
+
+public class Patient {
+    private int id=00000;
     private String name;
     private String surname;
-    private int id=00000;
     private String email;
     private String password;
-    private String speciality;
+    private int age;
+
+    public int getId() {
+        return id;
+    }
 
     public String getName() {
         return name;
@@ -23,10 +28,6 @@ public class Doctor {
 
     public void setSurname(String surname) {
         this.surname = surname;
-    }
-
-    public int getId() {
-        return id;
     }
 
     public String getEmail() {
@@ -45,21 +46,22 @@ public class Doctor {
         this.password = password;
     }
 
-    public String getSpeciality() {
-        return speciality;
+    public int getAge() {
+        return age;
     }
 
-    public void setSpeciality(String speciality) {
-        this.speciality = speciality;
+    public void setAge(int age) {
+        this.age = age;
     }
 
-    public Doctor(String name, String surname, String email, String password, String speciality) {
-        this.name = name;
-        this.surname = surname;
-        this.email = email;
-        this.password = password;
-        this.speciality = speciality;
+    public Patient(String name, String surname, String email, String password, int age) {
+        this.name=name;
+        this.surname=surname;
+        this.email=email;
+        this.password=password;
+        this.age=age;
         this.id = createId();
+
     }
     private int createId(){
         ArrayList<Integer> ids = new ArrayList<Integer>();
@@ -77,13 +79,13 @@ public class Doctor {
 
     @Override
     public String toString() {
-        return "Doctor{" +
-                "name='" + name + '\'' +
+        return "Patient{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
                 ", surname='" + surname + '\'' +
-                ", id=" + id +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
-                ", speciality='" + speciality + '\'' +
+                ", age=" + age +
                 '}';
     }
 }

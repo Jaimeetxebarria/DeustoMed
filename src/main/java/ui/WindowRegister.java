@@ -1,3 +1,5 @@
+package main.java.ui;
+
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.GroupLayout;
