@@ -1,17 +1,17 @@
-JFDML JFormDesigner: "8.1.1.0.298" Java: "17.0.8" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.0.0.331" Java: "17.0.8" encoding: "UTF-8"
 
 new FormModel {
 	contentType: "form/swing"
 	root: new FormRoot {
 		add( new FormWindow( "javax.swing.JFrame", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-			"$horizontalGroup": "par l {seq t {par l {seq {space :p:15:p, par t {seq t {space :p:18:p, comp doctorRadioButton:::p:75:p, space :::x, comp patientRadioButton:::p:69:p, space :p::p, comp doctCodeLabel:::p::p}, seq l {par l {seq l {space :p:18:p, comp nameLabel:::p::p}, comp surnameLabel::t:p::p, comp emailLabel::t:p::p}, space u:::p, par l {comp nameTextField:::::x, comp emailTextField::l:::x, seq l {comp surnameTextField:::p:179:p, space :0:0:x}}}, seq t {comp PasswordLabel:::p::p, space u:::p, comp paswordField:::p:179:p, space :0:0:x}}}, seq t {space :::x, comp registerButton:::p:88:p, space :p:9:p}}, space :p::p, comp codePasswordField:::p:93:p, space :p:76:p}, seq {par l {seq {space :::p, comp accountLabel:::p::p}, seq l {space :p:14:p, comp questionLabel:::p::p, space u:p::p, comp button2:::p::p}, seq l {space :p:69:p, comp errorLabel:::p:239:p}}, space :::x}}"
-			"$verticalGroup": "par l {seq l {space :p::p, comp accountLabel:::p::p, space :p:26:p, par l {par b:l {comp doctorRadioButton::b:p::p, comp patientRadioButton::b:p::p, comp doctCodeLabel::b:p::p, comp codePasswordField::b:p::p}, seq l {space :p:45:p, par b {comp nameLabel::b:p::p, comp nameTextField::b:p::p}}}, space :p:21:p, par b {comp surnameLabel::b:p::p, comp surnameTextField::b:p::p}, space :p:20:p, par b {comp emailLabel::b:::x, comp emailTextField::b:p::p}, space s:p::p, par l {comp PasswordLabel::l:p::p, comp paswordField::l:p::p}, space u:::p, comp errorLabel:::p::p, space :p:10:p, comp registerButton:::p::p, space :p:35:p, par b {comp questionLabel::b:p::p, comp button2::b:p::p}, space :p:58:p}}"
+			"$horizontalGroup": "par l {seq t {space :::x, comp accountLabel:::p::p, space :p:146:p}, seq l {par l {seq {space :p:69:p, comp errorLabel:::p:239:p}, seq l {space :p:172:p, comp registerButton:::p:88:p}}, space ::125:x}, seq t {space :p:15:p, par l {seq {par l {seq t {space :0:0:x, comp doctCodeLabel:::p::p, space :::p, comp codePasswordField:::p:93:p}, seq {comp questionLabel:::p::p, space s:::p, comp button2:::p::p}}, space :p:89:p}, seq {space :p:35:p, par l {seq {par l {seq {comp accountLabel2:::p::p, space s:::p, comp doctorRadioButton:::p:75:p, space s:::p, comp patientRadioButton:::p:69:p}, comp PasswordLabel::l:p::p}, space ::89:x}, seq l {par t {comp paswordField::t:p:226:p, seq t {par l {seq t {par l {comp surnameLabel:::p::p, comp emailLabel:::p::p}, space u:::p}, seq l {comp nameLabel:::p::p, space :::x}}, par l:::p {comp nameTextField::t::239:x, comp surnameTextField:::::x, comp emailTextField::t::239:x}}}, space :0:74:x}}}}}}"
+			"$verticalGroup": "par l {seq l {space :::p, comp accountLabel:::p::p, space u:::p, par b {comp doctorRadioButton::b:p::p, comp patientRadioButton::b:p::p, comp accountLabel2::b:p::p}, space :p:20:p, par b {comp codePasswordField::b:p::p, comp doctCodeLabel::b:p::p}, space :p:9:p, par b {comp nameLabel::b:p::p, comp nameTextField::b:p::p}, space :p:21:p, par b {comp surnameLabel::b:p::p, comp surnameTextField::b:p::p}, space :p:20:p, par b {comp emailLabel::b:::x, comp emailTextField::b:p::p}, space ::10:x, comp errorLabel:::p::p, space :::p, par b {comp PasswordLabel::b:p::p, comp paswordField::b:p::p}, space :p:26:p, comp registerButton:::p::p, space s:::p, par b {comp questionLabel::b:p::p, comp button2::b:p::p}, space :p:13:p}}"
 		} ) {
 			name: "this"
 			"title": "Register"
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "accountLabel"
-				"text": "New account"
+				"text": "Creating new account"
 			} )
 			add( new FormComponent( "javax.swing.JRadioButton" ) {
 				name: "patientRadioButton"
@@ -23,7 +23,7 @@ new FormModel {
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "doctCodeLabel"
-				"text": "Doctor code:"
+				"text": "Introduce your doctor code: "
 			} )
 			add( new FormComponent( "javax.swing.JPasswordField" ) {
 				name: "codePasswordField"
@@ -71,6 +71,10 @@ new FormModel {
 			} )
 			add( new FormComponent( "javax.swing.JPasswordField" ) {
 				name: "paswordField"
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "accountLabel2"
+				"text": "Identify yourselfe: "
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 115, 5 )

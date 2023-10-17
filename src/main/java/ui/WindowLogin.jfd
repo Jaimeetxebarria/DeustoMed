@@ -1,11 +1,11 @@
-JFDML JFormDesigner: "8.1.1.0.298" Java: "17.0.8" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.0.0.331" Java: "17.0.8" encoding: "UTF-8"
 
 new FormModel {
 	contentType: "form/swing"
 	root: new FormRoot {
 		add( new FormWindow( "javax.swing.JFrame", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-			"$horizontalGroup": "par l {seq {space :p:14:p, par l {seq l {space :p:10:p, comp accountLabel:::p::p, space s:::p, comp registerButton:::p::p}, seq l {par t {comp passwordLabel:::p::p, comp emailLabel:::p::p}, space :p:24:p, par l {par l:l::p {comp passwordField1:::::x, comp emailTf:::p:140:p}, comp loginButton::l:p::p, seq l {space :p:8:p, comp labelLogin:::p::p}}}, comp labelError::l:p:253:p}, space ::16:x}}"
-			"$verticalGroup": "par l {seq l {space :::p, comp labelLogin:::p:53:p, space :::p, par b {comp emailTf::b:p::p, comp emailLabel::b:p::p}, space s:::p, par b {comp passwordLabel::b:p::p, comp passwordField1::b:p::p}, space :p:16:p, comp loginButton:::p::p, space :p:24:p, par b {comp accountLabel::b:p::p, comp registerButton::b:p::p}, space u:::p, comp labelError:::p::p, space ::22:x}}"
+			"$horizontalGroup": "par l {seq {space :p:14:p, par l {seq l {space :p:10:p, comp accountLabel:::p::p, space s:::p, comp registerButton:::p::p}, seq l {space :p:18:p, par t {comp emailLabel:::p::p, comp passwordLabel:::p::p}, space :::p, par l {par l:l::p {comp passwordField1:::::x, comp emailTf:::p:140:p}, comp loginButton::l:p::p, seq l {space :p:8:p, comp labelLogin:::p::p}}}, comp labelError::l:p:253:p}, space ::16:x}}"
+			"$verticalGroup": "par l {seq l {space :::p, comp labelLogin:::p:53:p, space :::p, par b {comp emailTf::b:p::p, comp emailLabel::b:p::p}, space s:::p, par b {comp passwordField1::b:p::p, comp passwordLabel::b:p::p}, space :p:16:p, comp loginButton:::p::p, space :p:24:p, par b {comp accountLabel::b:p::p, comp registerButton::b:p::p}, space u:::p, comp labelError:::p::p, space ::39:x}}"
 		} ) {
 			name: "this"
 			"background": sfield java.awt.Color green
