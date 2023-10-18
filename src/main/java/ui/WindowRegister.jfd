@@ -4,81 +4,141 @@ new FormModel {
 	contentType: "form/swing"
 	root: new FormRoot {
 		add( new FormWindow( "javax.swing.JFrame", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-			"$horizontalGroup": "par l {seq t {space :::x, comp accountLabel:::p::p, space :p:146:p}, seq l {par l {seq {space :p:69:p, comp errorLabel:::p:239:p}, seq l {space :p:172:p, comp registerButton:::p:88:p}}, space ::125:x}, seq t {space :p:15:p, par l {seq {par l {seq t {space :0:0:x, comp doctCodeLabel:::p::p, space :::p, comp codePasswordField:::p:93:p}, seq {comp questionLabel:::p::p, space s:::p, comp button2:::p::p}}, space :p:89:p}, seq {space :p:35:p, par l {seq {par l {seq {comp accountLabel2:::p::p, space s:::p, comp doctorRadioButton:::p:75:p, space s:::p, comp patientRadioButton:::p:69:p}, comp PasswordLabel::l:p::p}, space ::89:x}, seq l {par t {comp paswordField::t:p:226:p, seq t {par l {seq t {par l {comp surnameLabel:::p::p, comp emailLabel:::p::p}, space u:::p}, seq l {comp nameLabel:::p::p, space :::x}}, par l:::p {comp nameTextField::t::239:x, comp surnameTextField:::::x, comp emailTextField::t::239:x}}}, space :0:74:x}}}}}}"
-			"$verticalGroup": "par l {seq l {space :::p, comp accountLabel:::p::p, space u:::p, par b {comp doctorRadioButton::b:p::p, comp patientRadioButton::b:p::p, comp accountLabel2::b:p::p}, space :p:20:p, par b {comp codePasswordField::b:p::p, comp doctCodeLabel::b:p::p}, space :p:9:p, par b {comp nameLabel::b:p::p, comp nameTextField::b:p::p}, space :p:21:p, par b {comp surnameLabel::b:p::p, comp surnameTextField::b:p::p}, space :p:20:p, par b {comp emailLabel::b:::x, comp emailTextField::b:p::p}, space ::10:x, comp errorLabel:::p::p, space :::p, par b {comp PasswordLabel::b:p::p, comp paswordField::b:p::p}, space :p:26:p, comp registerButton:::p::p, space s:::p, par b {comp questionLabel::b:p::p, comp button2::b:p::p}, space :p:13:p}}"
+			"$horizontalGroup": "par l {seq {space :p:43:p, comp questionLabel:::p::p, space u:::p, comp button2:::p::p, space :::x}, seq t {space ::24:x, par l {seq t {par l {seq t {comp accountLabel:::p::p, space :p:154:p}, comp panel1::t:p:435:p, comp panel2::t:p:435:p}, space :19:19:p}, seq t {comp registerButton:::p::p, space :p:192:p}}}}"
+			"$verticalGroup": "par l {seq t {space :::p, comp accountLabel:::p::p, space u:::p, comp panel1:::p:87:p, space u:::p, comp panel2::::256:x, space :p:12:p, comp registerButton:::p::p, space s:::p, par b {comp questionLabel::b:p::p, comp button2::b:p::p}, space :p:9:p}}"
 		} ) {
 			name: "this"
 			"title": "Register"
+			"maximumSize": new java.awt.Dimension( -300000000, 300000000 )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "accountLabel"
 				"text": "Creating new account"
 			} )
-			add( new FormComponent( "javax.swing.JRadioButton" ) {
-				name: "patientRadioButton"
-				"text": "Patient"
-			} )
-			add( new FormComponent( "javax.swing.JRadioButton" ) {
-				name: "doctorRadioButton"
-				"text": "Doctor"
-			} )
-			add( new FormComponent( "javax.swing.JLabel" ) {
-				name: "doctCodeLabel"
-				"text": "Introduce your doctor code: "
-			} )
-			add( new FormComponent( "javax.swing.JPasswordField" ) {
-				name: "codePasswordField"
-			} )
-			add( new FormComponent( "javax.swing.JLabel" ) {
-				name: "nameLabel"
-				"text": "Name:"
-			} )
-			add( new FormComponent( "javax.swing.JTextField" ) {
-				name: "nameTextField"
-			} )
-			add( new FormComponent( "javax.swing.JLabel" ) {
-				name: "surnameLabel"
-				"text": "Surname:"
-			} )
-			add( new FormComponent( "javax.swing.JTextField" ) {
-				name: "surnameTextField"
-			} )
-			add( new FormComponent( "javax.swing.JLabel" ) {
-				name: "emailLabel"
-				"text": "Email:"
-			} )
-			add( new FormComponent( "javax.swing.JTextField" ) {
-				name: "emailTextField"
-			} )
-			add( new FormComponent( "javax.swing.JLabel" ) {
-				name: "PasswordLabel"
-				"text": "Password:"
-			} )
-			add( new FormComponent( "javax.swing.JButton" ) {
-				name: "registerButton"
-				"text": "Register"
-			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "questionLabel"
-				"text": "Registered?"
+				"text": "Already registered?"
 			} )
 			add( new FormComponent( "javax.swing.JButton" ) {
 				name: "button2"
 				"text": "Log in"
 			} )
-			add( new FormComponent( "javax.swing.JLabel" ) {
-				name: "errorLabel"
-				"foreground": new java.awt.Color( 255, 0, 0, 255 )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jformdesigner.runtime.NullLayout ) ) {
+				name: "panel1"
+				"border": new javax.swing.border.TitledBorder( "Identify yourselve:" )
+				add( new FormComponent( "javax.swing.JRadioButton" ) {
+					name: "doctorRadioButton"
+					"text": "Doctor"
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"borderPainted": true
+				}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+					"x": 145
+					"y": 15
+				} )
+				add( new FormComponent( "javax.swing.JRadioButton" ) {
+					name: "patientRadioButton"
+					"text": "Patient"
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"borderPainted": true
+				}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+					"x": 225
+					"y": 15
+				} )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "doctCodeLabel"
+					"text": "Introduce your doctor code: "
+				}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+					"x": 40
+					"y": 50
+				} )
+				add( new FormComponent( "javax.swing.JPasswordField" ) {
+					name: "codePasswordField"
+				}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+					"x": 230
+					"y": 45
+					"width": 165
+				} )
 			} )
-			add( new FormComponent( "javax.swing.JPasswordField" ) {
-				name: "paswordField"
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jformdesigner.runtime.NullLayout ) ) {
+				name: "panel2"
+				"border": new javax.swing.border.TitledBorder( "Introduce your information" )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "nameLabel"
+					"text": "Name:"
+					"font": &Font0 new java.awt.Font( "Inter", 0, 15 )
+				}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+					"x": 40
+					"y": 35
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "nameTextField"
+				}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+					"width": 275
+					"x": 120
+					"y": 30
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "surnameTextField"
+				}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+					"width": 275
+					"x": 120
+					"y": 80
+					"height": 30
+				} )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "surnameLabel"
+					"text": "Surname:"
+					"font": #Font0
+				}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+					"x": 40
+					"y": 80
+				} )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "emailLabel"
+					"text": "Email:"
+					"font": #Font0
+				}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+					"x": 40
+					"y": 130
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "emailTextField"
+				}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+					"width": 275
+					"x": 120
+					"y": 125
+					"height": 30
+				} )
+				add( new FormComponent( "javax.swing.JPasswordField" ) {
+					name: "passwordField"
+				}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+					"width": 255
+					"x": 140
+					"y": 170
+					"height": 30
+				} )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "PasswordLabel"
+					"text": "Password:"
+					"font": #Font0
+				}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+					"x": 40
+					"y": 175
+				} )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "errorLabel"
+					"text": "not valid"
+				}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+					"x": 195
+					"y": 220
+				} )
 			} )
-			add( new FormComponent( "javax.swing.JLabel" ) {
-				name: "accountLabel2"
-				"text": "Identify yourselfe: "
+			add( new FormComponent( "javax.swing.JButton" ) {
+				name: "registerButton"
+				"text": "Register"
 			} )
 		}, new FormLayoutConstraints( null ) {
-			"location": new java.awt.Point( 115, 5 )
-			"size": new java.awt.Dimension( 435, 440 )
+			"location": new java.awt.Point( 10, 0 )
+			"size": new java.awt.Dimension( 480, 520 )
 		} )
 	}
 }
