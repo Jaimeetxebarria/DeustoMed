@@ -1,4 +1,4 @@
-package main.java;
+package org.deustomed;
 
 public class Patient extends User {
     private int age;

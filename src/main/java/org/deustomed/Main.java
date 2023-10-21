@@ -1,6 +1,6 @@
-package main.java;
+package org.deustomed;
 
-import main.java.ui.WindowLogin;
+import org.deustomed.ui.WindowLogin;
 
 public class Main {
     public static void main(String[] args) {
