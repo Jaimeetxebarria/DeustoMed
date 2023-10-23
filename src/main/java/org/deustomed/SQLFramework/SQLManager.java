@@ -57,17 +57,15 @@ public class SQLManager {
         return fields;
     }
 
-
-    public void insert(Object object) {
+    public void insert(Object object) throws IllegalArgumentException {
         Class<?> clazz = object.getClass();
         if (!clazz.isAnnotationPresent(SQLTable.class)) {
-            return;
+            throw new IllegalArgumentException("Class " + clazz.getName() + " is not annotated with @SQLTable");
         }
 
         var tableName = clazz.getAnnotation(SQLTable.class).name();
 
         var annotatedFields = this.getAllFields(clazz).stream().filter(field -> field.getAnnotation(SQLField.class) != null).toList();
-        System.out.println(annotatedFields);
 
         List<String> fieldNames = new ArrayList<>(annotatedFields.size());
         List<String> fieldValues = new ArrayList<>(annotatedFields.size());
@@ -82,7 +80,6 @@ public class SQLManager {
             }
 
         }
-
 
         System.out.println("INSERT INTO " + tableName + " (" + String.join(",", fieldNames) + ") VALUES (" + String.join(",", fieldValues)   + ")");
 
