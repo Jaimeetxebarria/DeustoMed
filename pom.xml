@@ -12,6 +12,9 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <auto-service.version>1.1.1</auto-service.version>
+        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
+
         <lombok.version>1.18.30</lombok.version>
         <miglayout.version>3.7.4</miglayout.version>
         <miglayout-swing.version>11.2</miglayout-swing.version>
@@ -92,7 +95,32 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.deustomed</groupId>
+            <artifactId>test</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <annotationProcessors>
+                        <annotationProcessor>
+                            org.deustomed.SQLFramework.AnnotationRuleEnforcer
+                        </annotationProcessor>
+                    </annotationProcessors>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
 
 
 </project>
