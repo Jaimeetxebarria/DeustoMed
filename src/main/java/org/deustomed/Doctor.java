@@ -1,4 +1,4 @@
-package main.java;
+package org.deustomed;
 
 public class Doctor extends User {
     private String speciality;

@@ -1,4 +1,4 @@
-package main.java.ui;
+package org.deustomed.ui;
 
 import javax.swing.*;
 import java.awt.*;

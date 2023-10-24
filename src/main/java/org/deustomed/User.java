@@ -1,4 +1,4 @@
-package main.java;
+package org.deustomed;
 
 import java.io.Serializable;
 
