@@ -23,7 +23,7 @@ public class WindowLogin extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if (windowRegister == null) {
                     windowRegister = new WindowRegister();
-                    windowRegister.setSize(435, 420);
+                    windowRegister.setSize(500, 550);
                     windowRegister.setResizable(false);
                     windowRegister.setVisible(true);
                 } else {
