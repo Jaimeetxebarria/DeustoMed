@@ -53,8 +53,11 @@
             <version>${flatlaf.version}</version>
         </dependency>
 
-
-
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf-fonts-inter</artifactId>
+            <version>3.19</version>
+        </dependency>
     </dependencies>
 
 
