@@ -9,7 +9,7 @@ public class Main {
         FlatLightLaf.setup();
         FlatInterFont.install();
         WindowLogin windowLogin = new WindowLogin();
-        windowLogin.setSize(300, 300);
         windowLogin.setVisible(true);
+        windowLogin.setSize(400,300);
     }
 }
