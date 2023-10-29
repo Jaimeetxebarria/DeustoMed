@@ -10,6 +10,6 @@ public class Main {
         FlatInterFont.install();
         WindowLogin windowLogin = new WindowLogin();
         windowLogin.setVisible(true);
-        windowLogin.setSize(400,300);
+        windowLogin.setSize(300,350);
     }
 }
