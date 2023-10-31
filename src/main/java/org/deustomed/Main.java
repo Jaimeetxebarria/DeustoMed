@@ -2,7 +2,9 @@ package org.deustomed;
 
 import com.formdev.flatlaf.FlatLightLaf;
 import com.formdev.flatlaf.fonts.inter.FlatInterFont;
+import org.deustomed.ui.WindowAdmin;
 import org.deustomed.ui.WindowLogin;
+import org.deustomed.ui.WindowPatient;
 
 public class Main {
     public static void main(String[] args) {
@@ -11,5 +13,8 @@ public class Main {
         WindowLogin windowLogin = new WindowLogin();
         windowLogin.setVisible(true);
         windowLogin.setSize(300,350);
+        WindowAdmin windowAdmin = new WindowAdmin();
+        windowAdmin.setVisible(true);
+        windowAdmin.setSize(300,550);
     }
 }
