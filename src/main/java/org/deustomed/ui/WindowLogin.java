@@ -1,6 +1,5 @@
 package org.deustomed.ui;
 
-import com.toedter.calendar.JCalendar;
 
 import javax.swing.*;
 import javax.swing.text.PasswordView;
