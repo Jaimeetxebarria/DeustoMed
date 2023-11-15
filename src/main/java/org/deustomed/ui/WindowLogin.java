@@ -47,8 +47,10 @@ public class WindowLogin extends JFrame {
         setLayout(null);
         this.setResizable(false);
         this.setTitle("DeustoMed");
-        this.setLocation(600,300);
+        this.setLocationRelativeTo(null);
+        this.setSize(300,350);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setVisible(true);
 
         loginBtn.addActionListener(e -> {
             String email = emailTf.getText();

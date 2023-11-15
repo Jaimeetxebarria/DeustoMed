@@ -8,14 +8,16 @@ public class User implements Serializable {
 
     protected int id;
     protected String name;
-    protected String surname;
+    protected String surname1;
+    protected String surname2;
     protected String email;
     protected String password; //FIXME: The password should not be stored in the user object
 
-    public User(String name, String surname, String email, String password) {
-        this.id = ++idCounter;
+    public User(int id, String name, String surname1, String surname2, String email, String password) {
+        this.id = id;
         this.name = name;
-        this.surname = surname;
+        this.surname1 = surname1;
+        this.surname2 = surname2;
         this.email = email;
         this.password = password;
     }
@@ -32,12 +34,12 @@ public class User implements Serializable {
         this.name = name;
     }
 
-    public String getSurname() {
-        return surname;
+    public String getSurname1() {
+        return surname1;
     }
 
-    public void setSurname(String surname) {
-        this.surname = surname;
+    public void setSurname1(String surname1) {
+        this.surname1 = surname1;
     }
 
     public String getEmail() {
@@ -54,5 +56,25 @@ public class User implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public static void setIdCounter(int idCounter) {
+        User.idCounter = idCounter;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setSurname2(String surname2) {
+        this.surname2 = surname2;
+    }
+
+    public static int getIdCounter() {
+        return idCounter;
+    }
+
+    public String getSurname2() {
+        return surname2;
     }
 }

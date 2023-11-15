@@ -3,8 +3,8 @@ package org.deustomed;
 public class Patient extends User {
     private int age;
 
-    public Patient(String name, String surname, String email, String password, int age) {
-        super(name, surname, email, password);
+    public Patient(int id, String name, String surname1, String surname2, String email, String password, int age) {
+        super(id, name, surname1, surname2, email, password);
         this.age = age;
     }
 
@@ -21,7 +21,7 @@ public class Patient extends User {
         return "Patient{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", surname='" + surname + '\'' +
+                ", surname='" + surname1 + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", age=" + age +
