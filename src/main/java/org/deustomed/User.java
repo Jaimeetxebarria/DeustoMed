@@ -12,14 +12,16 @@ public class User implements Serializable {
     protected String surname2;
     protected String email;
     protected String password; //FIXME: The password should not be stored in the user object
+    protected String dni;
 
-    public User(int id, String name, String surname1, String surname2, String email, String password) {
+    public User(int id, String name, String surname1, String surname2, String email, String password, String dni) {
         this.id = id;
         this.name = name;
         this.surname1 = surname1;
         this.surname2 = surname2;
         this.email = email;
         this.password = password;
+        this.dni = dni;
     }
 
     public int getId() {
@@ -76,5 +78,13 @@ public class User implements Serializable {
 
     public String getSurname2() {
         return surname2;
+    }
+
+    public String getDni() {
+        return dni;
+    }
+
+    public void setDni(String dni) {
+        this.dni = dni;
     }
 }

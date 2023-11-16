@@ -13,6 +13,6 @@ public class Main {
         /*
         WindowLogin windowLogin = new WindowLogin();
          */
-        new WindowAdmin();
+        new WindowLogin();
     }
 }

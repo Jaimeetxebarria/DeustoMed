@@ -1,10 +1,23 @@
 package org.deustomed;
 
+import java.util.Date;
+
 public class Patient extends User {
     private int age;
+    private String phoneNumer;
+    private String address;
+    private Date birthDate;
+
+    public Patient(int id, String name, String surname1, String surname2, String email, String password, String dni, int age, String phoneNumer, String address, Date birthDate) {
+        super(id, name, surname1, surname2, email, password, dni);
+        this.age = age;
+        this.phoneNumer = phoneNumer;
+        this.address = address;
+        this.birthDate = birthDate;
+    }
 
     public Patient(int id, String name, String surname1, String surname2, String email, String password, int age) {
-        super(id, name, surname1, surname2, email, password);
+        super(id, name, surname1, surname2, email, password, "");
         this.age = age;
     }
 
@@ -14,6 +27,30 @@ public class Patient extends User {
 
     public void setAge(int age) {
         this.age = age;
+    }
+
+    public String getPhoneNumer() {
+        return phoneNumer;
+    }
+
+    public void setPhoneNumer(String phoneNumer) {
+        this.phoneNumer = phoneNumer;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public Date getBirthDate() {
+        return birthDate;
+    }
+
+    public void setBirthDate(Date birthDate) {
+        this.birthDate = birthDate;
     }
 
     @Override

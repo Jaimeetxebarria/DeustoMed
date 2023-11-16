@@ -34,7 +34,7 @@ public class WindowDoctor extends JFrame {
         appoinments.add( new Appoinment(patient1, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
         appoinments.add( new Appoinment(patient1, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
         appoinments.add( new Appoinment(patient1, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
-        Doctor doctor1 = new Doctor(1000, "Carlos", "Rodriguez", "Martinez", "carlosrodri@gmail.com", "carlosrodriguez", "Medicina Familiar", appoinments);
+        Doctor doctor1 = new Doctor(1000, "Carlos", "Rodriguez", "Martinez", "carlosrodri@gmail.com", "carlosrodriguez", "", "Medicina Familiar", appoinments);
         WindowDoctor win = new WindowDoctor(doctor1);
         win.setVisible(true);
     }
