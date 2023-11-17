@@ -5,8 +5,12 @@ import org.deustomed.Patient;
 import org.deustomed.User;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -26,6 +30,7 @@ public class WindowAdmin extends JFrame {
     protected JTextField tfPatient;
     protected JButton btnPatient;
     protected JButton btnLogout;
+    protected JButton btnEditPatient;
     protected JButton btnDeletePatient;
 
     protected JPanel pnlDoctor;
@@ -35,6 +40,7 @@ public class WindowAdmin extends JFrame {
     protected JTextField tfDoctor;
     protected JButton btnDoctor;
     protected JButton btnLogoutDoctor;
+    protected JButton btnEditDoctor;
     protected JButton btnDeleteDoctor;
 
     protected JPanel pnlLogs;
@@ -66,6 +72,7 @@ public class WindowAdmin extends JFrame {
         tfPatient = new JTextField();
         btnPatient = new JButton("Add");
         btnLogout = new JButton("Logout");
+        btnEditPatient = new JButton("Edit");
         btnDeletePatient = new JButton("Delete");
 
         JPanel pnlUpper = new JPanel(new BorderLayout());
@@ -82,6 +89,38 @@ public class WindowAdmin extends JFrame {
 
         tabAdmin.addTab("Users", pnlPatient);
 
+        tblPatient.setDefaultRenderer(Objects.class, new DefaultTableCellRenderer(){
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                if (column==table.getColumnCount()-1){
+                    JButton btnEdit = new JButton("Edit");
+                    JButton btnDelete = new JButton("Delete");
+                    JPanel pnl = new JPanel(new FlowLayout());
+                    pnl.add(btnEdit);
+                    pnl.add(btnDelete);
+
+                    btnEdit.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+
+                        }
+                    });
+
+                    btnDelete.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+
+                        }
+                    });
+                    return pnl;
+                }
+
+                return c;
+            }
+        });
+
         //Doctor
         pnlDoctor = new JPanel(new BorderLayout());
         tblDoctor = new JTable();
@@ -92,6 +131,7 @@ public class WindowAdmin extends JFrame {
         tfDoctor = new JTextField();
         btnDoctor = new JButton("Add");
         btnLogoutDoctor = new JButton("Logout");
+        btnEditDoctor = new JButton("Edit");
         btnDeleteDoctor = new JButton("Delete");
 
         JPanel pnlUpperDoctor = new JPanel(new BorderLayout());
@@ -107,6 +147,43 @@ public class WindowAdmin extends JFrame {
         pnlDoctor.add(pnlBottonDoctor, BorderLayout.SOUTH);
 
         tabAdmin.addTab("Doctors", pnlDoctor);
+
+        tblDoctor.setDefaultRenderer(Objects.class, new DefaultTableCellRenderer(){
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                if (column==table.getColumnCount()-1){
+                    JButton btnEdit = new JButton("Edit");
+                    JButton btnDelete = new JButton("Delete");
+                    JPanel pnl = new JPanel(new FlowLayout());
+                    pnl.add(btnEdit);
+                    pnl.add(btnDelete);
+
+                    btnEdit.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+
+                        }
+                    });
+
+                    btnDelete.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+
+                        }
+                    });
+                    return pnl;
+                }
+
+                return c;
+            }
+        });
+
+
+
+        //Logs
+        pnlLogs = new JPanel(new BorderLayout());
 
         this.add(tabAdmin);
 
@@ -135,6 +212,7 @@ public class WindowAdmin extends JFrame {
                 row[8] = patient.getBirthDate().toString();
                 model.addRow(row);
             }
+
         } else if (users.get(0) instanceof Doctor) {
             for (User user : users) {
                 Doctor doctor = (Doctor) user;
@@ -148,6 +226,8 @@ public class WindowAdmin extends JFrame {
                 model.addRow(row);
             }
         }
+
+        model.addColumn("Acciones");
         return model;
     }
 
