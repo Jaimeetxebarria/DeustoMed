@@ -5,8 +5,8 @@ import org.deustomed.Patient;
 import org.deustomed.User;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -14,7 +14,6 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 public class WindowAdmin extends JFrame {
 
@@ -54,20 +53,24 @@ public class WindowAdmin extends JFrame {
 
         //pending data
         patients= new ArrayList<>();
-        patients.add(new Patient(1,"Pablo","Garcia","Iglesias","","1234","dni1", 20, "Phone1", "Adress1", new Date()));
-        patients.add(new Patient(2,"Andoni","Hernández","Ruiz","","5678", "dni2", 17, "Phone2", "Adress2", new Date()));
+        patients.add(new Patient(1,"Pablo","Garcia","Iglesias","email1","1234","dni1", 20, "Phone1", "Adress1", new Date()));
+        patients.add(new Patient(2,"Andoni","Hernández","Ruiz","email2","5678", "dni2", 17, "Phone2", "Adress2", new Date()));
         doctors= new ArrayList<>();
-        doctors.add(new Doctor(1,"Jaime","Eguskisa","Gascon","","4562","", "Ophthalmologist", new ArrayList<>()));
-        doctors.add(new Doctor(2,"Iñaki","Garcia","Iglesias","","1234","", "Ophthalmologist", new ArrayList<>()));
+        doctors.add(new Doctor(1,"Jaime","Eguskisa","Gascon","email1","4562","dni1", "Ophthalmologist", new ArrayList<>()));
+        doctors.add(new Doctor(2,"Iñaki","Garcia","Iglesias","email2","1234","dni2", "Ophthalmologist", new ArrayList<>()));
 
         tabAdmin = new JTabbedPane();
 
         //Patient
         pnlPatient = new JPanel(new BorderLayout());
-        tblPatient = new JTable();
+
         String[] columNamesPatients = {"ID", "Surname", "Name", "Email", "DNI", "Age", "Phone", "Address", "Birthdate"};
         mdlPatient = completeTable(columNamesPatients, patients);
-        tblPatient.setModel(mdlPatient);
+        tblPatient = new JTable(mdlPatient);
+
+        tblPatient.getColumnModel().getColumn(mdlPatient.getColumnCount() - 1).setCellEditor(new ButtonEditor());
+        tblPatient.getColumnModel().getColumn(mdlPatient.getColumnCount() - 1).setCellRenderer(new ButtonRenderer());
+
         scrPatient = new JScrollPane(tblPatient);
         tfPatient = new JTextField();
         btnPatient = new JButton("Add");
@@ -89,44 +92,15 @@ public class WindowAdmin extends JFrame {
 
         tabAdmin.addTab("Users", pnlPatient);
 
-        tblPatient.setDefaultRenderer(Objects.class, new DefaultTableCellRenderer(){
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
-                if (column==table.getColumnCount()-1){
-                    JButton btnEdit = new JButton("Edit");
-                    JButton btnDelete = new JButton("Delete");
-                    JPanel pnl = new JPanel(new FlowLayout());
-                    pnl.add(btnEdit);
-                    pnl.add(btnDelete);
-
-                    btnEdit.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-
-                        }
-                    });
-
-                    btnDelete.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-
-                        }
-                    });
-                    return pnl;
-                }
-
-                return c;
-            }
-        });
-
         //Doctor
         pnlDoctor = new JPanel(new BorderLayout());
-        tblDoctor = new JTable();
         String[] columNamesDoctor = {"ID", "Surname", "Name", "Email", "DNI", "Speciality"};
         mdlDoctor = completeTable(columNamesDoctor, doctors);
-        tblDoctor.setModel(mdlDoctor);
+        tblDoctor = new JTable(mdlDoctor);
+
+        tblDoctor.getColumnModel().getColumn(mdlDoctor.getColumnCount() - 1).setCellEditor(new ButtonEditor());
+        tblDoctor.getColumnModel().getColumn(mdlDoctor.getColumnCount() - 1).setCellRenderer(new ButtonRenderer());
+
         scrDoctor = new JScrollPane(tblDoctor);
         tfDoctor = new JTextField();
         btnDoctor = new JButton("Add");
@@ -147,38 +121,6 @@ public class WindowAdmin extends JFrame {
         pnlDoctor.add(pnlBottonDoctor, BorderLayout.SOUTH);
 
         tabAdmin.addTab("Doctors", pnlDoctor);
-
-        tblDoctor.setDefaultRenderer(Objects.class, new DefaultTableCellRenderer(){
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
-                if (column==table.getColumnCount()-1){
-                    JButton btnEdit = new JButton("Edit");
-                    JButton btnDelete = new JButton("Delete");
-                    JPanel pnl = new JPanel(new FlowLayout());
-                    pnl.add(btnEdit);
-                    pnl.add(btnDelete);
-
-                    btnEdit.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-
-                        }
-                    });
-
-                    btnDelete.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-
-                        }
-                    });
-                    return pnl;
-                }
-
-                return c;
-            }
-        });
 
 
 
@@ -231,4 +173,60 @@ public class WindowAdmin extends JFrame {
         return model;
     }
 
+}
+
+class ButtonRenderer implements TableCellRenderer {
+    private JPanel panel;
+    private JButton btnEdit;
+    private JButton btnDelete;
+
+    public ButtonRenderer() {
+        panel = new JPanel(new FlowLayout());
+        btnEdit = new JButton("Edit");
+        btnDelete = new JButton("Delete");
+
+        panel.add(btnEdit);
+        panel.add(btnDelete);
+
+        btnEdit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                JOptionPane.showMessageDialog(null, "Botón Edit clickeado");
+            }
+        });
+
+        btnDelete.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                JOptionPane.showMessageDialog(null, "Botón Delete clickeado");
+            }
+        });
+    }
+
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+        return panel;
+    }
+}
+
+class ButtonEditor extends AbstractCellEditor implements TableCellEditor {
+    private final ButtonRenderer renderer;
+    private Object currentValue;
+
+    public ButtonEditor() {
+        renderer = new ButtonRenderer();
+    }
+
+    @Override
+    public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+        currentValue = value;
+        return renderer.getTableCellRendererComponent(table, value, isSelected, true, row, column);
+    }
+
+    @Override
+    public Object getCellEditorValue() {
+        return currentValue;
+    }
 }
