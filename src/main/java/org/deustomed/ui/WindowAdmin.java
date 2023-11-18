@@ -68,8 +68,7 @@ public class WindowAdmin extends JFrame {
         mdlPatient = completeTable(columNamesPatients, patients);
         tblPatient = new JTable(mdlPatient);
 
-        tblPatient.getColumnModel().getColumn(mdlPatient.getColumnCount() - 1).setCellEditor(new ButtonEditor());
-        tblPatient.getColumnModel().getColumn(mdlPatient.getColumnCount() - 1).setCellRenderer(new ButtonRenderer());
+        configureTable(tblPatient, new ButtonEditor(patients), new ButtonRenderer());
 
         scrPatient = new JScrollPane(tblPatient);
         tfPatient = new JTextField();
@@ -98,8 +97,7 @@ public class WindowAdmin extends JFrame {
         mdlDoctor = completeTable(columNamesDoctor, doctors);
         tblDoctor = new JTable(mdlDoctor);
 
-        tblDoctor.getColumnModel().getColumn(mdlDoctor.getColumnCount() - 1).setCellEditor(new ButtonEditor());
-        tblDoctor.getColumnModel().getColumn(mdlDoctor.getColumnCount() - 1).setCellRenderer(new ButtonRenderer());
+        configureTable(tblDoctor, new ButtonEditor(doctors), new ButtonRenderer());
 
         scrDoctor = new JScrollPane(tblDoctor);
         tfDoctor = new JTextField();
@@ -173,60 +171,92 @@ public class WindowAdmin extends JFrame {
         return model;
     }
 
+    private void configureTable(JTable table, ButtonEditor buttonEditor, ButtonRenderer buttonRenderer) {
+        table.getColumnModel().getColumn(table.getColumnCount() - 1).setCellEditor(buttonEditor);
+        table.getColumnModel().getColumn(table.getColumnCount() - 1).setCellRenderer(buttonRenderer);
+    }
+
+    class ButtonRenderer implements TableCellRenderer {
+        private JPanel panel;
+        private JButton btnEdit;
+        private JButton btnDelete;
+
+        public ButtonRenderer() {
+            panel = new JPanel(new FlowLayout());
+            btnEdit = new JButton("Edit");
+            btnDelete = new JButton("Delete");
+
+            panel.add(btnEdit);
+            panel.add(btnDelete);
+
+            btnEdit.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    JOptionPane.showMessageDialog(null, "Botón Edit clickeado");
+                }
+            });
+
+            btnDelete.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    // Obtain Table
+                    JTable table = (JTable) SwingUtilities.getAncestorOfClass(JTable.class, btnDelete);
+
+                    if (table != null) {
+                        int selectedRow = table.getSelectedRow();
+                        if (selectedRow != -1) {
+                            int modelRow = table.convertRowIndexToModel(selectedRow);
+
+                            List<?> dataList = null;
+                            if (table.getModel() instanceof DefaultTableModel) {
+                                DefaultTableModel model = (DefaultTableModel) table.getModel();
+                                dataList = (List<?>) model.getDataVector().get(modelRow);
+                            }
+
+                            if (dataList != null && dataList.size() > 0) {
+                                Object data = dataList.get(0);
+                                if (data instanceof Patient) {
+                                    patients.remove(data);
+                                    System.out.println(patients);
+                                } else if (data instanceof Doctor) {
+                                    doctors.remove(data);
+                                    System.out.println(doctors);
+                                }
+
+                                ((DefaultTableModel) table.getModel()).removeRow(modelRow);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            return panel;
+        }
+    }
+
+    class ButtonEditor extends AbstractCellEditor implements TableCellEditor {
+        private ButtonRenderer renderer;
+        private Object currentValue;
+
+        public ButtonEditor(List<?> dataList) {
+            renderer = new ButtonRenderer();
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+            currentValue = value;
+            return renderer.getTableCellRendererComponent(table, value, isSelected, true, row, column);
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            return currentValue;
+        }
+    }
 }
 
-class ButtonRenderer implements TableCellRenderer {
-    private JPanel panel;
-    private JButton btnEdit;
-    private JButton btnDelete;
 
-    public ButtonRenderer() {
-        panel = new JPanel(new FlowLayout());
-        btnEdit = new JButton("Edit");
-        btnDelete = new JButton("Delete");
-
-        panel.add(btnEdit);
-        panel.add(btnDelete);
-
-        btnEdit.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                JOptionPane.showMessageDialog(null, "Botón Edit clickeado");
-            }
-        });
-
-        btnDelete.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                JOptionPane.showMessageDialog(null, "Botón Delete clickeado");
-            }
-        });
-    }
-
-    @Override
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        return panel;
-    }
-}
-
-class ButtonEditor extends AbstractCellEditor implements TableCellEditor {
-    private final ButtonRenderer renderer;
-    private Object currentValue;
-
-    public ButtonEditor() {
-        renderer = new ButtonRenderer();
-    }
-
-    @Override
-    public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-        currentValue = value;
-        return renderer.getTableCellRendererComponent(table, value, isSelected, true, row, column);
-    }
-
-    @Override
-    public Object getCellEditorValue() {
-        return currentValue;
-    }
-}
