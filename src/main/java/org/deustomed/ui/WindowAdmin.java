@@ -28,9 +28,7 @@ public class WindowAdmin extends JFrame {
     protected JScrollPane scrPatient;
     protected JTextField tfPatient;
     protected JButton btnPatient;
-    protected JButton btnLogout;
-    protected JButton btnEditPatient;
-    protected JButton btnDeletePatient;
+    protected JButton btnLogoutPatient;
 
     protected JPanel pnlDoctor;
     protected JTable tblDoctor;
@@ -39,8 +37,6 @@ public class WindowAdmin extends JFrame {
     protected JTextField tfDoctor;
     protected JButton btnDoctor;
     protected JButton btnLogoutDoctor;
-    protected JButton btnEditDoctor;
-    protected JButton btnDeleteDoctor;
 
     protected JPanel pnlLogs;
 
@@ -73,23 +69,33 @@ public class WindowAdmin extends JFrame {
         scrPatient = new JScrollPane(tblPatient);
         tfPatient = new JTextField();
         btnPatient = new JButton("Add");
-        btnLogout = new JButton("Logout");
-        btnEditPatient = new JButton("Edit");
-        btnDeletePatient = new JButton("Delete");
+        btnLogoutPatient = new JButton("Logout");
 
         JPanel pnlUpper = new JPanel(new BorderLayout());
         pnlUpper.add(tfPatient, BorderLayout.WEST);
         pnlPatient.add(pnlUpper, BorderLayout.NORTH);
-
         pnlPatient.add(scrPatient, BorderLayout.CENTER);
 
-
         JPanel pnlBotton = new JPanel(new BorderLayout());
-        pnlBotton.add(btnLogout, BorderLayout.WEST);
+        pnlBotton.add(btnLogoutPatient, BorderLayout.WEST);
         pnlBotton.add(btnPatient, BorderLayout.EAST);
         pnlPatient.add(pnlBotton, BorderLayout.SOUTH);
 
         tabAdmin.addTab("Users", pnlPatient);
+
+        btnPatient.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+
+        btnLogoutPatient.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+            }
+        });
 
         //Doctor
         pnlDoctor = new JPanel(new BorderLayout());
@@ -103,8 +109,6 @@ public class WindowAdmin extends JFrame {
         tfDoctor = new JTextField();
         btnDoctor = new JButton("Add");
         btnLogoutDoctor = new JButton("Logout");
-        btnEditDoctor = new JButton("Edit");
-        btnDeleteDoctor = new JButton("Delete");
 
         JPanel pnlUpperDoctor = new JPanel(new BorderLayout());
         pnlUpperDoctor.add(tfDoctor, BorderLayout.WEST);
@@ -119,6 +123,20 @@ public class WindowAdmin extends JFrame {
         pnlDoctor.add(pnlBottonDoctor, BorderLayout.SOUTH);
 
         tabAdmin.addTab("Doctors", pnlDoctor);
+
+        btnDoctor.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+
+        btnLogoutDoctor.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+            }
+        });
 
 
 
