@@ -4,18 +4,16 @@ import com.toedter.calendar.JCalendar;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+import java.awt.event.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
 public class WindowPatient extends JFrame {
     protected String selectedButton = ""; //info, calendar, medicines, chat
+    protected String prevDirect, prevTfn, prevEmail;
 
-    protected JButton infoButton, calendarButton, medicinesButton, chatButton, logoutButton, pedirCitaButton;
-    protected JPanel menuPanel, infoPanel, calendarPanel, medicinesPanel, chatPanel;
+    protected JButton infoButton, calendarButton, medicinesButton, chatButton, logoutButton, pedirCitaButton, guardarCambiosButton;
+    protected JPanel menuPanel, infoPanel, infoPanel2, calendarPanel, medicinesPanel, chatPanel;
 
     protected JCalendar calendar;
     protected JTable calendarTable;
@@ -157,16 +155,23 @@ public class WindowPatient extends JFrame {
         txtApellido1 = new JTextField();
         lblApellido2 = new JLabel("Segundo Apellido:");
         txtApellido2 = new JTextField();
-        lblEmail = new JLabel("Email:");
-        txtEmail = new JTextField();
         lblDNI = new JLabel("DNI:");
         txtDNI = new JTextField();
-        lblTelefono = new JLabel("Teléfono:");
-        txtTelefono = new JTextField();
         lblFechaNacimiento = new JLabel("Fecha de Nacimiento:");
         txtFechaNacimiento = new JTextField();
+        lblTelefono = new JLabel("Teléfono:");
+        txtTelefono = new JTextField();
+        lblEmail = new JLabel("Email:");
+        txtEmail = new JTextField();
         lblDireccion = new JLabel("Dirección:");
         txtDireccion = new JTextField();
+        guardarCambiosButton = new JButton("Guardar cambios");
+
+        txtNombre.setEditable(false);
+        txtApellido1.setEditable(false);
+        txtApellido2.setEditable(false);
+        txtDNI.setEditable(false);
+        txtFechaNacimiento.setEditable(false);
 
         infoPanel.add(lblNombre);
         infoPanel.add(txtNombre);
@@ -174,16 +179,19 @@ public class WindowPatient extends JFrame {
         infoPanel.add(txtApellido1);
         infoPanel.add(lblApellido2);
         infoPanel.add(txtApellido2);
-        infoPanel.add(lblEmail);
-        infoPanel.add(txtEmail);
         infoPanel.add(lblDNI);
         infoPanel.add(txtDNI);
-        infoPanel.add(lblTelefono);
-        infoPanel.add(txtTelefono);
         infoPanel.add(lblFechaNacimiento);
         infoPanel.add(txtFechaNacimiento);
+        infoPanel.add(lblEmail);
+        infoPanel.add(txtEmail);
+        infoPanel.add(lblTelefono);
+        infoPanel.add(txtTelefono);
         infoPanel.add(lblDireccion);
         infoPanel.add(txtDireccion);
+        infoPanel.add(guardarCambiosButton);
+
+        setInfoPanelTexfields();
 
         infoButton.addActionListener(new ActionListener() {
             @Override
@@ -194,6 +202,19 @@ public class WindowPatient extends JFrame {
                 revalidate();
             }
         });
+
+        guardarCambiosButton.setEnabled(false);
+
+        txtEmail.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                super.keyTyped(e);
+            }
+        });
+
+        
+
+
 
         //--------------------------------------------------------------------------------------------------------------------
 
@@ -215,7 +236,22 @@ public class WindowPatient extends JFrame {
         repaint();
     }
 
+    /**
+     * Set the infoPanel textfields to DB values
+     */
+    public void setInfoPanelTexfields(){
+        txtNombre.setText("");
+        txtApellido1.setText("");
+        txtApellido2.setText("");
+        txtDNI.setText("");
+        txtFechaNacimiento.setText("");
+        txtDireccion.setText("");
+        txtEmail.setText("");
 
+        prevEmail = txtEmail.getText();
+        prevDirect = txtDireccion.getText();
+        prevTfn = txtTelefono.getText();
+    }
 
     //MAIN(JUST TEST)------------------------------------------------------------------------------------------------------
     public static void main(String[] args) {
