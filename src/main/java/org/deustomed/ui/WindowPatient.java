@@ -1,6 +1,8 @@
 package org.deustomed.ui;
 
 import com.toedter.calendar.JCalendar;
+import org.deustomed.chat.Client;
+import org.deustomed.chat.Server;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,6 +23,13 @@ public class WindowPatient extends JFrame {
 
     protected JLabel lblNombre, lblApellido1, lblApellido2, lblEmail, lblDNI, lblTelefono, lblFechaNacimiento, lblDireccion;
     protected  JTextField txtNombre, txtApellido1, txtApellido2, txtEmail, txtDNI, txtTelefono, txtFechaNacimiento, txtDireccion;
+
+    protected JTextArea chatArea;
+    protected JTextField messageField;
+    protected JButton sendButton;
+    protected JButton leaveChatButton;
+    protected String lastMessage = "";
+
 
     public WindowPatient() {
         UIManager.put("Button.font", new Font("Arial", Font.BOLD, 14));
@@ -105,7 +114,11 @@ public class WindowPatient extends JFrame {
                     getContentPane().add(calendarPanel, BorderLayout.CENTER);
                 }else if(selectedButton.equals("info")){
                     deleteContent();
-                    getContentPane().add(infoPanel, BorderLayout.CENTER);}
+                    getContentPane().add(infoPanel, BorderLayout.CENTER);
+                } else if (selectedButton.equals("chat")) {
+                    deleteContent();
+                    getContentPane().add(chatPanel,BorderLayout.CENTER);
+                }
             }
         });
 
@@ -143,6 +156,57 @@ public class WindowPatient extends JFrame {
                 //TODO: CERRAR SESION EN LA BD
             }
         });
+
+        //CHAT PANEL---------------------------------------------------------------------------------------------------------
+        chatPanel = new JPanel();
+        chatPanel.setLayout(new BorderLayout());
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        JPanel chatButtonsPanel = new JPanel(new FlowLayout());
+
+        chatArea = new JTextArea();
+        chatArea.setEditable(false);
+        chatArea.setBackground(Color.lightGray);
+        JScrollPane scrollPaneChat = new JScrollPane(chatArea);
+        chatPanel.add(scrollPaneChat, BorderLayout.CENTER);
+
+        messageField = new JTextField();
+        sendButton = new JButton("Enviar");
+        leaveChatButton = new JButton("Salir");
+        chatButtonsPanel.add(sendButton);
+        chatButtonsPanel.add(leaveChatButton);
+
+        bottomPanel.add(messageField, BorderLayout.CENTER);
+        bottomPanel.add(chatButtonsPanel, BorderLayout.EAST);
+        chatPanel.add(bottomPanel, BorderLayout.SOUTH);
+
+        Server server = new Server();
+        //server.initServer(this);
+
+        chatButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                deleteContent();
+                getContentPane().add(chatPanel, BorderLayout.CENTER);
+                selectedButton = "chat";
+                revalidate();
+            }
+        });
+        sendButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                sendMessage();
+            }
+        });
+
+        messageField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode()==KeyEvent.VK_ENTER){
+                    sendMessage();
+                }
+            }
+        });
+
 
         //INFO MENU PANEL-----------------------------------------------------------------------------------------------------
 
@@ -207,13 +271,47 @@ public class WindowPatient extends JFrame {
 
         txtEmail.addKeyListener(new KeyAdapter() {
             @Override
-            public void keyTyped(KeyEvent e) {
-                super.keyTyped(e);
+            public void keyReleased(KeyEvent e) {
+                if(!prevEmail.equals(txtEmail.getText())){
+                    guardarCambiosButton.setEnabled(true);
+                }else{
+                    guardarCambiosButton.setEnabled(false);
+                }
             }
         });
 
-        
+        txtTelefono.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                if(!prevTfn.equals(txtTelefono.getText())){
+                    guardarCambiosButton.setEnabled(true);
+                }else{
+                    guardarCambiosButton.setEnabled(false);
+                }
+            }
+        });
 
+        txtDireccion.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                if(!prevDirect.equals(txtDireccion.getText())){
+                    guardarCambiosButton.setEnabled(true);
+                }else{
+                    guardarCambiosButton.setEnabled(false);
+                }
+            }
+        });
+
+        guardarCambiosButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //TODO: ACTUALIZAR EMAIL,DIRECCION Y TELEFONO EN LA BD
+                prevDirect = txtDireccion.getText();
+                prevEmail = txtEmail.getText();
+                prevTfn = txtTelefono.getText();
+                guardarCambiosButton.setEnabled(false);
+            }
+        });
 
 
         //--------------------------------------------------------------------------------------------------------------------
@@ -252,6 +350,22 @@ public class WindowPatient extends JFrame {
         prevDirect = txtDireccion.getText();
         prevTfn = txtTelefono.getText();
     }
+
+    private void sendMessage() {
+        String message = messageField.getText().trim();
+        if (!message.isEmpty()) {
+            chatArea.append("Paciente: " + message + "\n");
+            messageField.setText("");
+            lastMessage = message;
+        }
+    }
+    public void recieveMessage(String message){
+        chatArea.append("Doctor: " + message + "\n");
+    }
+    public String getLastMessage(){
+        return lastMessage;
+    }
+
 
     //MAIN(JUST TEST)------------------------------------------------------------------------------------------------------
     public static void main(String[] args) {
