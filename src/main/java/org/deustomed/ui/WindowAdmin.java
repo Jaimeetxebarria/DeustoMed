@@ -150,7 +150,7 @@ public class WindowAdmin extends JFrame {
     }
 
     public static void main(String[] args) {
-        new WindowAdmin();
+        SwingUtilities.invokeLater(WindowAdmin::new);
     }
 
     public DefaultTableModel completeTable(String[] columNames, List<User> users) {

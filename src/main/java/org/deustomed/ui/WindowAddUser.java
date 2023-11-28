@@ -1,6 +1,7 @@
 package org.deustomed.ui;
 
 import com.toedter.calendar.JDateChooser;
+import org.deustomed.Doctor;
 import org.deustomed.Patient;
 
 import javax.swing.*;
@@ -20,6 +21,9 @@ import java.util.*;
 import java.util.List;
 
 public class WindowAddUser extends JFrame {
+    List<Patient> patients;
+    List<Doctor> doctors;
+
     JLabel lblId;
     JLabel lblName;
     JLabel lblSurname1;
@@ -46,7 +50,10 @@ public class WindowAddUser extends JFrame {
     JTextField tfSpeciality;
     JButton btnSave;
 
+
     public WindowAddUser(List<Patient> patients) {
+        this.patients = patients;
+
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
         setResizable(false);
@@ -178,6 +185,8 @@ public class WindowAddUser extends JFrame {
                     lblError.setText("All fields are required");
                 } else if (Integer.parseInt(tfAge.getText())<0) {
                     lblError.setText("Age must be positive");
+                } else if (checkEmail(email)) {
+                    lblError.setText("Email already exists");
                 } else {
                     int id = patients.size() + 1;
                     Patient patient = new Patient(id, name, surname1, surname2, email, "", dni, Integer.parseInt(age), phone, address, new Date());
@@ -192,6 +201,15 @@ public class WindowAddUser extends JFrame {
         setVisible(true);
     }
 
+    private boolean checkEmail(String email){
+        boolean result= true;
+        for (Patient patient : patients) {
+            if (patient.getEmail().equals(email)) {
+                result = false;
+            }
+        }
+        return result;
+    }
     /**
      * Copies a text of the id textfield to the clipboard
      * @param id   The id to copy
@@ -260,7 +278,9 @@ public class WindowAddUser extends JFrame {
         List<Patient> patients= new ArrayList<>();
         patients.add(new Patient(1,"Pablo","Garcia","Iglesias","email1","1234","dni1", 20, "Phone1", "Adress1", new Date()));
         patients.add(new Patient(2,"Andoni","Hernández","Ruiz","email2","5678", "dni2", 17, "Phone2", "Adress2", new Date()));
-        new WindowAddUser(patients);
+        SwingUtilities.invokeLater(() -> {
+            new WindowAddUser(patients);
+        });
 
     }
 }
