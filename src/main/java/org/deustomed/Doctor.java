@@ -6,10 +6,21 @@ public class Doctor extends User {
     private String speciality;
     private ArrayList<Appoinment> appointments = new ArrayList<>();
 
-    public Doctor(int id, String name, String surname1, String surname2, String email, String password, String dni, String speciality, ArrayList<Appoinment> appointments) {
+    private ArrayList<Patient> patients = new ArrayList<>();
+
+    public Doctor(int id, String name, String surname1, String surname2, String email, String password, String dni, String speciality, ArrayList<Appoinment> appointments, ArrayList<Patient> patients) {
         super(id, name, surname1, surname2, email, password, dni);
         this.speciality = speciality;
         this.appointments = appointments;
+        this.patients = patients;
+    }
+
+    public ArrayList<Patient> getPatients() {
+        return patients;
+    }
+
+    public void setPatients(ArrayList<Patient> patients) {
+        this.patients = patients;
     }
 
     public String getSpeciality() {

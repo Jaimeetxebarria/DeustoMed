@@ -7,6 +7,16 @@ public class Patient extends User {
     private String phoneNumer;
     private String address;
     private Date birthDate;
+    private String NSS;
+
+    public Patient(int id, String name, String surname1, String surname2, String email, String password, String dni, int age, String phoneNumer, String address, Date birthDate, String NSS) {
+        super(id, name, surname1, surname2, email, password, dni);
+        this.age = age;
+        this.phoneNumer = phoneNumer;
+        this.address = address;
+        this.birthDate = birthDate;
+        this.NSS = NSS;
+    }
 
     public Patient(int id, String name, String surname1, String surname2, String email, String password, String dni, int age, String phoneNumer, String address, Date birthDate) {
         super(id, name, surname1, surname2, email, password, dni);
@@ -19,6 +29,14 @@ public class Patient extends User {
     public Patient(int id, String name, String surname1, String surname2, String email, String password, int age) {
         super(id, name, surname1, surname2, email, password, "");
         this.age = age;
+    }
+
+    public String getNSS() {
+        return NSS;
+    }
+
+    public void setNSS(String NSS) {
+        this.NSS = NSS;
     }
 
     public int getAge() {

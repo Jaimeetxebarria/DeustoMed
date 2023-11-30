@@ -21,28 +21,28 @@ public class Appoinment {
         return patient;
     }
 
-    public LocalDateTime getDate() {
-        return date;
-    }
-
-    public String getShortDesciption() {
-        return shortDesciption;
-    }
-
-    public String getLongDescription() {
-        return longDescription;
-    }
-
     public void setPatient(Patient patient) {
         this.patient = patient;
+    }
+
+    public LocalDateTime getDate() {
+        return date;
     }
 
     public void setDate(LocalDateTime date) {
         this.date = date;
     }
 
+    public String getShortDesciption() {
+        return shortDesciption;
+    }
+
     public void setShortDesciption(String shortDesciption) {
         this.shortDesciption = shortDesciption;
+    }
+
+    public String getLongDescription() {
+        return longDescription;
     }
 
     public void setLongDescription(String longDescription) {

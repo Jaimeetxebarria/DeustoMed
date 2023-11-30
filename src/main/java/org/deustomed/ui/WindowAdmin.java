@@ -52,8 +52,9 @@ public class WindowAdmin extends JFrame {
         patients.add(new Patient(1,"Pablo","Garcia","Iglesias","email1","1234","dni1", 20, "Phone1", "Adress1", new Date()));
         patients.add(new Patient(2,"Andoni","Hernández","Ruiz","email2","5678", "dni2", 17, "Phone2", "Adress2", new Date()));
         doctors= new ArrayList<>();
-        doctors.add(new Doctor(1,"Jaime","Eguskisa","Gascon","email1","4562","dni1", "Ophthalmologist", new ArrayList<>()));
-        doctors.add(new Doctor(2,"Iñaki","Garcia","Iglesias","email2","1234","dni2", "Ophthalmologist", new ArrayList<>()));
+        doctors.add(new Doctor(1,"Jaime","Eguskisa","Gascon","email1","4562","dni1", "Ophthalmologist", new ArrayList<>(), new ArrayList<>()));
+        doctors.add(new Doctor(2,"Iñaki","Garcia","Iglesias","email2","1234","dni2", "Ophthalmologist", new ArrayList<>(), new ArrayList<>()
+        ));
 
         tabAdmin = new JTabbedPane();
 
