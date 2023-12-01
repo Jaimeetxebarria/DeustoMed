@@ -5,7 +5,6 @@ import com.toedter.calendar.JYearChooser;
 import org.deustomed.Appoinment;
 import org.deustomed.Doctor;
 import org.deustomed.Patient;
-import org.jetbrains.annotations.Nls;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -318,7 +317,7 @@ public class WindowDoctor extends JFrame {
             return 11;
         }
 
-        @Nls
+
         @Override
         public String getColumnName(int columnIndex) {
             return columns[columnIndex];

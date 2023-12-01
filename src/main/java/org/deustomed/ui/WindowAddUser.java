@@ -3,6 +3,7 @@ package org.deustomed.ui;
 import com.toedter.calendar.JDateChooser;
 import org.deustomed.Doctor;
 import org.deustomed.Patient;
+import org.deustomed.User;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -19,45 +20,55 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class WindowAddUser extends JFrame {
-    List<Patient> patients;
-    List<Doctor> doctors;
 
+    //General
     JLabel lblId;
     JLabel lblName;
     JLabel lblSurname1;
     JLabel lblSurname2;
     JLabel lblEmail;
     JLabel lblDni;
-    JLabel lblAge;
-    JLabel lblPhone;
-    JLabel lblAddress;
-    JLabel lblBirthDate;
-    JLabel lblSpeciality;
-    JLabel lblError;
-
     JTextField tfId;
     JTextField tfName;
     JTextField tfSurname1;
     JTextField tfSurname2;
     JTextField tfEmail;
     JTextField tfDni;
+    JLabel lblError;
+    JButton btnSave;
+
+    //For patient
+    List<Patient> patients;
+    JLabel lblAge;
+    JLabel lblPhone;
+    JLabel lblAddress;
+    JLabel lblBirthDate;
     JTextField tfAge;
     JTextField tfPhone;
     JTextField tfAddress;
     JTextField tfBirthDate;
+
+    //For doctor
+    List<Doctor> doctors;
+    JLabel lblSpeciality;
     JTextField tfSpeciality;
-    JButton btnSave;
 
 
-    public WindowAddUser(List<Patient> patients) {
-        this.patients = patients;
+    public WindowAddUser(List<User> users) {
+        if(users.get(0) instanceof Patient){
+            patients = users.stream().map(user -> (Patient) user).collect(Collectors.toList());
+            setTitle("New patient");
+        }else{
+            doctors = users.stream().map(user -> (Doctor) user).collect(Collectors.toList());
+            setTitle("New Doctor");
+        }
 
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
         setResizable(false);
-        setTitle("New patient");
         setLocationRelativeTo(null);
         setSize(500, 750);
 
@@ -67,10 +78,6 @@ public class WindowAddUser extends JFrame {
         lblSurname2 = new JLabel("Surname 2:");
         lblEmail = new JLabel("Email:");
         lblDni = new JLabel("DNI:");
-        lblAge = new JLabel("Age:");
-        lblPhone = new JLabel("Phone:");
-        lblAddress = new JLabel("Address:");
-        lblBirthDate = new JLabel("Birth date:");
         lblError = new JLabel("");
         lblError.setForeground(Color.RED);
 
@@ -87,56 +94,72 @@ public class WindowAddUser extends JFrame {
         tfSurname2 = new JTextField();
         tfEmail = new JTextField();
         tfDni = new JTextField();
-
-        //JDateChooser
-        LocalDate currentDate = LocalDate.now();
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        String formatedDate = currentDate.format(format);
-        tfBirthDate = new JTextField(formatedDate);
-        tfBirthDate.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                updateAge();
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                updateAge();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-            }
-        });
-        /*
-        JDateChooser dateChooser = new JDateChooser();
-        dateChooser.setDateFormatString("dd/MM/yyyy");
-        tfBirthDate.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                dateChooser.show();
-            }
-        });
-        dateChooser.getDateEditor().addPropertyChangeListener(e -> {
-            if ("date".equals(e.getPropertyName())) {
-                updateDateTextField(dateChooser, tfBirthDate);
-            }
-        });
-
-         */
-        
-        tfAge = new JTextField();
-        tfAge.setEditable(false);
-        //tfAge.setText();
-
-        tfPhone = new JTextField();
-        tfAddress = new JTextField();
-
         btnSave = new JButton("Save");
 
+        if(patients!=null) {
+            lblAge = new JLabel("Age:");
+            lblPhone = new JLabel("Phone:");
+            lblAddress = new JLabel("Address:");
+            lblBirthDate = new JLabel("Birth date:");
+
+            //JDateChooser
+            LocalDate currentDate = LocalDate.now();
+            DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            String formatedDate = currentDate.format(format);
+            tfBirthDate = new JTextField(formatedDate);
+            tfBirthDate.getDocument().addDocumentListener(new DocumentListener() {
+                @Override
+                public void insertUpdate(DocumentEvent e) {
+                    updateAge();
+                }
+
+                @Override
+                public void removeUpdate(DocumentEvent e) {
+                    updateAge();
+                }
+
+                @Override
+                public void changedUpdate(DocumentEvent e) {
+                }
+            });
+            /*
+            JDateChooser dateChooser = new JDateChooser();
+            dateChooser.setDateFormatString("dd/MM/yyyy");
+            tfBirthDate.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    dateChooser.show();
+                }
+            });
+            dateChooser.getDateEditor().addPropertyChangeListener(e -> {
+                if ("date".equals(e.getPropertyName())) {
+                    updateDateTextField(dateChooser, tfBirthDate);
+                }
+            });
+
+             */
+
+            tfAge = new JTextField();
+            tfAge.setEditable(false);
+            //tfAge.setText();
+            tfPhone = new JTextField();
+            tfAddress = new JTextField();
+
+        }else if (doctors!=null) {
+            lblSpeciality = new JLabel("Speciality:");
+            tfSpeciality = new JTextField();
+
+        }
+
+        //Add components to the window
         JPanel pnlCenter = new JPanel(new BorderLayout());
 
-        JPanel pnlPrimary = new JPanel(new GridLayout(10, 2));
+        JPanel pnlPrimary = new JPanel();
+        if (patients != null) {
+            pnlPrimary.setLayout(new GridLayout(10, 2));
+        } else if (doctors != null) {
+            pnlPrimary.setLayout(new GridLayout(7, 2));
+        }
         pnlPrimary.add(lblId);
         pnlPrimary.add(pnlId);
         pnlPrimary.add(lblName);
@@ -149,16 +172,20 @@ public class WindowAddUser extends JFrame {
         pnlPrimary.add(tfEmail);
         pnlPrimary.add(lblDni);
         pnlPrimary.add(tfDni);
-        pnlPrimary.add(lblBirthDate);
-        pnlPrimary.add(tfBirthDate);
-        pnlPrimary.add(lblAge);
-        pnlPrimary.add(tfAge);
-        pnlPrimary.add(lblPhone);
-        pnlPrimary.add(tfPhone);
-        pnlPrimary.add(lblAddress);
-        pnlPrimary.add(tfAddress);
+        if(patients!=null) {
+            pnlPrimary.add(lblBirthDate);
+            pnlPrimary.add(tfBirthDate);
+            pnlPrimary.add(lblAge);
+            pnlPrimary.add(tfAge);
+            pnlPrimary.add(lblPhone);
+            pnlPrimary.add(tfPhone);
+            pnlPrimary.add(lblAddress);
+            pnlPrimary.add(tfAddress);
+        }else if (doctors!=null) {
+            pnlPrimary.add(lblSpeciality);
+            pnlPrimary.add(tfSpeciality);
 
-
+        }
         pnlCenter.add(pnlPrimary, BorderLayout.CENTER);
         pnlCenter.add(lblError, BorderLayout.SOUTH);
 
@@ -176,27 +203,42 @@ public class WindowAddUser extends JFrame {
                 String surname2 = tfSurname2.getText();
                 String email = tfEmail.getText();
                 String dni = tfDni.getText();
-                String birthDate = tfBirthDate.getText();
-                String age = tfAge.getText();
-                String phone = tfPhone.getText();
-                String address = tfAddress.getText();
+                if (patients != null) {
+                    String birthDate = tfBirthDate.getText();
+                    String age = tfAge.getText();
+                    String phone = tfPhone.getText();
+                    String address = tfAddress.getText();
 
-                if (name.isEmpty() || surname1.isEmpty() || surname2.isEmpty() || email.isEmpty() || dni.isEmpty() || birthDate.isEmpty() || age.isEmpty() || phone.isEmpty() || address.isEmpty()) {
-                    lblError.setText("All fields are required");
-                } else if (Integer.parseInt(tfAge.getText())<0) {
-                    lblError.setText("Age must be positive");
-                } else if (checkEmail(email)) {
-                    lblError.setText("Email already exists");
-                } else {
-                    int id = patients.size() + 1;
-                    Patient patient = new Patient(id, name, surname1, surname2, email, "", dni, Integer.parseInt(age), phone, address, new Date());
-                    patients.add(patient);
-                    JOptionPane.showMessageDialog(null, "Patient added successfully");
-                    dispose();
+                    if (name.isEmpty() || surname1.isEmpty() || surname2.isEmpty() || email.isEmpty() || dni.isEmpty() || birthDate.isEmpty() || age.isEmpty() || phone.isEmpty() || address.isEmpty()) {
+                        lblError.setText("All fields are required");
+                    } else if (Integer.parseInt(tfAge.getText())<0) {
+                        lblError.setText("Age must be positive");
+                    } else if (checkEmail(email)) {
+                        lblError.setText("Email already exists");
+                    } else {
+                        int id = patients.size() + 1;
+                        Patient patient = new Patient(id, name, surname1, surname2, email, "", dni, Integer.parseInt(age), phone, address, new Date());
+                        patients.add(patient);
+                        JOptionPane.showMessageDialog(null, "Patient added successfully");
+                        dispose();
+                    }
+                } else if (doctors != null) {
+                    String speciality = tfSpeciality.getText();
+                    if (name.isEmpty() || surname1.isEmpty() || surname2.isEmpty() || email.isEmpty() || dni.isEmpty() || speciality.isEmpty()) {
+                        lblError.setText("All fields are required");
+                    } else if (checkEmail(email)) {
+                        lblError.setText("Email already exists");
+                    } else {
+                        int id = doctors.size() + 1;
+                        Doctor doctor = new Doctor(id, name, surname1, surname2, email, "", dni, speciality, new ArrayList<>(), new ArrayList<>());
+                        doctors.add(doctor);
+                        JOptionPane.showMessageDialog(null, "Doctor added successfully");
+                        dispose();
+                    }
                 }
+
             }
         });
-
 
         setVisible(true);
     }
@@ -275,12 +317,19 @@ public class WindowAddUser extends JFrame {
     }
 
     public static void main(String[] args) {
-        List<Patient> patients= new ArrayList<>();
+        List<User> patients= new ArrayList<>();
         patients.add(new Patient(1,"Pablo","Garcia","Iglesias","email1","1234","dni1", 20, "Phone1", "Adress1", new Date()));
         patients.add(new Patient(2,"Andoni","Hernández","Ruiz","email2","5678", "dni2", 17, "Phone2", "Adress2", new Date()));
+
+        List<User> doctors= new ArrayList<>();
+        doctors.add(new Doctor(1,"Pablo","Garcia","Iglesias","email1","1234","dni1", "speciality1", new ArrayList<>(), new ArrayList<>()));
+        doctors.add(new Doctor(2,"Andoni","Hernández","Ruiz","email2","5678", "dni2", "speciality2", new ArrayList<>(), new ArrayList<>()));
         SwingUtilities.invokeLater(() -> {
-            new WindowAddUser(patients);
+            //new WindowAddUser(patients);
+            new WindowAddUser(doctors);
         });
+
+
 
     }
 }
