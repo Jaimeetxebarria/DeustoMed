@@ -30,7 +30,6 @@ public class WindowPatient extends JFrame {
     protected JButton leaveChatButton;
     protected String lastMessage = "";
 
-
     public WindowPatient() {
         UIManager.put("Button.font", new Font("Arial", Font.BOLD, 14));
         UIManager.put("Button.foreground", Color.BLACK);
@@ -135,9 +134,10 @@ public class WindowPatient extends JFrame {
         pedirCitaButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //TODO: Crear y abrir una ventana de cita
+                WindowAppointment windowAppointment = new WindowAppointment(calendar.getDate());
             }
         });
+
 
         //LOGOUT------------------------------------------------------------------------------------------------------------
 
@@ -366,6 +366,9 @@ public class WindowPatient extends JFrame {
         return lastMessage;
     }
 
+    public JCalendar getCalendar() {
+        return calendar;
+    }
 
     //MAIN(JUST TEST)------------------------------------------------------------------------------------------------------
     public static void main(String[] args) {

@@ -10,12 +10,8 @@ public class Main {
     public static void main(String[] args) {
         FlatLightLaf.setup();
         FlatInterFont.install();
-        /*
-        WindowLogin windowLogin = new WindowLogin();
-        windowLogin.setVisible(true);
-        windowLogin.setSize(300,350);
 
-         */
-        new WindowLogin();
+        WindowLogin windowLogin = new WindowLogin();
+
     }
 }

@@ -6,6 +6,7 @@ import javax.swing.text.PasswordView;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
+import java.util.Date;
 
 public class WindowLogin extends JFrame {
     JLabel loginLbl;
@@ -47,8 +48,11 @@ public class WindowLogin extends JFrame {
         setLayout(null);
         this.setResizable(false);
         this.setTitle("DeustoMed");
-        this.setLocation(600,300);
+        this.setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(300,350);
+        setVisible(true);
+
 
         loginBtn.addActionListener(e -> {
             String email = emailTf.getText();
@@ -88,6 +92,5 @@ public class WindowLogin extends JFrame {
             return true;
         }
     }
-
 
 }
