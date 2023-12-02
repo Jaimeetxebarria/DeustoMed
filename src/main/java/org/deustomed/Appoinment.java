@@ -2,19 +2,31 @@ package org.deustomed;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.Objects;
 
-public class Appoinment {
+public class Appoinment implements Comparable<Appoinment> {
     private Patient patient;
+    private Doctor doctor;
     private LocalDateTime date;
     private String shortDesciption;
     private String longDescription;
 
-    public Appoinment(Patient patient, LocalDateTime date, String shortDesciption, String longDescription) {
+    public Appoinment(Patient patient, Doctor doctor, LocalDateTime date, String shortDesciption, String longDescription) {
         this.patient = patient;
+        this.doctor = doctor;
         this.date = date;
         this.shortDesciption = shortDesciption;
         this.longDescription = longDescription;
+    }
+
+    public Doctor getDoctor() {
+        return doctor;
+    }
+
+    public void setDoctor(Doctor doctor) {
+        this.doctor = doctor;
     }
 
     public Patient getPatient() {
@@ -47,5 +59,24 @@ public class Appoinment {
 
     public void setLongDescription(String longDescription) {
         this.longDescription = longDescription;
+    }
+
+    @Override
+    public int compareTo(Appoinment o) {
+        return (this.date).compareTo(o.date);
+    }
+
+    @Override
+    public String toString() {
+        return "Appoinment{" +
+                "patient=" + patient +
+                ", doctor=" + doctor +
+                ", date=" + date +
+                ", shortDesciption='" + shortDesciption + '\'' +
+                ", longDescription='" + longDescription + '\'' +
+                '}';
+    }
+    public Date getDateAsDate(){
+        return java.sql.Timestamp.valueOf(this.date);
     }
 }

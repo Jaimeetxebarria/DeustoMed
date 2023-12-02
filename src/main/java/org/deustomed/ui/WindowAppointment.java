@@ -1,12 +1,15 @@
 package org.deustomed.ui;
 
 import com.toedter.calendar.JDateChooser;
+import org.deustomed.Appoinment;
+import org.deustomed.Doctor;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Date;
+import java.util.*;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.time.LocalDateTime;
+import java.time.Month;
 
 public class WindowAppointment extends JFrame {
 
@@ -64,16 +67,24 @@ public class WindowAppointment extends JFrame {
                             "Error", JOptionPane.ERROR_MESSAGE);
                 }else{
                     //TODO: Algoritmo que genere HashSet de citas libres (ordenadas por fecha)
-
-                    new WindowAppointmentSelection();
+                    //TEST DATA
+                    TreeSet citas = new TreeSet();
+                    Doctor doctor1 = new Doctor(1,"Carlos","Garcia","Gomez","carlos@gmail.com","aa","123456","General",new ArrayList<>(),new ArrayList<>());
+                    Doctor doctor2 = new Doctor(2,"Roberto","Perez","Sanchez","rsanchez@gmail.com","aa","564656","Cardiologo",new ArrayList<>(),new ArrayList<>());
+                    LocalDateTime fecha1 = LocalDateTime.of(2023, Month.DECEMBER, 17, 6, 0);
+                    LocalDateTime fecha2 = LocalDateTime.of(2023, Month.DECEMBER, 23, 14, 15);
+                    LocalDateTime fecha3 = LocalDateTime.of(2023, Month.DECEMBER, 31, 19, 45);
+                    Appoinment ap1 = new Appoinment(null,doctor1,fecha1,null,null);
+                    Appoinment ap2 = new Appoinment(null,doctor2,fecha2,null,null);
+                    Appoinment ap3 = new Appoinment(null,doctor1,fecha3,null,null);
+                    citas.add(ap1);
+                    citas.add(ap2);
+                    citas.add(ap3);
+                    System.out.println(citas);
+                    new WindowAppointmentSelection(citas);
+                    dispose();
                 }
 
-                /*else{
-
-                JOptionPane.showMessageDialog(WindowAppointment.this,
-                        "Solicitud de cita enviada:\nFecha: " + formated + "\nNombre: " + patientName + "\nMotivo: " + reasonCombo.getSelectedItem().toString(),
-                        "Confirmación", JOptionPane.INFORMATION_MESSAGE);}
-                 */
             }
 
         });
