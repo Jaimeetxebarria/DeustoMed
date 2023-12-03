@@ -7,7 +7,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -18,7 +18,7 @@ public class UrlBuilder {
     private String hostname;
     private int port;
     private String path;
-    private Map<String, List<String>> queryParameters = new HashMap<>();
+    private Map<String, List<String>> queryParameters = new LinkedHashMap<>(); // Preserve insertion order
 
     public UrlBuilder() {
         this(UrlScheme.HTTP, "localhost");
