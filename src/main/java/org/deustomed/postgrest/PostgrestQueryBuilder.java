@@ -24,9 +24,8 @@ public class PostgrestQueryBuilder {
             return new PostgrestFilterBuilder(this.postgrestQuery);
         }
 
-        for (String column : columns) {
-            if (column == null || column.isEmpty()) throw new IllegalArgumentException("Cannot query blank column");
-        }
+        if (Arrays.stream(columns).anyMatch(column -> column == null || column.isEmpty()))
+            throw new IllegalArgumentException("Cannot query blank column");
 
         postgrestQuery.getUrlBuilder().setQueryParameter("select", String.join(",", columns));
         return new PostgrestFilterBuilder(this.postgrestQuery);

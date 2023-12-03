@@ -8,15 +8,17 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class PostgrestFilterBuilder {
+public class PostgrestFilterBuilder extends PostgrestTransformBuilder {
     private PostgrestQuery postgrestQuery;
     private boolean negateNextFilter = false;
 
     public PostgrestFilterBuilder() {
-        postgrestQuery = new PostgrestQuery();
+        super(new PostgrestQuery());
+        postgrestQuery = super.getQuery();
     }
 
     public PostgrestFilterBuilder(PostgrestQuery postgrestQuery) {
+        super(postgrestQuery);
         this.postgrestQuery = postgrestQuery;
     }
 
@@ -27,7 +29,7 @@ public class PostgrestFilterBuilder {
     /**
      * Equal to
      */
-    public PostgrestFilterBuilder eq(@NotNull String column, String value) {
+    public PostgrestFilterBuilder eq(@NotNull String column, @NotNull String value) {
         this.addFilter(column, "eq", value);
         return this;
     }
@@ -35,7 +37,7 @@ public class PostgrestFilterBuilder {
     /**
      * Not equal to
      */
-    public PostgrestFilterBuilder neq(@NotNull String column, String value) {
+    public PostgrestFilterBuilder neq(@NotNull String column, @NotNull String value) {
         this.addFilter(column, "neq", value);
         return this;
     }
@@ -43,7 +45,7 @@ public class PostgrestFilterBuilder {
     /**
      * Less than
      */
-    public PostgrestFilterBuilder lt(@NotNull String column, String value) {
+    public PostgrestFilterBuilder lt(@NotNull String column, @NotNull String value) {
         this.addFilter(column, "lt", value);
         return this;
     }
@@ -51,7 +53,7 @@ public class PostgrestFilterBuilder {
     /**
      * Greater than
      */
-    public PostgrestFilterBuilder gt(@NotNull String column, String value) {
+    public PostgrestFilterBuilder gt(@NotNull String column, @NotNull String value) {
         this.addFilter(column, "gt", value);
         return this;
     }
@@ -60,7 +62,7 @@ public class PostgrestFilterBuilder {
     /**
      * Greater than or equal to
      */
-    public PostgrestFilterBuilder gte(@NotNull String column, String value) {
+    public PostgrestFilterBuilder gte(@NotNull String column, @NotNull String value) {
         this.addFilter(column, "gte", value);
         return this;
     }
@@ -68,7 +70,7 @@ public class PostgrestFilterBuilder {
     /**
      * Less than or equal to
      */
-    public PostgrestFilterBuilder lte(@NotNull String column, String value) {
+    public PostgrestFilterBuilder lte(@NotNull String column, @NotNull String value) {
         this.addFilter(column, "lte", value);
         return this;
     }
@@ -76,7 +78,7 @@ public class PostgrestFilterBuilder {
     /**
      * Like
      */
-    public PostgrestFilterBuilder like(@NotNull String column, String value) {
+    public PostgrestFilterBuilder like(@NotNull String column, @NotNull String value) {
         this.addFilter(column, "like", value);
         return this;
     }
@@ -84,7 +86,7 @@ public class PostgrestFilterBuilder {
     /**
      * Ilike
      */
-    public PostgrestFilterBuilder ilike(@NotNull String column, String value) {
+    public PostgrestFilterBuilder ilike(@NotNull String column, @NotNull String value) {
         this.addFilter(column, "ilike", value);
         return this;
     }

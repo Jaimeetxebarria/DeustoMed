@@ -46,6 +46,11 @@ public class PostgrestQuery {
         return headers;
     }
 
+    public List<String> getHeader(@NotNull String key) {
+        if (key.isEmpty()) throw new IllegalArgumentException("Cannot get header with blank key");
+        return headers.get(key);
+    }
+
     public void setHeaders(@NotNull Map<String, List<String>> headers) {
         this.headers = headers;
     }
