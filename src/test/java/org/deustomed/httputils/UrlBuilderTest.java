@@ -11,7 +11,7 @@ class UrlBuilderTest {
     @Test
     void testNullaryConstructor() {
         UrlBuilder urlBuilder = new UrlBuilder();
-        assertEquals(UrlScheme.HTTP, urlBuilder.getUrlScheme());
+        assertEquals(UrlScheme.HTTP, urlBuilder.getScheme());
         assertEquals("localhost", urlBuilder.getHostname());
         assertEquals(80, urlBuilder.getPort());
     }
@@ -19,7 +19,7 @@ class UrlBuilderTest {
     @Test
     void testBinaryConstructor() {
         UrlBuilder urlBuilder = new UrlBuilder(UrlScheme.HTTPS, "example.com");
-        assertEquals(UrlScheme.HTTPS, urlBuilder.getUrlScheme());
+        assertEquals(UrlScheme.HTTPS, urlBuilder.getScheme());
         assertEquals("example.com", urlBuilder.getHostname());
         assertEquals(443, urlBuilder.getPort());
 
@@ -35,7 +35,7 @@ class UrlBuilderTest {
     @Test
     void testTernaryConstructor() {
         UrlBuilder urlBuilder = new UrlBuilder(UrlScheme.HTTPS, "example.com", 8080);
-        assertEquals(UrlScheme.HTTPS, urlBuilder.getUrlScheme());
+        assertEquals(UrlScheme.HTTPS, urlBuilder.getScheme());
         assertEquals("example.com", urlBuilder.getHostname());
         assertEquals(8080, urlBuilder.getPort());
 
@@ -50,12 +50,12 @@ class UrlBuilderTest {
     @Test
     void getSetUrlScheme() {
         UrlBuilder urlBuilder = new UrlBuilder();
-        assertEquals(UrlScheme.HTTP, urlBuilder.getUrlScheme());
-        urlBuilder.setUrlScheme(UrlScheme.HTTPS);
-        assertEquals(UrlScheme.HTTPS, urlBuilder.getUrlScheme());
+        assertEquals(UrlScheme.HTTP, urlBuilder.getScheme());
+        urlBuilder.setScheme(UrlScheme.HTTPS);
+        assertEquals(UrlScheme.HTTPS, urlBuilder.getScheme());
 
         //Check that null errors out
-        assertThrows(IllegalArgumentException.class, () -> urlBuilder.setUrlScheme(null));
+        assertThrows(IllegalArgumentException.class, () -> urlBuilder.setScheme(null));
     }
 
     @Test
@@ -145,7 +145,7 @@ class UrlBuilderTest {
     @Test
     void build() {
         assertEquals("http://localhost", new UrlBuilder().toString());
-        assertEquals("https://localhost", new UrlBuilder().setUrlScheme(UrlScheme.HTTPS).toString());
+        assertEquals("https://localhost", new UrlBuilder().setScheme(UrlScheme.HTTPS).toString());
         assertEquals("http://example.com", new UrlBuilder().setHostname("example.com").toString());
         assertEquals("http://localhost:8080", new UrlBuilder().setPort(8080).toString());
         assertEquals("http://localhost/endpoint", new UrlBuilder().setPath("/endpoint").toString());
@@ -154,7 +154,7 @@ class UrlBuilderTest {
                 .setQueryParameter("query2", "value2").toString());
 
         assertEquals("https://database.com/rest/v1/users?select=name&age=eq.30",
-                new UrlBuilder().setUrlScheme(UrlScheme.HTTPS).setHostname("database.com").setPath("/rest/v1/users").setQueryParameter("select", "name")
+                new UrlBuilder().setScheme(UrlScheme.HTTPS).setHostname("database.com").setPath("/rest/v1/users").setQueryParameter("select", "name")
                         .setQueryParameter("age", "eq.30").toString());
 
         assertEquals("https://database.com/rest/v1/users?select=name&age=eq.30", new UrlBuilder(UrlScheme.HTTPS,

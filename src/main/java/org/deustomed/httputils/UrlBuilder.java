@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 public class UrlBuilder {
 
-    private UrlScheme urlScheme;
+    private UrlScheme scheme;
     private String hostname;
     private int port;
     private String path;
@@ -24,26 +24,26 @@ public class UrlBuilder {
         this(UrlScheme.HTTP, "localhost");
     }
 
-    public UrlBuilder(@NotNull UrlScheme urlScheme, @NotNull String hostname) {
-        this.setUrlScheme(urlScheme);
+    public UrlBuilder(@NotNull UrlScheme scheme, @NotNull String hostname) {
+        this.setScheme(scheme);
         this.setHostname(hostname);
-        this.setPort(urlScheme.getDefaultPort());
+        this.setPort(scheme.getDefaultPort());
     }
 
-    public UrlBuilder(@NotNull UrlScheme urlScheme, @NotNull String hostname, int port) {
-        this.setUrlScheme(urlScheme);
+    public UrlBuilder(@NotNull UrlScheme scheme, @NotNull String hostname, int port) {
+        this.setScheme(scheme);
         this.setHostname(hostname);
         this.setPort(port);
     }
 
-    public UrlBuilder setUrlScheme(@NotNull UrlScheme urlScheme) {
-        this.urlScheme = urlScheme;
-        this.setPort(urlScheme.getDefaultPort());
+    public UrlBuilder setScheme(@NotNull UrlScheme scheme) {
+        this.scheme = scheme;
+        this.setPort(scheme.getDefaultPort());
         return this;
     }
 
-    public UrlScheme getUrlScheme() {
-        return urlScheme;
+    public UrlScheme getScheme() {
+        return scheme;
     }
 
     public UrlBuilder setHostname(@NotNull String hostname) {
@@ -179,10 +179,10 @@ public class UrlBuilder {
      */
     public URL build() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(urlScheme.toString());
+        stringBuilder.append(scheme.toString());
         stringBuilder.append("://");
         stringBuilder.append(hostname);
-        if (port != urlScheme.getDefaultPort()) {
+        if (port != scheme.getDefaultPort()) {
             stringBuilder.append(":");
             stringBuilder.append(port);
         }
