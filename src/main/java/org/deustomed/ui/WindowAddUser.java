@@ -50,11 +50,13 @@ public class WindowAddUser extends JFrame {
     JTextField tfPhone;
     JTextField tfAddress;
     JDateChooser dateChooser;
+    private Date previousDate;
 
     //For doctor
     List<Doctor> doctors;
     JLabel lblSpeciality;
-    JTextField tfSpeciality;
+    JComboBox<String> cbSpeciality;
+    protected List<String> specialities = Arrays.asList("Alergología", "Anestesiología", "Angiología", "Cardiología", "Endocrinología", "Gastroenterología", "Geriatría", "Hematología", "Infectología", "Medicina interna", "Nefrología", "Neumología", "Neurología", "Obstetricia", "Oftalmología", "Oncología", "Pediatría", "Psiquiatría", "Reumatología", "Toxicología", "Urología");
 
 
     public WindowAddUser(List<User> users) {
@@ -100,17 +102,19 @@ public class WindowAddUser extends JFrame {
             lblAge = new JLabel("Age:");
             lblPhone = new JLabel("Phone:");
             lblAddress = new JLabel("Address:");
-            lblBirthDate = new JLabel("Birth date:");
+            lblBirthDate = new JLabel("Birthdate:");
 
             //JDateChooser
             Date currentDate = new Date();
-
-
             dateChooser = new JDateChooser();
             dateChooser.setDateFormatString("dd MMMM yyyy");
             dateChooser.setDate(currentDate);
             dateChooser.setMaxSelectableDate(currentDate);
             dateChooser.setMinSelectableDate(new GregorianCalendar(1900, Calendar.JANUARY, 1).getTime());
+            dateChooser.setToolTipText("Select birthdate");
+            dateChooser.getDateEditor().addPropertyChangeListener(e -> {
+                if ("date".equals(e.getPropertyName())) updateAge();
+            });
 
 
 
@@ -118,11 +122,15 @@ public class WindowAddUser extends JFrame {
             tfAge.setEditable(false);
             tfAge.setText(String.valueOf(getAge(dateChooser.getDate())));
             tfPhone = new JTextField();
+            tfPhone.setToolTipText("Phone should start with 6 or 9 and have 9 digits");
             tfAddress = new JTextField();
+            tfAddress.setToolTipText("Address should be in the format: Street, number, city, province, country\nExample: Sabino Arana, 15, 2A, Bilbao, Biscay, Spain");
+
 
         }else if (doctors!=null) {
             lblSpeciality = new JLabel("Speciality:");
-            tfSpeciality = new JTextField();
+            cbSpeciality = new JComboBox<>();
+            cbSpeciality.setModel(new DefaultComboBoxModel<>(specialities.toArray(new String[0])));
 
         }
 
@@ -158,7 +166,7 @@ public class WindowAddUser extends JFrame {
             pnlPrimary.add(tfAddress);
         }else if (doctors!=null) {
             pnlPrimary.add(lblSpeciality);
-            pnlPrimary.add(tfSpeciality);
+            pnlPrimary.add(cbSpeciality);
 
         }
         pnlCenter.add(pnlPrimary, BorderLayout.CENTER);
@@ -183,31 +191,24 @@ public class WindowAddUser extends JFrame {
                     String age = tfAge.getText();
                     String phone = tfPhone.getText();
                     String address = tfAddress.getText();
-
-                    if (name.isEmpty() || surname1.isEmpty() || surname2.isEmpty() || email.isEmpty() || dni.isEmpty()  || age.isEmpty() || phone.isEmpty() || address.isEmpty()) {
-                        lblError.setText("All fields are required");
-                    } else if (Integer.parseInt(tfAge.getText())<0) {
-                        lblError.setText("Age must be positive");
-                    } else if (checkEmail(email)) {
-                        lblError.setText("Email already exists");
-                    } else {
+                    if(validateData()){
                         int id = patients.size() + 1;
                         Patient patient = new Patient(id, name, surname1, surname2, email, "", dni, Integer.parseInt(age), phone, address, new Date());
                         patients.add(patient);
                         JOptionPane.showMessageDialog(null, "Patient added successfully");
+                        System.out.println("Nuevo paciente: " + patient);
                         dispose();
                     }
+
+
                 } else if (doctors != null) {
-                    String speciality = tfSpeciality.getText();
-                    if (name.isEmpty() || surname1.isEmpty() || surname2.isEmpty() || email.isEmpty() || dni.isEmpty() || speciality.isEmpty()) {
-                        lblError.setText("All fields are required");
-                    } else if (checkEmail(email)) {
-                        lblError.setText("Email already exists");
-                    } else {
+                    String speciality = ((String) cbSpeciality.getSelectedItem()).toString();
+                    if(validateData()){
                         int id = doctors.size() + 1;
                         Doctor doctor = new Doctor(id, name, surname1, surname2, email, "", dni, speciality, new ArrayList<>(), new ArrayList<>());
                         doctors.add(doctor);
                         JOptionPane.showMessageDialog(null, "Doctor added successfully");
+                        System.out.println("Nuevo doctor: " + doctor);
                         dispose();
                     }
                 }
@@ -218,14 +219,60 @@ public class WindowAddUser extends JFrame {
         setVisible(true);
     }
 
-    private boolean checkEmail(String email){
-        boolean result= true;
-        for (Patient patient : patients) {
-            if (patient.getEmail().equals(email)) {
-                result = false;
-            }
+    private boolean validateData() {
+        // Verificar que ningún campo esté vacío
+        if (tfId.getText().isEmpty() ||
+                tfName.getText().isEmpty() ||
+                tfSurname1.getText().isEmpty() ||
+                tfSurname2.getText().isEmpty() ||
+                tfDni.getText().isEmpty()) {
+            lblError.setText("All fields are required");
+            return false;
         }
-        return result;
+        // Validate dni
+        String dni = tfDni.getText();
+        if (!dni.matches("\\d{8}[A-Z]")) {
+            lblError.setText("Invalid DNI");
+            return false;
+        }
+        if(patients!=null) {
+            if (tfEmail.getText().isEmpty() ||
+                    tfAge.getText().isEmpty() ||
+                    tfPhone.getText().isEmpty() ||
+                    tfAddress.getText().isEmpty()) {
+                lblError.setText("All fields are required");
+                return false;
+            }
+
+
+            // Validate email
+            String email = tfEmail.getText();
+            if (!email.matches(".+@gmail\\.com")) {
+                lblError.setText("Invalid email");
+                return false;
+            }
+
+            // Validate phone number
+            String phoneNumber = tfPhone.getText();
+            if (!phoneNumber.matches("[69]\\d{8}")) {
+                lblError.setText("Invalid phone number");
+                return false;
+            }
+
+            // Validate address
+            String address = tfAddress.getText();
+            if (!address.matches(".+, \\d+, .+, .+, .+, .+")) {
+                lblError.setText("Invalid address");
+                return false;
+            }
+        } else if (doctors!=null) {
+            if (cbSpeciality.getSelectedItem().toString().isEmpty()) {
+                lblError.setText("All fields are required");
+                return false;
+            }
+
+        }
+        return true;
     }
     /**
      * Copies a text of the id textfield to the clipboard
@@ -239,22 +286,6 @@ public class WindowAddUser extends JFrame {
     }
 
     /**
-     * Updates the text of a textfield with the date selected in a JDateChooser
-     * @param dateChooser   The JDateChooser
-     * @param tfBirthDate   The textfield to update
-     */
-    private void updateDateTextField(JDateChooser dateChooser, JTextField tfBirthDate) {
-        Date selectedDate = dateChooser.getDate();
-        if (selectedDate != null) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-            String formattedDate = dateFormat.format(selectedDate);
-            tfBirthDate.setText(formattedDate);
-        } else {
-            tfBirthDate.setText("");
-        }
-    }
-
-    /**
      * Updates the age textfield with the age calculated from the birthdate textfield
      */
     private void updateAge() {
@@ -262,8 +293,15 @@ public class WindowAddUser extends JFrame {
         Date birthday = dateChooser.getDate();
 
         int age = getAge(birthday);
-        if(age>=0 || age<=120){
+        if (age >= 0 && age <= 120) {
             tfAge.setText(String.valueOf(age));
+            previousDate = birthday;
+        } else {
+            JOptionPane.showMessageDialog(null, "Invalid age");
+            SwingUtilities.invokeLater(() -> {
+                dateChooser.setDate(previousDate);
+            });
+
         }
 
     }
@@ -296,7 +334,7 @@ public class WindowAddUser extends JFrame {
         doctors.add(new Doctor(2,"Andoni","Hernández","Ruiz","email2","5678", "dni2", "speciality2", new ArrayList<>(), new ArrayList<>()));
         SwingUtilities.invokeLater(() -> {
             new WindowAddUser(patients);
-            //new WindowAddUser(doctors);
+            new WindowAddUser(doctors);
         });
 
 
