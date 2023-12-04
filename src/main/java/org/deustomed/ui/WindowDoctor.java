@@ -24,7 +24,7 @@ import java.util.Date;
 import java.util.EventObject;
 
 public class WindowDoctor extends JFrame {
-    private Doctor doctor;
+    private static Doctor doctor;
     private JPanel pnlInfo;
     private JPanel pnlCentral;
     private JPanel pnlAppoinments;
@@ -177,9 +177,9 @@ public class WindowDoctor extends JFrame {
     public static void main(String[] args) {
         org.deustomed.Patient patient1 = new org.deustomed.Patient(1001, "Paciente1", "Surname1", "Surname2", "paciente1@gmail.com", "password", 24);
         ArrayList<Appoinment> appoinments = new ArrayList<>();
-        appoinments.add( new Appoinment(patient1, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
-        appoinments.add( new Appoinment(patient1, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
-        appoinments.add( new Appoinment(patient1, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
+        appoinments.add( new Appoinment(patient1, doctor, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
+        appoinments.add( new Appoinment(patient1, doctor, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
+        appoinments.add( new Appoinment(patient1, doctor, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
         ArrayList<org.deustomed.Patient> patients = new ArrayList<>();
         patients.add(patient1);
         Doctor doctor1 = new Doctor(1000, "Carlos", "Rodriguez", "Martinez", "carlosrodri@gmail.com", "carlosrodriguez", "", "Medicina Familiar", appoinments, patients);
