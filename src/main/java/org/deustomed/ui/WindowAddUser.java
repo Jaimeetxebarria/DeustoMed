@@ -49,7 +49,7 @@ public class WindowAddUser extends JFrame {
     JTextField tfAge;
     JTextField tfPhone;
     JTextField tfAddress;
-    JTextField tfBirthDate;
+    JDateChooser dateChooser;
 
     //For doctor
     List<Doctor> doctors;
@@ -70,7 +70,7 @@ public class WindowAddUser extends JFrame {
         setLayout(new BorderLayout());
         setResizable(false);
         setLocationRelativeTo(null);
-        setSize(500, 750);
+        setSize(300, 550);
 
         lblId = new JLabel("ID:");
         lblName = new JLabel("Name:");
@@ -103,45 +103,20 @@ public class WindowAddUser extends JFrame {
             lblBirthDate = new JLabel("Birth date:");
 
             //JDateChooser
-            LocalDate currentDate = LocalDate.now();
-            DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-            String formatedDate = currentDate.format(format);
-            tfBirthDate = new JTextField(formatedDate);
-            tfBirthDate.getDocument().addDocumentListener(new DocumentListener() {
-                @Override
-                public void insertUpdate(DocumentEvent e) {
-                    updateAge();
-                }
+            Date currentDate = new Date();
 
-                @Override
-                public void removeUpdate(DocumentEvent e) {
-                    updateAge();
-                }
 
-                @Override
-                public void changedUpdate(DocumentEvent e) {
-                }
-            });
-            /*
-            JDateChooser dateChooser = new JDateChooser();
-            dateChooser.setDateFormatString("dd/MM/yyyy");
-            tfBirthDate.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    dateChooser.show();
-                }
-            });
-            dateChooser.getDateEditor().addPropertyChangeListener(e -> {
-                if ("date".equals(e.getPropertyName())) {
-                    updateDateTextField(dateChooser, tfBirthDate);
-                }
-            });
+            dateChooser = new JDateChooser();
+            dateChooser.setDateFormatString("dd MMMM yyyy");
+            dateChooser.setDate(currentDate);
+            dateChooser.setMaxSelectableDate(currentDate);
+            dateChooser.setMinSelectableDate(new GregorianCalendar(1900, Calendar.JANUARY, 1).getTime());
 
-             */
+
 
             tfAge = new JTextField();
             tfAge.setEditable(false);
-            //tfAge.setText();
+            tfAge.setText(String.valueOf(getAge(dateChooser.getDate())));
             tfPhone = new JTextField();
             tfAddress = new JTextField();
 
@@ -174,7 +149,7 @@ public class WindowAddUser extends JFrame {
         pnlPrimary.add(tfDni);
         if(patients!=null) {
             pnlPrimary.add(lblBirthDate);
-            pnlPrimary.add(tfBirthDate);
+            pnlPrimary.add(dateChooser);
             pnlPrimary.add(lblAge);
             pnlPrimary.add(tfAge);
             pnlPrimary.add(lblPhone);
@@ -204,12 +179,12 @@ public class WindowAddUser extends JFrame {
                 String email = tfEmail.getText();
                 String dni = tfDni.getText();
                 if (patients != null) {
-                    String birthDate = tfBirthDate.getText();
+                    Date birthDate = dateChooser.getDate();
                     String age = tfAge.getText();
                     String phone = tfPhone.getText();
                     String address = tfAddress.getText();
 
-                    if (name.isEmpty() || surname1.isEmpty() || surname2.isEmpty() || email.isEmpty() || dni.isEmpty() || birthDate.isEmpty() || age.isEmpty() || phone.isEmpty() || address.isEmpty()) {
+                    if (name.isEmpty() || surname1.isEmpty() || surname2.isEmpty() || email.isEmpty() || dni.isEmpty()  || age.isEmpty() || phone.isEmpty() || address.isEmpty()) {
                         lblError.setText("All fields are required");
                     } else if (Integer.parseInt(tfAge.getText())<0) {
                         lblError.setText("Age must be positive");
@@ -283,19 +258,14 @@ public class WindowAddUser extends JFrame {
      * Updates the age textfield with the age calculated from the birthdate textfield
      */
     private void updateAge() {
-        try {
 
-            String birthdayText = tfBirthDate.getText();
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-            Date birthday = dateFormat.parse(birthdayText);
+        Date birthday = dateChooser.getDate();
 
-            int age = getAge(birthday);
-            if(age>=0 || age<=120){
-                tfAge.setText(String.valueOf(age));
-            }
-        } catch (ParseException ex) {
-            tfAge.setText("Error");
+        int age = getAge(birthday);
+        if(age>=0 || age<=120){
+            tfAge.setText(String.valueOf(age));
         }
+
     }
     /**
      * Calculates the age of a user given the birthdate and the current date
@@ -325,8 +295,8 @@ public class WindowAddUser extends JFrame {
         doctors.add(new Doctor(1,"Pablo","Garcia","Iglesias","email1","1234","dni1", "speciality1", new ArrayList<>(), new ArrayList<>()));
         doctors.add(new Doctor(2,"Andoni","Hernández","Ruiz","email2","5678", "dni2", "speciality2", new ArrayList<>(), new ArrayList<>()));
         SwingUtilities.invokeLater(() -> {
-            //new WindowAddUser(patients);
-            new WindowAddUser(doctors);
+            new WindowAddUser(patients);
+            //new WindowAddUser(doctors);
         });
 
 
