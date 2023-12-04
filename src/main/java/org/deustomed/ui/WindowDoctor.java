@@ -5,6 +5,7 @@ import com.toedter.calendar.JYearChooser;
 import org.deustomed.Appoinment;
 import org.deustomed.Doctor;
 import org.deustomed.Patient;
+import org.jetbrains.annotations.Nls;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -171,17 +172,17 @@ public class WindowDoctor extends JFrame {
 
     }*/
 
-    }
+}
 
     public static void main(String[] args) {
         org.deustomed.Patient patient1 = new org.deustomed.Patient(1001, "Paciente1", "Surname1", "Surname2", "paciente1@gmail.com", "password", 24);
-        Doctor doctor1 = new Doctor(1,"Carlos","Garcia","Gomez","carlos@gmail.com","aa","123456","General",new ArrayList<>(),new ArrayList<>());
         ArrayList<Appoinment> appoinments = new ArrayList<>();
-        appoinments.add( new Appoinment(patient1, doctor1, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
-        appoinments.add( new Appoinment(patient1, doctor1, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
-        appoinments.add( new Appoinment(patient1, doctor1, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
+        appoinments.add( new Appoinment(patient1, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
+        appoinments.add( new Appoinment(patient1, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
+        appoinments.add( new Appoinment(patient1, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
         ArrayList<org.deustomed.Patient> patients = new ArrayList<>();
         patients.add(patient1);
+        Doctor doctor1 = new Doctor(1000, "Carlos", "Rodriguez", "Martinez", "carlosrodri@gmail.com", "carlosrodriguez", "", "Medicina Familiar", appoinments, patients);
         WindowDoctor win = new WindowDoctor(doctor1);
         win.setVisible(true);
     }
@@ -194,44 +195,44 @@ public class WindowDoctor extends JFrame {
         pnlModApp.setLayout(new GridLayout(40,1));
         for(Appoinment appointment : doctor.getAppointments()) {
 
-            TitledBorder borde = new TitledBorder("");
-            JPanel panel = new JPanel();
-            panel.setLayout(new BorderLayout(3, 3));
-            panel.setPreferredSize(new Dimension(300,150));
-            JPanel nombre = new JPanel();
-            JPanel pnlButton = new JPanel();
+                TitledBorder borde = new TitledBorder("");
+                JPanel panel = new JPanel();
+                panel.setLayout(new BorderLayout(3, 3));
+                panel.setPreferredSize(new Dimension(300,150));
+                JPanel nombre = new JPanel();
+                JPanel pnlButton = new JPanel();
 
-            panel.setBorder(borde);
-            org.deustomed.Patient pat = appointment.getPatient();
-            nombre.setLayout(new BoxLayout(nombre, BoxLayout.Y_AXIS));
-            JLabel name = new JLabel(pat.getName()+" "+pat.getSurname1()+" "+pat.getSurname2());
-            name.setHorizontalAlignment(SwingConstants.LEFT);
-            name.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-            nombre.add(name);
+                panel.setBorder(borde);
+                org.deustomed.Patient pat = appointment.getPatient();
+                nombre.setLayout(new BoxLayout(nombre, BoxLayout.Y_AXIS));
+                JLabel name = new JLabel(pat.getName()+" "+pat.getSurname1()+" "+pat.getSurname2());
+                name.setHorizontalAlignment(SwingConstants.LEFT);
+                name.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+                nombre.add(name);
 
-            JPanel pnTa = new JPanel();
+                JPanel pnTa = new JPanel();
 
-            pnTa.setBorder(BorderFactory.createEmptyBorder(0,5,5,0));
-            JTextArea ta = new JTextArea(appointment.getShortDesciption());
-            ta.setEditable(false);
-            ta.setPreferredSize(new Dimension(200,106));
-            ta.setBorder(BorderFactory.createTitledBorder(""));
-            pnTa.add(ta);
-            panel.add(pnTa, BorderLayout.CENTER);
+                pnTa.setBorder(BorderFactory.createEmptyBorder(0,5,5,0));
+                JTextArea ta = new JTextArea(appointment.getShortDesciption());
+                ta.setEditable(false);
+                ta.setPreferredSize(new Dimension(200,106));
+                ta.setBorder(BorderFactory.createTitledBorder(""));
+                pnTa.add(ta);
+                panel.add(pnTa, BorderLayout.CENTER);
 
-            JButton btn = new JButton("+Info");
-            btn.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
+                JButton btn = new JButton("+Info");
+                btn.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
 
-                }
-            });
-            pnlButton.add(btn);
-            panel.add(nombre, BorderLayout.NORTH);
-            panel.add(pnlButton, BorderLayout.EAST);
-            pnlModApp.add(panel);
-            pnlModApp.updateUI();
-            pnlDisplayAppoinments.updateUI();
+                    }
+                });
+                pnlButton.add(btn);
+                panel.add(nombre, BorderLayout.NORTH);
+                panel.add(pnlButton, BorderLayout.EAST);
+                pnlModApp.add(panel);
+                pnlModApp.updateUI();
+                pnlDisplayAppoinments.updateUI();
         }
     }
     class TablePatientRenderer extends DefaultTableCellRenderer {
@@ -317,7 +318,7 @@ public class WindowDoctor extends JFrame {
             return 11;
         }
 
-
+        @Nls
         @Override
         public String getColumnName(int columnIndex) {
             return columns[columnIndex];
@@ -468,43 +469,43 @@ public class WindowDoctor extends JFrame {
             pnlTitle.add(surname2);
             //pnlTitle.add(new JLabel("Paciente del doctor: "));
             panelWest.add(pnlTitle);
+    }
+
+class CreateRoundButton extends JButton {
+    Shape shape;
+
+    public CreateRoundButton(String label) {
+        super(label);
+        Dimension size = getPreferredSize();
+        size.width = size.height = Math.max(size.width,size.height);
+        setPreferredSize(size);
+
+        setContentAreaFilled(false);
+    }
+
+    protected void paintComponent(Graphics g) {
+        if (getModel().isArmed()) {
+            g.setColor(Color.lightGray);
+        } else {
+            g.setColor(getBackground());
         }
+        g.fillOval(0, 0, getSize().width-1,getSize().height-1);
 
-        class CreateRoundButton extends JButton {
-            Shape shape;
+        super.paintComponent(g);
+    }
 
-            public CreateRoundButton(String label) {
-                super(label);
-                Dimension size = getPreferredSize();
-                size.width = size.height = Math.max(size.width,size.height);
-                setPreferredSize(size);
+    protected void paintBorder(Graphics g) {
+        g.setColor(getForeground());
+        g.drawOval(0, 0, getSize().width-1,     getSize().height-1);
+    }
 
-                setContentAreaFilled(false);
-            }
-
-            protected void paintComponent(Graphics g) {
-                if (getModel().isArmed()) {
-                    g.setColor(Color.lightGray);
-                } else {
-                    g.setColor(getBackground());
-                }
-                g.fillOval(0, 0, getSize().width-1,getSize().height-1);
-
-                super.paintComponent(g);
-            }
-
-            protected void paintBorder(Graphics g) {
-                g.setColor(getForeground());
-                g.drawOval(0, 0, getSize().width-1,     getSize().height-1);
-            }
-
-            public boolean contains(int x, int y) {
-                if (shape == null ||
-                        !shape.getBounds().equals(getBounds())) {
-                    shape = new Ellipse2D.Float(0, 0, getWidth(), getHeight());
-                }
-                return shape.contains(x, y);
-            }
+    public boolean contains(int x, int y) {
+        if (shape == null ||
+                !shape.getBounds().equals(getBounds())) {
+            shape = new Ellipse2D.Float(0, 0, getWidth(), getHeight());
+        }
+        return shape.contains(x, y);
+    }
 
     /*public static void main(String[] args) {
         JButton button = new CreateRoundButton("Click");
@@ -516,5 +517,5 @@ public class WindowDoctor extends JFrame {
         frame.setSize(150, 150);
         frame.setVisible(true);
     }*/
-        }
-    }}
+}
+}}
