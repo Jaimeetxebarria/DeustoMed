@@ -173,8 +173,16 @@ class PostgrestClientTest {
                 .select()
                 .getQuery();
 
-        System.out.println(client.sendQuery(query));
-        //assertJsonEquals("[]", client.sendQuery(query));
+        String jsonResponse = """
+                [
+                    {"id": 2, "name": "José", "age": 22},
+                    {"id": 3, "name": "María", "age": 25},
+                    {"id": 4, "name": "Teresa", "age": 45},
+                    {"id": 1, "name": "Alejandro", "age": 19}
+                ]
+                """;
+
+        assertJsonEquals(jsonResponse, client.sendQuery(query));
     }
 
     @Test
@@ -187,6 +195,12 @@ class PostgrestClientTest {
                 .select()
                 .getQuery();
 
-        System.out.println(client.sendQuery(query));
+        String jsonResponse = """
+                [
+                    {"id": 1, "name": "Luis", "age": 20}
+                ]
+                """;
+
+        assertJsonEquals(jsonResponse, client.sendQuery(query));
     }
 }
