@@ -1,14 +1,13 @@
 package org.deustomed.postgrest;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import static org.deustomed.postgrest.PostgrestAssertions.assertJsonEquals;
 import static org.deustomed.postgrest.PostgrestAssertions.assertPathnameEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -21,10 +20,6 @@ class PostgrestClientTest {
             eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwcHF4eXp6Z2h6b21vanFwZGRwIiwicm9sZSI6ImFub24\
             iLCJpYXQiOjE2OTg2NzE5MjksImV4cCI6MjAxNDI0NzkyOX0.m5uDlUdMaDBXBSoDzRx0BScQfF3AweNGopruakwxais""";
     private static PostgrestClient client = new PostgrestClient(BASE_URL, ENDPOINT, ANONYMOUS_TOKEN);
-
-    void assertJsonEquals(String expected, JsonElement actual) {
-        assertEquals(JsonParser.parseString(expected), actual);
-    }
 
     @Test
     @Order(1)
