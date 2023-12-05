@@ -1,5 +1,6 @@
 package org.deustomed.postgrest;
 
+import com.google.gson.JsonElement;
 import org.deustomed.httputils.HttpMethod;
 import org.deustomed.httputils.UrlBuilder;
 import org.jetbrains.annotations.NotNull;
@@ -10,15 +11,20 @@ import java.util.List;
 import java.util.Map;
 
 public class PostgrestQuery {
-    private HttpMethod httpMethod = HttpMethod.GET;
-    private UrlBuilder urlBuilder = new UrlBuilder();
-    private Map<String, List<String>> headers = new HashMap<>();
-    private String body = "";
+    private HttpMethod httpMethod;
+    private UrlBuilder urlBuilder;
+    private Map<String, List<String>> headers;
+    private JsonElement body;
 
-    public PostgrestQuery() {}
+    public PostgrestQuery() {
+        httpMethod = HttpMethod.GET;
+        urlBuilder = new UrlBuilder();
+        headers = new HashMap<>();
+        body = null;
+    }
 
     public PostgrestQuery(HttpMethod httpMethod, UrlBuilder urlBuilder, Map<String, List<String>> headers,
-                          String body) {
+                          JsonElement body) {
         this.httpMethod = httpMethod;
         this.urlBuilder = urlBuilder;
         this.headers = headers;
@@ -61,11 +67,11 @@ public class PostgrestQuery {
         this.headers.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
     }
 
-    public String getBody() {
+    public JsonElement getBody() {
         return body;
     }
 
-    public void setBody(@NotNull String body) {
+    public void setBody(@NotNull JsonElement body) {
         this.body = body;
     }
 }

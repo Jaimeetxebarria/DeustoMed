@@ -2,7 +2,9 @@ package org.deustomed.postgrest;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.deustomed.postgrest.PostgrestAssertions.assertPathnameEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PostgrestTransformBuilderTest {
     private String getPathname(PostgrestFilterBuilder postgrestFilterBuilder) {
@@ -16,26 +18,26 @@ class PostgrestTransformBuilderTest {
 
         PostgrestTransformBuilder singleColumnSelect = new PostgrestTransformBuilder().select("column1");
         assertTrue(singleColumnSelect.getQuery().getHeader("Prefer").contains("return=representation"));
-        assertEquals("?select=column1", singleColumnSelect.getQuery().getUrlBuilder().getPathname());
+        assertPathnameEquals("?select=column1", singleColumnSelect.getQuery());
 
-        PostgrestTransformBuilder multipleColumnSelect = new PostgrestTransformBuilder().select("column1", "column2",
-                "column3");
+        PostgrestTransformBuilder multipleColumnSelect = new PostgrestTransformBuilder()
+                .select("column1", "column2", "column3");
         assertTrue(multipleColumnSelect.getQuery().getHeader("Prefer").contains("return=representation"));
-        assertEquals("?select=column1,column2,column3", multipleColumnSelect.getQuery().getUrlBuilder().getPathname());
+        assertPathnameEquals("?select=column1,column2,column3", multipleColumnSelect.getQuery());
     }
 
     @Test
     void order() {
         PostgrestTransformBuilder ascendingOrder = new PostgrestTransformBuilder().order("column", true);
-        assertEquals("?order=column.asc", ascendingOrder.getQuery().getUrlBuilder().getPathname());
+        assertPathnameEquals("?order=column.asc", ascendingOrder.getQuery());
 
         PostgrestTransformBuilder descendingOrder = new PostgrestTransformBuilder().order("column", false);
-        assertEquals("?order=column.desc", descendingOrder.getQuery().getUrlBuilder().getPathname());
+        assertPathnameEquals("?order=column.desc", descendingOrder.getQuery());
 
         PostgrestTransformBuilder multipleOrder = new PostgrestTransformBuilder()
                 .order("column1", true)
                 .order("column2", false);
-        assertEquals("?order=column1.asc,column2.desc", multipleOrder.getQuery().getUrlBuilder().getPathname());
+        assertPathnameEquals("?order=column1.asc,column2.desc", multipleOrder.getQuery());
 
         assertThrows(IllegalArgumentException.class, () -> new PostgrestTransformBuilder().order(null, true));
         assertThrows(IllegalArgumentException.class, () -> new PostgrestTransformBuilder().order("", true));
@@ -43,18 +45,18 @@ class PostgrestTransformBuilderTest {
 
     @Test
     void limit() {
-        assertEquals("?limit=10", new PostgrestTransformBuilder().limit(10).getQuery().getUrlBuilder().getPathname());
-        assertEquals("?limit=34", new PostgrestTransformBuilder().limit(34).getQuery().getUrlBuilder().getPathname());
-        assertEquals("?limit=0", new PostgrestTransformBuilder().limit(0).getQuery().getUrlBuilder().getPathname());
+        assertPathnameEquals("?limit=10", new PostgrestTransformBuilder().limit(10).getQuery());
+        assertPathnameEquals("?limit=34", new PostgrestTransformBuilder().limit(34).getQuery());
+        assertPathnameEquals("?limit=0", new PostgrestTransformBuilder().limit(0).getQuery());
 
         assertThrows(IllegalArgumentException.class, () -> new PostgrestTransformBuilder().limit(-1));
     }
 
     @Test
     void offset() {
-        assertEquals("?offset=10", new PostgrestTransformBuilder().offset(10).getQuery().getUrlBuilder().getPathname());
-        assertEquals("?offset=34", new PostgrestTransformBuilder().offset(34).getQuery().getUrlBuilder().getPathname());
-        assertEquals("?offset=0", new PostgrestTransformBuilder().offset(0).getQuery().getUrlBuilder().getPathname());
+        assertPathnameEquals("?offset=10", new PostgrestTransformBuilder().offset(10).getQuery());
+        assertPathnameEquals("?offset=34", new PostgrestTransformBuilder().offset(34).getQuery());
+        assertPathnameEquals("?offset=0", new PostgrestTransformBuilder().offset(0).getQuery());
 
         assertThrows(IllegalArgumentException.class, () -> new PostgrestTransformBuilder().offset(-1));
     }

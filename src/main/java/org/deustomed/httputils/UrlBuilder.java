@@ -36,6 +36,14 @@ public class UrlBuilder {
         this.setPort(port);
     }
 
+    public UrlBuilder(@NotNull UrlBuilder urlBuilder) {
+        this.scheme = urlBuilder.scheme;
+        this.hostname = urlBuilder.hostname;
+        this.port = urlBuilder.port;
+        this.path = urlBuilder.path;
+        this.queryParameters = urlBuilder.queryParameters;
+    }
+
     public UrlBuilder setScheme(@NotNull UrlScheme scheme) {
         this.scheme = scheme;
         this.setPort(scheme.getDefaultPort());

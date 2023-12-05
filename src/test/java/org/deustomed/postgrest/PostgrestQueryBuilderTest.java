@@ -1,60 +1,59 @@
 package org.deustomed.postgrest;
 
+import com.google.gson.JsonObject;
+import org.deustomed.httputils.UrlBuilder;
 import org.junit.jupiter.api.Test;
 
+import static org.deustomed.postgrest.PostgrestAssertions.assertPathnameEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class PostgrestQueryBuilderTest {
 
-    @Test
-    void from() {
-        assertEquals("/table", new PostgrestQueryBuilder().from("table").getQuery().getUrlBuilder().getPathname());
-        assertEquals("/refresh_token",
-                new PostgrestQueryBuilder().from("refresh_token").getQuery().getUrlBuilder().getPathname());
-
-        //Check that null errors out
-        assertThrows(IllegalArgumentException.class,
-                () -> new PostgrestQueryBuilder().from(null).getQuery().getUrlBuilder().getPathname());
-        IllegalArgumentException exceptionBlank = assertThrows(IllegalArgumentException.class,
-                () -> new PostgrestQueryBuilder().from("").getQuery().getUrlBuilder().getPathname());
-        assertEquals("Cannot query blank table", exceptionBlank.getMessage());
+    PostgrestQueryBuilder getBlankPostgrestQueryBuilder() {
+        PostgrestQuery query = new PostgrestQuery();
+        query.setUrlBuilder(new UrlBuilder().setPath("/table"));
+        return new PostgrestQueryBuilder(query);
     }
 
     @Test
     void select() {
-        assertEquals("/table",
-                new PostgrestQueryBuilder().from("table").select().getQuery().getUrlBuilder().getPathname());
-        assertEquals("/table",
-                new PostgrestQueryBuilder().from("table").select("*").getQuery().getUrlBuilder().getPathname());
-        assertEquals("/table?select=column",
-                new PostgrestQueryBuilder().from("table").select("column").getQuery().getUrlBuilder().getPathname());
-        assertEquals("/table?select=column1,column2", new PostgrestQueryBuilder().from("table").select("column1",
-                "column2").getQuery().getUrlBuilder().getPathname());
+        assertPathnameEquals("/table", getBlankPostgrestQueryBuilder().select().getQuery());
+        assertPathnameEquals("/table", getBlankPostgrestQueryBuilder().select("*").getQuery());
+        assertPathnameEquals("/table?select=column",
+                getBlankPostgrestQueryBuilder().select("column").getQuery());
+        assertPathnameEquals("/table?select=column1,column2",
+                getBlankPostgrestQueryBuilder().select("column1", "column2").getQuery());
 
-        assertThrows(IllegalArgumentException.class,
-                () -> new PostgrestQueryBuilder().from("table").select(null).getQuery().getUrlBuilder().getPathname());
-        assertThrows(IllegalArgumentException.class,
-                () -> new PostgrestQueryBuilder().from("table").select("").getQuery().getUrlBuilder().getPathname());
-        assertThrows(IllegalArgumentException.class, () -> new PostgrestQueryBuilder().from("table").select("column1"
-                , null).getQuery().getUrlBuilder().getPathname());
-        assertThrows(IllegalArgumentException.class, () -> new PostgrestQueryBuilder().from("table").select(null,
-                "column2").getQuery().getUrlBuilder().getPathname());
-        assertThrows(IllegalArgumentException.class, () -> new PostgrestQueryBuilder().from("table").select("column1"
-                , null, "").getQuery().getUrlBuilder().getPathname());
-        assertThrows(IllegalArgumentException.class, () -> new PostgrestQueryBuilder().from("table").select("column1"
-                , null, "column2").getQuery().getUrlBuilder().getPathname());
+        assertThrows(IllegalArgumentException.class, () -> getBlankPostgrestQueryBuilder()
+                .select(null).getQuery());
+        assertThrows(IllegalArgumentException.class, () -> getBlankPostgrestQueryBuilder()
+                .select("").getQuery());
+        assertThrows(IllegalArgumentException.class, () -> getBlankPostgrestQueryBuilder()
+                .select("column1", null).getQuery());
+        assertThrows(IllegalArgumentException.class, () -> getBlankPostgrestQueryBuilder()
+                .select(null, "column2").getQuery());
+        assertThrows(IllegalArgumentException.class, () -> getBlankPostgrestQueryBuilder()
+                .select("column1", null, "").getQuery());
+        assertThrows(IllegalArgumentException.class, () -> getBlankPostgrestQueryBuilder()
+                .select("column1", null, "column2").getQuery());
     }
 
     @Test
     void insertSingleElement() {
-        PostgrestQueryBuilder qb1 = new PostgrestQueryBuilder().from("table").insert(new Entry("column1", "value1"));
-        assertEquals("/table", qb1.getQuery().getUrlBuilder().getPathname());
-        assertEquals("{\"column1\":\"value1\"}", qb1.getQuery().getBody());
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("column1", "value1");
+        PostgrestTransformBuilder qb1 = getBlankPostgrestQueryBuilder()
+                .insert(jsonObject);
+        assertPathnameEquals("/table", qb1.getQuery());
+        assertEquals("{\"column1\":\"value1\"}", qb1.getQuery().getBody().toString());
 
-        PostgrestQueryBuilder qb2 = new PostgrestQueryBuilder().from("table").insert(new Entry("column1", "value1"),
-                new Entry("column2", "value2"));
-        assertEquals("/table", qb1.getQuery().getUrlBuilder().getPathname());
-        assertEquals("{\"column1\":\"value1\"}", qb1.getQuery().getBody());
+        jsonObject.addProperty("column2", "value2");
+        PostgrestTransformBuilder qb2 = getBlankPostgrestQueryBuilder()
+                .insert(jsonObject);
+        assertPathnameEquals("/table", qb2.getQuery());
+        assertEquals("{\"column1\":\"value1\",\"column2\":\"value2\"}", qb2.getQuery().getBody().toString());
     }
+
+
 }
