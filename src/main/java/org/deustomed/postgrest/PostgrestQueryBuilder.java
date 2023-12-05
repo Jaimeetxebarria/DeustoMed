@@ -35,6 +35,14 @@ public class PostgrestQueryBuilder {
         return new PostgrestFilterBuilder(this.postgrestQuery);
     }
 
+    public PostgrestFilterBuilder insert(@NotNull JsonElement jsonElement, boolean defaultToNull) {
+        postgrestQuery.setHttpMethod(HttpMethod.POST);
+        postgrestQuery.setBody(jsonElement);
+        if (!defaultToNull) postgrestQuery.addHeader("Prefer", "missing=default");
+        postgrestQuery.addHeader("Content-Type", "application/json");
+        return new PostgrestFilterBuilder(this.postgrestQuery);
+    }
+
     public PostgrestFilterBuilder insert(@NotNull JsonElement jsonElement) {
         postgrestQuery.setHttpMethod(HttpMethod.POST);
         postgrestQuery.setBody(jsonElement);
