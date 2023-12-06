@@ -83,7 +83,7 @@ public class PostgrestFilterBuilder extends PostgrestTransformBuilder {
     }
 
     /**
-     * Ilike
+     * Ilike (case-insensitive like)
      */
     public PostgrestFilterBuilder ilike(@NotNull String column, @NotNull String value) {
         this.addFilter(column, "ilike", value);
@@ -91,7 +91,7 @@ public class PostgrestFilterBuilder extends PostgrestTransformBuilder {
     }
 
     /**
-     * Is
+     * Is checks for null, true or false
      */
     public PostgrestFilterBuilder is(@NotNull String column, Boolean value) {
         if (value == null) this.addFilter(column, "is", "null");
@@ -124,16 +124,7 @@ public class PostgrestFilterBuilder extends PostgrestTransformBuilder {
         return this;
     }
 
-    /** Contains */
-
-    /** Contained by */
-
-    /** Overlap */
-
-    /**
-     * Not
-     */
-
+    /** Negate the next filter */
     public PostgrestFilterBuilder not() {
         negateNextFilter = true;
         return this;
