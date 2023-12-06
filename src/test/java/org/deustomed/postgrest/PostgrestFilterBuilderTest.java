@@ -156,6 +156,136 @@ class PostgrestFilterBuilderTest {
     }
 
     @Test
+    void or() {
+        assertPathnameEquals("?or=(column1.eq.value1,column2.eq.value2)", new PostgrestFilterBuilder()
+                .or(2)
+                .eq("column1", "value1")
+                .eq("column2", "value2")
+                .getQuery());
+
+        assertPathnameEquals("?or=(column.eq.value,column2.eq.value,column3.is.null)", new PostgrestFilterBuilder()
+                .or(3)
+                .eq("column", "value")
+                .eq("column2", "value")
+                .is("column3", null).getQuery());
+
+        assertPathnameEquals("?or=(column.eq.value,column2.neq.value)&or=(column3.not.is.null,column4.is.true)",
+                new PostgrestFilterBuilder()
+                        .or(2)
+                        .eq("column", "value")
+                        .neq("column2", "value")
+                        .or(2)
+                        .not().is("column3", null) // Check if this not is valid postgREST syntax
+                        .is("column4", true).getQuery());
+
+        //TODO: Not enough filters are added
+        //assertThrows(MalformedQueryException.class, () -> new PostgrestFilterBuilder().or(2).eq("column", "value").getQuery());
+
+        //n should be at least 2
+        assertThrows(IllegalArgumentException.class, () -> new PostgrestFilterBuilder().or(1).eq("column", "value"));
+    }
+
+    @Test
+    void and() {
+        assertPathnameEquals("?and=(column1.eq.value1,column2.eq.value2)", new PostgrestFilterBuilder()
+                .and(2)
+                .eq("column1", "value1")
+                .eq("column2", "value2")
+                .getQuery());
+
+        assertPathnameEquals("?and=(column.eq.value,column2.eq.value,column3.is.null)", new PostgrestFilterBuilder()
+                .and(3)
+                .eq("column", "value")
+                .eq("column2", "value")
+                .is("column3", null).getQuery());
+
+        assertPathnameEquals("?and=(column.eq.value,column2.neq.value)&and=(column3.not.is.null,column4.is.true)",
+                new PostgrestFilterBuilder()
+                        .and(2)
+                        .eq("column", "value")
+                        .neq("column2", "value")
+                        .and(2)
+                        .not().is("column3", null) // Check if this not is valid postgREST syntax
+                        .is("column4", true).getQuery());
+
+        //TODO: Not enough filters are added
+        //assertThrows(MalformedQueryException.class, () -> new PostgrestFilterBuilder().or(2).eq("column", "value").getQuery());
+
+        //n should be at least 2
+        assertThrows(IllegalArgumentException.class, () -> new PostgrestFilterBuilder().and(1).eq("column", "value"));
+    }
+
+    @Test
+    void combinedLogicalOperators() {
+        //NOTE: AND goes before OR in the query because all query parameters with the same key are saved in the same list
+        //and then added to the query on a key basis
+        assertPathnameEquals("""
+                        ?and=(column1.eq.value1,column2.eq.value2)&and=(column5.eq.value5,column6.eq.value6)\
+                        &or=(column3.eq.value3,column4.eq.value4)&not.or=(column7.eq.value7,column8.eq.value8)""",
+                new PostgrestFilterBuilder()
+                        .and(2)
+                        .eq("column1", "value1")
+                        .eq("column2", "value2")
+                        .or(2)
+                        .eq("column3", "value3")
+                        .eq("column4", "value4")
+                        .and(2)
+                        .eq("column5", "value5")
+                        .eq("column6", "value6")
+                        .not().or(2)
+                        .eq("column7", "value7")
+                        .eq("column8", "value8").getQuery());
+    }
+
+    @Test
+    void nestedLogicalOperators() {
+        assertPathnameEquals("?or=(column1.eq.value1,and(column3.eq.value3,column4.eq.value4))",
+                new PostgrestFilterBuilder()
+                        .or(2)
+                        .eq("column1", "value1")
+                        .and(2)
+                        .eq("column3", "value3")
+                        .eq("column4", "value4").getQuery());
+
+        assertPathnameEquals("""
+                        ?and=(column1.eq.value1,column2.eq.value2)\
+                        &or=(column3.eq.value3,column4.eq.value4,and(column5.eq.value5,column6.eq.value6))""",
+                new PostgrestFilterBuilder()
+                        .and(2)
+                        .eq("column1", "value1")
+                        .eq("column2", "value2")
+                        .or(3)
+                        .eq("column3", "value3")
+                        .eq("column4", "value4")
+                        .and(2)
+                        .eq("column5", "value5")
+                        .eq("column6", "value6").getQuery());
+
+        assertPathnameEquals("""
+                        ?or=(and(column1.lt.value1,column2.eq.value2,and(column3.not.gte.value3,column4.eq.value4)),\
+                        not.and(column5.eq.value5,column6.like.%value6%),not.or(column7.neq.value7,column8.eq.value8),\
+                        or(column9.in.("value9a","value9b","value9c"),column10.eq.value12,column11.is.null))""",
+                new PostgrestFilterBuilder()
+                        .or(4)
+                        .and(3)
+                        .lt("column1", "value1")
+                        .eq("column2", "value2")
+                        .and(2)
+                        .not().gte("column3", "value3")
+                        .eq("column4", "value4")
+                        .not().and(2)
+                        .eq("column5", "value5")
+                        .like("column6", "%value6%")
+                        .not().or(2)
+                        .neq("column7", "value7")
+                        .eq("column8", "value8")
+                        .or(3)
+                        .in("column9", "value9a", "value9b", "value9c")
+                        .eq("column10", "value12")
+                        .is("column11", null).getQuery());
+    }
+
+    @Test
     void not() {
         assertPathnameEquals("?column=not.eq.value", new PostgrestFilterBuilder()
                 .not().eq("column", "value").getQuery());
