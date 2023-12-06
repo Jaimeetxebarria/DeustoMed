@@ -128,5 +128,6 @@ public class WindowAppointment extends JFrame {
 
     public static void main(String[] args) {
         new WindowAppointment(new Date());
+
     }
 }

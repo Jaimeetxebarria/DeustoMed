@@ -15,6 +15,12 @@ public class Doctor extends User {
         this.patients = patients;
 
     }
+    public Doctor() {
+        super(-1, "", "", "", "", "", "");
+        this.speciality = "";
+        this.appointments = new ArrayList<>();
+        this.patients = new ArrayList<>();
+    }
 
 
     public ArrayList<Patient> getPatients() {

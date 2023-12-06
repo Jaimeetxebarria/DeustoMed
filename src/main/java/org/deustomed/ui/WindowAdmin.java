@@ -26,7 +26,7 @@ public class WindowAdmin extends JFrame {
     protected JTable tblPatient;
     protected DefaultTableModel mdlPatient;
     protected JScrollPane scrPatient;
-    protected JTextField tfPatient;
+    protected JTextField tfFindPatient;
     protected JButton btnPatient;
     protected JButton btnLogoutPatient;
 
@@ -34,7 +34,7 @@ public class WindowAdmin extends JFrame {
     protected JTable tblDoctor;
     protected DefaultTableModel mdlDoctor;
     protected JScrollPane scrDoctor;
-    protected JTextField tfDoctor;
+    protected JTextField tfFindDoctor;
     protected JButton btnDoctor;
     protected JButton btnLogoutDoctor;
 
@@ -64,16 +64,21 @@ public class WindowAdmin extends JFrame {
         String[] columNamesPatients = {"ID", "Surname", "Name", "Email", "DNI", "Age", "Phone", "Address", "Birthdate"};
         mdlPatient = completeTable(columNamesPatients, patients);
         tblPatient = new JTable(mdlPatient);
+        tblPatient.getColumnModel().getColumn(0).setPreferredWidth(25);
+        tblPatient.getColumnModel().getColumn(5).setPreferredWidth(25);
+        tblPatient.getColumnModel().getColumn(9).setPreferredWidth(150);
+        tblPatient.setRowHeight(25);
 
         configureTable(tblPatient, new ButtonEditor(patients), new ButtonRenderer());
 
         scrPatient = new JScrollPane(tblPatient);
-        tfPatient = new JTextField();
+        tfFindPatient = new JTextField();
+        tfFindPatient.setPreferredSize(new Dimension(200, 25));
         btnPatient = new JButton("Add");
         btnLogoutPatient = new JButton("Logout");
 
         JPanel pnlUpper = new JPanel(new BorderLayout());
-        pnlUpper.add(tfPatient, BorderLayout.WEST);
+        pnlUpper.add(tfFindPatient, BorderLayout.WEST);
         pnlPatient.add(pnlUpper, BorderLayout.NORTH);
         pnlPatient.add(scrPatient, BorderLayout.CENTER);
 
@@ -87,8 +92,9 @@ public class WindowAdmin extends JFrame {
         btnPatient.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                new WindowAddUser(patients);
             }
+
         });
 
         btnLogoutPatient.addActionListener(new ActionListener() {
@@ -103,16 +109,20 @@ public class WindowAdmin extends JFrame {
         String[] columNamesDoctor = {"ID", "Surname", "Name", "Email", "DNI", "Speciality"};
         mdlDoctor = completeTable(columNamesDoctor, doctors);
         tblDoctor = new JTable(mdlDoctor);
+        tblDoctor.getColumnModel().getColumn(0).setPreferredWidth(25);
+        tblDoctor.getColumnModel().getColumn(6).setPreferredWidth(150);
+        tblDoctor.setRowHeight(25);
 
         configureTable(tblDoctor, new ButtonEditor(doctors), new ButtonRenderer());
 
         scrDoctor = new JScrollPane(tblDoctor);
-        tfDoctor = new JTextField();
+        tfFindDoctor = new JTextField();
+        tfFindDoctor.setPreferredSize(new Dimension(200, 25));
         btnDoctor = new JButton("Add");
         btnLogoutDoctor = new JButton("Logout");
 
         JPanel pnlUpperDoctor = new JPanel(new BorderLayout());
-        pnlUpperDoctor.add(tfDoctor, BorderLayout.WEST);
+        pnlUpperDoctor.add(tfFindDoctor, BorderLayout.WEST);
         pnlDoctor.add(pnlUpperDoctor, BorderLayout.NORTH);
 
         pnlDoctor.add(scrDoctor, BorderLayout.CENTER);
@@ -128,7 +138,7 @@ public class WindowAdmin extends JFrame {
         btnDoctor.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                new WindowAddUser(doctors);
             }
         });
 
@@ -194,6 +204,28 @@ public class WindowAdmin extends JFrame {
         table.getColumnModel().getColumn(table.getColumnCount() - 1).setCellEditor(buttonEditor);
         table.getColumnModel().getColumn(table.getColumnCount() - 1).setCellRenderer(buttonRenderer);
     }
+    private User getUserFromTable(JTable table, int row) {
+        if (table.getModel() instanceof DefaultTableModel) {
+            DefaultTableModel model = (DefaultTableModel) table.getModel();
+            List<?> dataList = (List<?>) model.getDataVector().get(row);
+            if (dataList != null && dataList.size() > 0) {
+                Object data = dataList.get(0);
+                if (data instanceof Patient) {
+                    return (Patient) data;
+                } else if (data instanceof Doctor) {
+                    return (Doctor) data;
+                }
+            }
+        }
+        return null;
+    }
+    /*
+    private void updatePatientData(List<User> patients, int index, Object data){
+        Patient patient = (Patient) getUserFromTable(tblPatient, index);
+
+    }
+
+     */
 
     class ButtonRenderer implements TableCellRenderer {
         private JPanel panel;
@@ -205,14 +237,89 @@ public class WindowAdmin extends JFrame {
             btnEdit = new JButton("Edit");
             btnDelete = new JButton("Delete");
 
-            panel.add(btnEdit);
-            panel.add(btnDelete);
+            JPanel pnlButtons = new JPanel(new GridLayout(1, 2));
+            pnlButtons.add(btnEdit);
+            pnlButtons.add(btnDelete);
+            panel.add(pnlButtons);
 
             btnEdit.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
 
                     JOptionPane.showMessageDialog(null, "Botón Edit clickeado");
+                    JTable table = (JTable) SwingUtilities.getAncestorOfClass(JTable.class, btnEdit);
+
+                    if (table != null) {
+                        TableType tableType = getTableType(table, btnEdit);
+                        int selectedRow = table.getSelectedRow();
+                        if (selectedRow != -1) {
+                            int modelRow = table.convertRowIndexToModel(selectedRow);
+
+                            // Obtén los datos asociados a la fila
+                            Object[] rowData = new Object[table.getColumnCount()];
+                            for (int i = 0; i < table.getColumnCount(); i++) {
+                                rowData[i] = table.getModel().getValueAt(modelRow, i);
+                            }
+
+                            // Realiza la lógica de edición basada en los datos de la fila
+                            switch (tableType) {
+                                case PATIENTS:
+                                    Patient originalPatient = (Patient) rowData[0];
+                                    int indexInListP = patients.indexOf(originalPatient);
+
+                                    if (indexInListP != -1) {
+                                        // Crea un nuevo objeto Patient con los valores editados
+                                        Patient editedPatient = new Patient();
+                                        editedPatient.setName(rowData[2].toString());
+                                        editedPatient.setSurname1(rowData[1].toString().split(" ")[0]);
+                                        editedPatient.setSurname2(rowData[1].toString().split(" ")[1]);
+                                        editedPatient.setEmail(rowData[3].toString());
+                                        editedPatient.setDni(rowData[4].toString());
+                                        editedPatient.setAge(Integer.parseInt(rowData[5].toString()));
+                                        editedPatient.setPhoneNumer(rowData[6].toString());
+                                        editedPatient.setAddress(rowData[7].toString());
+                                        editedPatient.setBirthDate((Date) rowData[8]);
+
+
+                                        // Actualiza el objeto en la lista
+                                        patients.set(indexInListP, editedPatient);
+
+                                        // Actualiza la fila en la tabla
+                                        for (int i = 1; i < rowData.length; i++) {
+                                            table.getModel().setValueAt(rowData[i], modelRow, i);
+                                        }
+                                    }
+                                    break;
+                                case DOCTORS:
+                                    Doctor originalDoctor = (Doctor) rowData[0];
+                                    int indexInListD = doctors.indexOf(originalDoctor);
+                                    if (indexInListD != -1) {
+                                        // Crea un nuevo objeto Patient con los valores editados
+                                        Doctor editedDoctor = new Doctor();
+                                        editedDoctor.setName(rowData[2].toString());
+                                        editedDoctor.setSurname1(rowData[1].toString().split(" ")[0]);
+                                        editedDoctor.setSurname2(rowData[1].toString().split(" ")[1]);
+                                        editedDoctor.setEmail(rowData[3].toString());
+                                        editedDoctor.setDni(rowData[4].toString());
+                                        editedDoctor.setSpeciality(rowData[5].toString());
+
+
+                                        // Actualiza el objeto en la lista
+                                        doctors.set(indexInListD, editedDoctor);
+
+                                        // Actualiza la fila en la tabla
+                                        for (int i = 1; i < rowData.length; i++) {
+                                            table.getModel().setValueAt(rowData[i], modelRow, i);
+                                        }
+                                    }
+                                    break;
+                                case OTHER:
+                                    break;
+                            }
+
+                            System.out.println(patients);
+                        }
+                    }
                 }
             });
 
@@ -223,28 +330,24 @@ public class WindowAdmin extends JFrame {
                     JTable table = (JTable) SwingUtilities.getAncestorOfClass(JTable.class, btnDelete);
 
                     if (table != null) {
+                        TableType tableType = getTableType(table, btnDelete);
                         int selectedRow = table.getSelectedRow();
                         if (selectedRow != -1) {
                             int modelRow = table.convertRowIndexToModel(selectedRow);
 
-                            List<?> dataList = null;
-                            if (table.getModel() instanceof DefaultTableModel) {
-                                DefaultTableModel model = (DefaultTableModel) table.getModel();
-                                dataList = (List<?>) model.getDataVector().get(modelRow);
+                            switch (tableType) {
+                                case PATIENTS:
+                                    patients.remove(modelRow);
+                                    break;
+                                case DOCTORS:
+                                    doctors.remove(modelRow);
+                                    break;
+                                case OTHER:
+                                    break;
                             }
 
-                            if (dataList != null && dataList.size() > 0) {
-                                Object data = dataList.get(0);
-                                if (data instanceof Patient) {
-                                    patients.remove(data);
-                                    System.out.println(patients);
-                                } else if (data instanceof Doctor) {
-                                    doctors.remove(data);
-                                    System.out.println(doctors);
-                                }
-
-                                ((DefaultTableModel) table.getModel()).removeRow(modelRow);
-                            }
+                            // Remueve la fila de la tabla
+                            ((DefaultTableModel) table.getModel()).removeRow(modelRow);
                         }
                     }
                 }
@@ -255,6 +358,35 @@ public class WindowAdmin extends JFrame {
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
             return panel;
         }
+        public TableType getTableType(JTable table, JButton button){
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow != -1) {
+                int modelRow = table.convertRowIndexToModel(selectedRow);
+
+                if (table.getModel() instanceof DefaultTableModel) {
+                    DefaultTableModel model = (DefaultTableModel) table.getModel();
+
+                    if (model.getRowCount() > modelRow) {
+                        Object data = (DefaultTableModel) table.getModel();
+                        if (data instanceof Patient) {
+                            return TableType.PATIENTS;
+                        } else if (data instanceof Doctor) {
+                            return TableType.DOCTORS;
+                        }
+
+                        ((DefaultTableModel) table.getModel()).removeRow(modelRow);
+                    }
+                }
+
+
+            }
+            return TableType.OTHER;
+        }
+    }
+    public enum TableType {
+        PATIENTS,
+        DOCTORS,
+        OTHER
     }
 
     class ButtonEditor extends AbstractCellEditor implements TableCellEditor {

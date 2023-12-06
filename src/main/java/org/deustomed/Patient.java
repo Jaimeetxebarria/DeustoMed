@@ -31,6 +31,13 @@ public class Patient extends User {
         this.age = age;
     }
 
+    public Patient(){
+        super(-1, "", "", "", "", "", "");
+        this.age = 0;
+        this.phoneNumer = "";
+        this.address = "";
+        this.birthDate = new Date();
+    }
     public String getNSS() {
         return NSS;
     }
@@ -74,12 +81,17 @@ public class Patient extends User {
     @Override
     public String toString() {
         return "Patient{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", surname='" + surname1 + '\'' +
+                "name='" + name + '\'' +
+                ", surname1='" + surname1 + '\'' +
+                ", surname2='" + surname2 + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
+                ", dni='" + dni + '\'' +
                 ", age=" + age +
+                ", phoneNumer='" + phoneNumer + '\'' +
+                ", address='" + address + '\'' +
+                ", birthDate=" + birthDate +
+                ", NSS='" + NSS + '\'' +
                 '}';
     }
 }
