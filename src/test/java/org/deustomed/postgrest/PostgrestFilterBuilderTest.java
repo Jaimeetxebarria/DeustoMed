@@ -120,16 +120,15 @@ class PostgrestFilterBuilderTest {
 
     @Test
     void is() {
-        assertPathnameEquals("?column=is.true", new PostgrestFilterBuilder()
-                .is("column", "true").getQuery());
-
         assertPathnameEquals("?column=is.null", new PostgrestFilterBuilder()
                 .is("column", null).getQuery());
 
-        assertThrows(IllegalArgumentException.class, () -> new PostgrestFilterBuilder().is(null, "value"));
-        assertThrows(IllegalArgumentException.class, () -> new PostgrestFilterBuilder().is("", "value"));
-        assertThrows(IllegalArgumentException.class, () -> new PostgrestFilterBuilder().is("column", "value"));
-        assertThrows(IllegalArgumentException.class, () -> new PostgrestFilterBuilder().is("column", ""));
+        assertPathnameEquals("?column1=is.true&column2=is.false", new PostgrestFilterBuilder()
+                .is("column1", true)
+                .is("column2", false).getQuery());
+
+        assertThrows(IllegalArgumentException.class, () -> new PostgrestFilterBuilder().is(null, null));
+        assertThrows(IllegalArgumentException.class, () -> new PostgrestFilterBuilder().is("", null));
     }
 
     @Test
@@ -163,7 +162,7 @@ class PostgrestFilterBuilderTest {
 
         assertPathnameEquals("?column=not.is.true&column=not.in.(\"value1\",\"value2\")",
                 new PostgrestFilterBuilder()
-                        .not().is("column", "true")
+                        .not().is("column", true)
                         .not().in("column", "value1", "value2")
                         .getQuery());
 

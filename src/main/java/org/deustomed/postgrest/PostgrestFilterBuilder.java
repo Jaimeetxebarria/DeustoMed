@@ -4,7 +4,6 @@ package org.deustomed.postgrest;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -94,12 +93,10 @@ public class PostgrestFilterBuilder extends PostgrestTransformBuilder {
     /**
      * Is
      */
-    public PostgrestFilterBuilder is(@NotNull String column, String value) {
-        if (value == null) {
-            this.addFilter(column, "is", "null");
-        } else if (List.of("null", "not.null", "true", "false").contains(value.toLowerCase())) {
-            this.addFilter(column, "is", value.toLowerCase());
-        } else throw new IllegalArgumentException("Cannot use is filter with value " + value);
+    public PostgrestFilterBuilder is(@NotNull String column, Boolean value) {
+        if (value == null) this.addFilter(column, "is", "null");
+        else this.addFilter(column, "is", value.toString());
+
         return this;
     }
 
