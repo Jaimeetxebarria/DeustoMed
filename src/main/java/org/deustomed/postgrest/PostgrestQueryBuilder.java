@@ -1,7 +1,6 @@
 package org.deustomed.postgrest;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import org.deustomed.httputils.HttpMethod;
 import org.jetbrains.annotations.NotNull;
 
@@ -52,15 +51,11 @@ public class PostgrestQueryBuilder {
     }
 
 
-    public PostgrestFilterBuilder update(@NotNull Entry... entries) {
+    public PostgrestFilterBuilder update(@NotNull Entry<?>... entries) {
         if (entries.length == 0) throw new IllegalArgumentException("Cannot insert empty entry list");
 
         postgrestQuery.setHttpMethod(HttpMethod.PATCH);
-
-        JsonObject jsonObject = new JsonObject();
-        Arrays.stream(entries).forEach(entry -> jsonObject.addProperty(entry.getColumnName(), entry.getValue()));
-
-        postgrestQuery.setBody(jsonObject);
+        postgrestQuery.setBody(Entry.toJsonObject(entries));
         postgrestQuery.addHeader("Content-Type", "application/json");
         return new PostgrestFilterBuilder(this.postgrestQuery);
     }
@@ -73,17 +68,14 @@ public class PostgrestQueryBuilder {
     }
 
     //TODO: Implement upsert
-//    public PostgrestFilterBuilder upsert(boolean mergeDuplicates, @NotNull Entry... entries){
+//    public PostgrestFilterBuilder upsert(boolean mergeDuplicates, @NotNull Entry<?>... entries){
 //        if (entries.length == 0) {
 //            throw new IllegalArgumentException("Cannot insert empty entry list");
 //        }
 //
 //        postgrestQuery.setHttpMethod(HttpMethod.POST);
 //
-//        JsonObject jsonObject = new JsonObject();
-//        Arrays.stream(entries).forEach(entry -> jsonObject.addProperty(entry.getColumnName(), entry.getValue()));
-//
-//        postgrestQuery.setBody(jsonObject);
+//        postgrestQuery.setBody(Entry.toJsonObject(entries));
 //        postgrestQuery.addHeader("Prefer", "resolution=" + (mergeDuplicates ? "merge-duplicates" :
 //        "ignore-duplicates"));
 //        postgrestQuery.addHeader("Content-Type", "application/json");
