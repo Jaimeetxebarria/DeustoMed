@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 public class PostgrestClient {
-    private static final Gson gson = new Gson();
+    public static final Gson gson = new Gson();
     private final HttpClient httpClient;
     private final String hostname;
     private final String endpoint;

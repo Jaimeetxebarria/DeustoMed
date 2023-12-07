@@ -1,14 +1,20 @@
 package org.deustomed.ui;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.toedter.calendar.JCalendar;
 import org.deustomed.chat.Client;
 import org.deustomed.chat.Server;
-
+import org.deustomed.postgrest.Entry;
+import org.deustomed.postgrest.PostgrestClient;
+import org.deustomed.postgrest.PostgrestQuery;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+import static org.deustomed.postgrest.PostgrestClient.gson;
 
 public class WindowPatient extends JFrame {
     protected String selectedButton = ""; //info, calendar, medicines, chat
@@ -29,8 +35,20 @@ public class WindowPatient extends JFrame {
     protected JButton sendButton;
     protected JButton leaveChatButton;
     protected String lastMessage = "";
+    protected String patientId;
 
-    public WindowPatient() {
+    static final String HOSTNAME = "hppqxyzzghzomojqpddp.supabase.co";
+    static final String ENDPOINT = "/rest/v1";
+    private static final String ANONYMOUS_TOKEN = """
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwcHF4eXp6Z2h6b21vanFwZGRwIiwicm9sZSI6ImFub24\
+            iLCJpYXQiOjE2OTg2NzE5MjksImV4cCI6MjAxNDI0NzkyOX0.m5uDlUdMaDBXBSoDzRx0BScQfF3AweNGopruakwxais""";
+
+    static final PostgrestClient postgrestClient = new PostgrestClient(HOSTNAME, ENDPOINT, ANONYMOUS_TOKEN);
+
+    public WindowPatient(String patientId) { //TODO: PUT THE PATIENT ID AS PARAMETER
+        this.patientId = patientId;
+
+        //WINDOW SETTINGS--------------------------------------------------------------------------------------------
         UIManager.put("Button.font", new Font("Arial", Font.BOLD, 14));
         UIManager.put("Button.foreground", Color.BLACK);
 
@@ -305,10 +323,18 @@ public class WindowPatient extends JFrame {
         guardarCambiosButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //TODO: ACTUALIZAR EMAIL,DIRECCION Y TELEFONO EN LA BD
                 prevDirect = txtDireccion.getText();
                 prevEmail = txtEmail.getText();
                 prevTfn = txtTelefono.getText();
+
+                PostgrestQuery query = postgrestClient.from("person")
+                        .update(new Entry("email",prevEmail),
+                                new Entry("phone",prevTfn),
+                                new Entry("adress",prevDirect))
+                        .eq("id",patientId)
+                        .select()
+                        .getQuery();
+                postgrestClient.sendQuery(query);
                 guardarCambiosButton.setEnabled(false);
             }
         });
@@ -338,13 +364,34 @@ public class WindowPatient extends JFrame {
      * Set the infoPanel textfields to DB values
      */
     public void setInfoPanelTexfields(){
-        txtNombre.setText("");
-        txtApellido1.setText("");
-        txtApellido2.setText("");
-        txtDNI.setText("");
-        txtFechaNacimiento.setText("");
-        txtDireccion.setText("");
-        txtEmail.setText("");
+
+        PostgrestQuery query = postgrestClient.from("person").select("*")
+                .eq("id", patientId)
+                .getQuery();
+
+        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
+        System.out.println(jsonResponse);
+        Gson gson = new Gson();
+        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+        JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
+
+        String name = jsonObject.get("name").getAsString();
+        String surname1 = jsonObject.get("surname1").getAsString();
+        String surname2 = jsonObject.get("surname2").getAsString();
+        String dni = jsonObject.get("dni").getAsString();
+        String birthdate = jsonObject.get("birthdate").getAsString();
+        String email = jsonObject.get("email").getAsString();
+        String phone = jsonObject.get("phone").getAsString();
+        String address = jsonObject.get("adress").getAsString();
+
+        txtNombre.setText(name);
+        txtApellido1.setText(surname1);
+        txtApellido2.setText(surname2);
+        txtDNI.setText(dni);
+        txtFechaNacimiento.setText(birthdate);
+        txtDireccion.setText(address);
+        txtTelefono.setText(phone);
+        txtEmail.setText(email);
 
         prevEmail = txtEmail.getText();
         prevDirect = txtDireccion.getText();
@@ -370,10 +417,12 @@ public class WindowPatient extends JFrame {
         return calendar;
     }
 
+
+
     //MAIN(JUST TEST)------------------------------------------------------------------------------------------------------
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            new WindowPatient();
+            new WindowPatient("00AAA");
         });
     }
 }
