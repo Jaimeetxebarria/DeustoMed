@@ -46,8 +46,13 @@ create table
     name text not null,
     surname1 text not null,
     surname2 text not null,
+    dni text not null,
     birthdate date not null,
+    email text not null,
+    phone text not null,
+    adress text not null,
     sex sex not null,
+
     constraint valid_age check(EXTRACT(YEAR FROM age(CURRENT_DATE, birthdate)) BETWEEN 0 AND 150)
   );
 
