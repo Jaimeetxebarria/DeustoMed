@@ -1,5 +1,5 @@
 package org.deustomed.httputils;
 
 public enum HttpMethod {
-    GET, POST, PUT, PATCH, DELETE
+    GET, HEAD, POST, PUT, PATCH, DELETE
 }
