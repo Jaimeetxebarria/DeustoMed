@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class PostgrestClientTest {
+class PostgrestClientDatabaseTest {
     private static final String BASE_URL = "hppqxyzzghzomojqpddp.supabase.co";
     private static final String ENDPOINT = "/rest/v1";
     private static final String ANONYMOUS_TOKEN = """
