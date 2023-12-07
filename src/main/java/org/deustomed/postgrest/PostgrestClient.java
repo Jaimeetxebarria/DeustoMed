@@ -35,19 +35,6 @@ public class PostgrestClient {
         this.httpClient = HttpClient.newBuilder().build();
     }
 
-    public PostgrestQueryBuilder from(@NotNull String table) {
-        if (table.isEmpty()) {
-            throw new IllegalArgumentException("Cannot query blank table");
-        }
-        PostgrestQueryBuilder postgrestQueryBuilder = new PostgrestQueryBuilder();
-        UrlBuilder urlBuilder = postgrestQueryBuilder.getQuery().getUrlBuilder();
-        urlBuilder.setScheme(UrlScheme.HTTPS);
-        urlBuilder.setPath(endpoint + '/' + table);
-        urlBuilder.setHostname(hostname);
-
-        return postgrestQueryBuilder;
-    }
-
     public JsonElement sendQuery(@NotNull PostgrestQuery query) {
         HttpRequest.Builder requestBuilder;
 
@@ -86,5 +73,18 @@ public class PostgrestClient {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    // =================== DATABASE ===================
+    public PostgrestQueryBuilder from(@NotNull String table) {
+        if (table.isEmpty()) throw new IllegalArgumentException("Cannot query blank table");
+
+        PostgrestQueryBuilder postgrestQueryBuilder = new PostgrestQueryBuilder();
+        UrlBuilder urlBuilder = postgrestQueryBuilder.getQuery().getUrlBuilder();
+        urlBuilder.setScheme(UrlScheme.HTTPS);
+        urlBuilder.setHostname(hostname);
+        urlBuilder.setPath(endpoint + '/' + table);
+
+        return postgrestQueryBuilder;
     }
 }
