@@ -50,7 +50,7 @@ create table
     birthdate date not null,
     email text not null,
     phone text not null,
-    adress text not null,
+    address text not null,
     sex sex not null,
 
     constraint valid_age check(EXTRACT(YEAR FROM age(CURRENT_DATE, birthdate)) BETWEEN 0 AND 150)

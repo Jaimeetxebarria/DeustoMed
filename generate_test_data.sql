@@ -3,7 +3,7 @@ drop sequence user_id_sequence;
 create sequence
   user_id_sequence as int;
 
-insert into person (name, surname1, surname2, dni, birthdate, email, phone, adress, sex) values
+insert into person (name, surname1, surname2, dni, birthdate, email, phone, address, sex) values
  ('Elena', 'García', 'Martínez', '12345678A', '1990-05-15', 'elena.garcia@email.com', '+123456789', 'Street 123, City', 'FEMALE'),
   ('Adrián', 'Rodríguez', 'Fernández', '87654321B', '1985-10-20', 'adrian.rodriguez@email.com', '+987654321', 'Avenue 456, Town', 'MALE'),
   ('Lucía', 'Martínez', 'López', '23456789C', '2000-12-03', 'lucia.martinez@email.com', '+234567890', 'Boulevard 789, Village', 'FEMALE'),
