@@ -53,9 +53,7 @@ public class PostgrestQueryBuilder {
 
 
     public PostgrestFilterBuilder update(@NotNull Entry... entries) {
-        if (entries.length == 0) {
-            throw new IllegalArgumentException("Cannot insert empty entry list");
-        }
+        if (entries.length == 0) throw new IllegalArgumentException("Cannot insert empty entry list");
 
         postgrestQuery.setHttpMethod(HttpMethod.PATCH);
 
