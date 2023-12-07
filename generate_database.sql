@@ -26,7 +26,7 @@ create sequence
 create or replace function
   generate_user_id () RETURNS text AS $$
 declare
-    numeric_id int := nextval('user_id_sequence');
+    numeric_id int := nextval('user_id_sequence') - 1; -- -1 because the sequence starts at 1
     letter_part text := '';
     i int;
 begin
