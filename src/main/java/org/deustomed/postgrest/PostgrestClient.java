@@ -2,6 +2,8 @@ package org.deustomed.postgrest;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import org.deustomed.httputils.HttpMethod;
 import org.deustomed.httputils.UrlBuilder;
 import org.deustomed.httputils.UrlScheme;
 import org.jetbrains.annotations.NotNull;
@@ -87,4 +89,72 @@ public class PostgrestClient {
 
         return postgrestQueryBuilder;
     }
+
+    // ========== REMOTE PROCEDURE CALLS (RPC) ==========
+
+    /**
+     * Calls a function with no parameters in the PostgreSQL database.
+     *
+     * @param procedureName The name of the procedure to call
+     * @return The response from the server
+     */
+    public PostgrestFilterBuilder rpc(@NotNull String procedureName) {
+        PostgrestQuery postgrestQuery = new PostgrestQuery();
+
+        UrlBuilder urlBuilder = postgrestQuery.getUrlBuilder();
+        urlBuilder.setScheme(UrlScheme.HTTPS);
+        urlBuilder.setHostname(hostname);
+        urlBuilder.setPath(endpoint + "/rpc/" + procedureName);
+
+        postgrestQuery.setHttpMethod(HttpMethod.GET);
+
+        return new PostgrestFilterBuilder(postgrestQuery);
+    }
+
+    /**
+     * Calls a function with parameters in the PostgreSQL database.
+     *
+     * @param procedureName The name of the procedure to call
+     * @param parameters    The parameters to pass to the procedure
+     * @return The response from the server
+     */
+    public PostgrestFilterBuilder rpc(@NotNull String procedureName, @NotNull JsonObject parameters) {
+        if (procedureName.isEmpty()) throw new IllegalArgumentException("Cannot call procedure with blank name");
+
+        PostgrestQuery postgrestQuery = new PostgrestQuery();
+
+        UrlBuilder urlBuilder = postgrestQuery.getUrlBuilder();
+        urlBuilder.setScheme(UrlScheme.HTTPS);
+        urlBuilder.setHostname(hostname);
+        urlBuilder.setPath(endpoint + "/rpc/" + procedureName);
+
+        postgrestQuery.setHttpMethod(HttpMethod.POST);
+        postgrestQuery.setBody(parameters);
+
+        return new PostgrestFilterBuilder(postgrestQuery);
+    }
+
+    /**
+     * Calls a function with parameters in the PostgreSQL database.
+     *
+     * @param procedureName The name of the procedure to call
+     * @param parameters    The parameters to pass to the procedure
+     * @return The response from the server
+     */
+    public PostgrestFilterBuilder rpc(@NotNull String procedureName, @NotNull Entry<?>... parameters) {
+        if (procedureName.isEmpty()) throw new IllegalArgumentException("Cannot call procedure with blank name");
+
+        PostgrestQuery postgrestQuery = new PostgrestQuery();
+
+        UrlBuilder urlBuilder = postgrestQuery.getUrlBuilder();
+        urlBuilder.setScheme(UrlScheme.HTTPS);
+        urlBuilder.setHostname(hostname);
+        urlBuilder.setPath(endpoint + "/rpc/" + procedureName);
+
+        postgrestQuery.setHttpMethod(HttpMethod.POST);
+        postgrestQuery.setBody(Entry.toJsonObject(parameters));
+
+        return new PostgrestFilterBuilder(postgrestQuery);
+    }
+
 }
