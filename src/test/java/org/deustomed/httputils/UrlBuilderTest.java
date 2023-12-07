@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class UrlBuilderTest {
 
     @Test
-    void testNullaryConstructor() {
+    void nullaryConstructor() {
         UrlBuilder urlBuilder = new UrlBuilder();
         assertEquals(UrlScheme.HTTP, urlBuilder.getScheme());
         assertEquals("localhost", urlBuilder.getHostname());
@@ -17,7 +17,7 @@ class UrlBuilderTest {
     }
 
     @Test
-    void testBinaryConstructor() {
+    void binaryConstructor() {
         UrlBuilder urlBuilder = new UrlBuilder(UrlScheme.HTTPS, "example.com");
         assertEquals(UrlScheme.HTTPS, urlBuilder.getScheme());
         assertEquals("example.com", urlBuilder.getHostname());
@@ -33,11 +33,12 @@ class UrlBuilderTest {
     }
 
     @Test
-    void testTernaryConstructor() {
-        UrlBuilder urlBuilder = new UrlBuilder(UrlScheme.HTTPS, "example.com", 8080);
-        assertEquals(UrlScheme.HTTPS, urlBuilder.getScheme());
-        assertEquals("example.com", urlBuilder.getHostname());
-        assertEquals(8080, urlBuilder.getPort());
+    void ternaryConstructors() {
+        // Port
+        UrlBuilder urlBuilderPort = new UrlBuilder(UrlScheme.HTTPS, "example.com", 8080);
+        assertEquals(UrlScheme.HTTPS, urlBuilderPort.getScheme());
+        assertEquals("example.com", urlBuilderPort.getHostname());
+        assertEquals(8080, urlBuilderPort.getPort());
 
         //Check that null errors out
         assertThrows(IllegalArgumentException.class, () -> new UrlBuilder(null, "example.com", 8080));
@@ -45,6 +46,34 @@ class UrlBuilderTest {
 
         //Check that blank errors out
         assertThrows(IllegalArgumentException.class, () -> new UrlBuilder(UrlScheme.HTTPS, "", 8080));
+
+        // Path
+        UrlBuilder urlBuilderPath = new UrlBuilder(UrlScheme.HTTPS, "example.com", "/endpoint");
+        assertEquals(UrlScheme.HTTPS, urlBuilderPath.getScheme());
+        assertEquals("example.com", urlBuilderPath.getHostname());
+        assertEquals("/endpoint", urlBuilderPath.getPath());
+
+        //Check that null errors out
+        assertThrows(IllegalArgumentException.class, () -> new UrlBuilder(null, "example.com", "/endpoint"));
+        assertThrows(IllegalArgumentException.class, () -> new UrlBuilder(UrlScheme.HTTPS, null, "/endpoint"));
+
+        //Check that blank errors out
+        assertThrows(IllegalArgumentException.class, () -> new UrlBuilder(UrlScheme.HTTPS, "", "/endpoint"));
+    }
+
+    @Test
+    void copyConstructor() {
+        UrlBuilder urlBuilder = new UrlBuilder(UrlScheme.HTTPS, "example.com", "/endpoint");
+        urlBuilder.setPort(8080);
+        urlBuilder.addQueryParameter("key1", "value1");
+        urlBuilder.addQueryParameter("key2", "value2");
+
+        UrlBuilder urlBuilderCopy = new UrlBuilder(urlBuilder);
+        assertEquals(urlBuilder.getScheme(), urlBuilderCopy.getScheme());
+        assertEquals(urlBuilder.getHostname(), urlBuilderCopy.getHostname());
+        assertEquals(urlBuilder.getPort(), urlBuilderCopy.getPort());
+        assertEquals(urlBuilder.getPath(), urlBuilderCopy.getPath());
+        assertEquals(urlBuilder.getQueryParameters(), urlBuilderCopy.getQueryParameters());
     }
 
     @Test

@@ -19,7 +19,7 @@ public class FullQueryBuildingChainTest {
         PostgrestQuery query = postgrestClient.from("table").select("column1", "column2")
                 .eq("column1", "value1")
                 .gt("column2", "3")
-                .is("column3", "null")
+                .is("column3", null)
                 .in("column4", "value1", "value2", "value3")
                 .not().like("column5", "value__")
                 .order("column1", true)

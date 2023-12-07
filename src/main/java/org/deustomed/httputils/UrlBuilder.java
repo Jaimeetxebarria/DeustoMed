@@ -36,12 +36,18 @@ public class UrlBuilder {
         this.setPort(port);
     }
 
+    public UrlBuilder(@NotNull UrlScheme scheme, @NotNull String hostname, @NotNull String path) {
+        this.setScheme(scheme);
+        this.setHostname(hostname);
+        this.setPath(path);
+    }
+
     public UrlBuilder(@NotNull UrlBuilder urlBuilder) {
-        this.scheme = urlBuilder.scheme;
-        this.hostname = urlBuilder.hostname;
-        this.port = urlBuilder.port;
-        this.path = urlBuilder.path;
-        this.queryParameters = urlBuilder.queryParameters;
+        this.setScheme(urlBuilder.getScheme());
+        this.setHostname(urlBuilder.getHostname());
+        this.setPort(urlBuilder.getPort());
+        this.setPath(urlBuilder.getPath());
+        this.queryParameters = urlBuilder.getQueryParameters();
     }
 
     public UrlBuilder setScheme(@NotNull UrlScheme scheme) {
@@ -75,7 +81,7 @@ public class UrlBuilder {
         return port;
     }
 
-    public UrlBuilder setPath(@NotNull String path) {
+    public UrlBuilder setPath(String path) {
         if (path.isEmpty()) throw new IllegalArgumentException("Cannot query blank path");
 
         this.path = path;

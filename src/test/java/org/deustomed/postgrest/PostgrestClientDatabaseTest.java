@@ -1,30 +1,25 @@
 package org.deustomed.postgrest;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import static org.deustomed.postgrest.PostgrestAssertions.assertJsonEquals;
 import static org.deustomed.postgrest.PostgrestAssertions.assertPathnameEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class PostgrestClientTest {
+class PostgrestClientDatabaseTest {
     private static final String BASE_URL = "hppqxyzzghzomojqpddp.supabase.co";
     private static final String ENDPOINT = "/rest/v1";
     private static final String ANONYMOUS_TOKEN = """
             eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwcHF4eXp6Z2h6b21vanFwZGRwIiwicm9sZSI6ImFub24\
             iLCJpYXQiOjE2OTg2NzE5MjksImV4cCI6MjAxNDI0NzkyOX0.m5uDlUdMaDBXBSoDzRx0BScQfF3AweNGopruakwxais""";
     private static PostgrestClient client = new PostgrestClient(BASE_URL, ENDPOINT, ANONYMOUS_TOKEN);
-
-    void assertJsonEquals(String expected, JsonElement actual) {
-        assertEquals(JsonParser.parseString(expected), actual);
-    }
 
     @Test
     @Order(1)
@@ -178,8 +173,16 @@ class PostgrestClientTest {
                 .select()
                 .getQuery();
 
-        System.out.println(client.sendQuery(query));
-        //assertJsonEquals("[]", client.sendQuery(query));
+        String jsonResponse = """
+                [
+                    {"id": 2, "name": "José", "age": 22},
+                    {"id": 3, "name": "María", "age": 25},
+                    {"id": 4, "name": "Teresa", "age": 45},
+                    {"id": 1, "name": "Alejandro", "age": 19}
+                ]
+                """;
+
+        assertJsonEquals(jsonResponse, client.sendQuery(query));
     }
 
     @Test
@@ -192,6 +195,12 @@ class PostgrestClientTest {
                 .select()
                 .getQuery();
 
-        System.out.println(client.sendQuery(query));
+        String jsonResponse = """
+                [
+                    {"id": 1, "name": "Luis", "age": 20}
+                ]
+                """;
+
+        assertJsonEquals(jsonResponse, client.sendQuery(query));
     }
 }
