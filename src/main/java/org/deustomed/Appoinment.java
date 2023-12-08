@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.Objects;
 
 public class Appoinment implements Comparable<Appoinment> {
+    private String id;
     private Patient patient;
     private Doctor doctor;
     private LocalDateTime date;
@@ -19,6 +20,14 @@ public class Appoinment implements Comparable<Appoinment> {
         this.date = date;
         this.shortDesciption = shortDesciption;
         this.longDescription = longDescription;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public Doctor getDoctor() {

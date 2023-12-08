@@ -2,6 +2,7 @@ package org.deustomed.ui;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.toedter.calendar.JCalendar;
 import org.deustomed.chat.Client;
@@ -12,8 +13,15 @@ import org.deustomed.postgrest.PostgrestQuery;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.EventObject;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.CellEditorListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
+
 import static org.deustomed.postgrest.PostgrestClient.gson;
 
 public class WindowPatient extends JFrame {
@@ -45,7 +53,7 @@ public class WindowPatient extends JFrame {
 
     static final PostgrestClient postgrestClient = new PostgrestClient(HOSTNAME, ENDPOINT, ANONYMOUS_TOKEN);
 
-    public WindowPatient(String patientId) { //TODO: PUT THE PATIENT ID AS PARAMETER
+    public WindowPatient(String patientId) {
         this.patientId = patientId;
 
         //WINDOW SETTINGS--------------------------------------------------------------------------------------------
@@ -112,13 +120,13 @@ public class WindowPatient extends JFrame {
         calendarPanel.add(calendar, BorderLayout.WEST);
 
         calendarTableModel = new DefaultTableModel();
-        String[] calendarColumns = {"Día","Hora","Motivo cita","Médico","Codigo Médico"};
+        String[] calendarColumns = {"Fecha","Hora","Motivo cita","Médico","Codigo Médico"};
         calendarTableModel.setColumnIdentifiers(calendarColumns);
-        Object[] rowData = {"Lunes", "10:00 AM", "Revisión médica", "Dr. Smith", "12345"};
-        calendarTableModel.addRow(rowData);
+        updateCalendarTable();
         calendarTable = new JTable(calendarTableModel);
         JScrollPane scrollPane = new JScrollPane(calendarTable);
         calendarPanel.add(scrollPane, BorderLayout.CENTER);
+        calendarTable.setDefaultEditor(Object.class, null);
 
         pedirCitaButton = new JButton("Pedir Cita");
         calendarPanel.add(pedirCitaButton, BorderLayout.SOUTH);
@@ -171,7 +179,7 @@ public class WindowPatient extends JFrame {
                     dispose();
                     new WindowLogin();
                 }
-                //TODO: CERRAR SESION EN LA BD
+
             }
         });
 
@@ -330,7 +338,7 @@ public class WindowPatient extends JFrame {
                 PostgrestQuery query = postgrestClient.from("person")
                         .update(new Entry("email",prevEmail),
                                 new Entry("phone",prevTfn),
-                                new Entry("adress",prevDirect))
+                                new Entry("address",prevDirect))
                         .eq("id",patientId)
                         .select()
                         .getQuery();
@@ -365,12 +373,13 @@ public class WindowPatient extends JFrame {
      */
     public void setInfoPanelTexfields(){
 
-        PostgrestQuery query = postgrestClient.from("person").select("*")
+        PostgrestQuery query = postgrestClient
+                .from("person")
+                .select("*")
                 .eq("id", patientId)
                 .getQuery();
 
         String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
-        System.out.println(jsonResponse);
         Gson gson = new Gson();
         JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
         JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
@@ -382,13 +391,17 @@ public class WindowPatient extends JFrame {
         String birthdate = jsonObject.get("birthdate").getAsString();
         String email = jsonObject.get("email").getAsString();
         String phone = jsonObject.get("phone").getAsString();
-        String address = jsonObject.get("adress").getAsString();
+        String address = jsonObject.get("address").getAsString();
+
+        LocalDate date = LocalDate.parse(birthdate);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy");
+        String formatted = date.format(formatter);
 
         txtNombre.setText(name);
         txtApellido1.setText(surname1);
         txtApellido2.setText(surname2);
         txtDNI.setText(dni);
-        txtFechaNacimiento.setText(birthdate);
+        txtFechaNacimiento.setText(formatted);
         txtDireccion.setText(address);
         txtTelefono.setText(phone);
         txtEmail.setText(email);
@@ -396,6 +409,53 @@ public class WindowPatient extends JFrame {
         prevEmail = txtEmail.getText();
         prevDirect = txtDireccion.getText();
         prevTfn = txtTelefono.getText();
+    }
+
+    /**
+     * Add all the appointments from the logged patient to the JTable at CalendarPanel using the DB
+     */
+    public void updateCalendarTable(){
+        PostgrestQuery query = postgrestClient
+                .from("appointment")
+                .select("*")
+                .eq("fk_patient_id",patientId)
+                .getQuery();
+
+        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
+        Gson gson = new Gson();
+        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+
+        for (JsonElement jsonElement : jsonArray) {
+            JsonObject appointmentObject = jsonElement.getAsJsonObject();
+
+            String datetime = appointmentObject.get("datetime").getAsString();
+            String reason = appointmentObject.get("reason").getAsString();
+            String fkDoctorId = appointmentObject.get("fk_doctor_id").getAsString();
+            String hour = appointmentObject.get("hour").getAsString();
+
+            LocalDate date = LocalDate.parse(datetime);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy");
+            String formatted = date.format(formatter);
+
+            PostgrestQuery query1 = postgrestClient
+                    .from("person")
+                    .select("name","surname1","surname2")
+                    .eq("id",fkDoctorId)
+                    .getQuery();
+
+            String jsonResponse1 = String.valueOf(postgrestClient.sendQuery(query1));
+            JsonArray jsonArray1 = gson.fromJson(jsonResponse1, JsonArray.class);
+            JsonObject jsonObject = jsonArray1.get(0).getAsJsonObject();
+
+            String name = jsonObject.get("name").getAsString();
+            String surname1 = jsonObject.get("surname1").getAsString();
+            String surname2 = jsonObject.get("surname2").getAsString();
+            String docname = String.format("%s %s %s", name, surname1, surname2);
+
+            Object[] rowData = {formatted, hour, reason, docname, fkDoctorId};
+            calendarTableModel.addRow(rowData);
+
+        }
     }
 
     private void sendMessage() {
@@ -422,7 +482,7 @@ public class WindowPatient extends JFrame {
     //MAIN(JUST TEST)------------------------------------------------------------------------------------------------------
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            new WindowPatient("00AAA");
+            new WindowPatient("00AAK");
         });
     }
 }
