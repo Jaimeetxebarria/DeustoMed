@@ -25,6 +25,13 @@ public class Patient extends User {
         this.address = address;
         this.birthDate = birthDate;
     }
+    public Patient(int id, String name, String surname1, String surname2, String email, String password, String dni, Sex sex, int age, String phoneNumer, String address, Date birthDate) {
+        super(id, name, surname1, surname2, email, password, dni, sex);
+        this.age = age;
+        this.phoneNumer = phoneNumer;
+        this.address = address;
+        this.birthDate = birthDate;
+    }
 
     public Patient(int id, String name, String surname1, String surname2, String email, String password, int age) {
         super(id, name, surname1, surname2, email, password, "");
@@ -91,7 +98,7 @@ public class Patient extends User {
                 ", phoneNumer='" + phoneNumer + '\'' +
                 ", address='" + address + '\'' +
                 ", birthDate=" + birthDate +
-                ", NSS='" + NSS + '\'' +
+                ", Sex='" + sex + '\'' +
                 '}';
     }
 }

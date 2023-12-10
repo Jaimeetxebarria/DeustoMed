@@ -3,6 +3,7 @@ package org.deustomed.ui;
 import com.toedter.calendar.JDateChooser;
 import org.deustomed.Doctor;
 import org.deustomed.Patient;
+import org.deustomed.Sex;
 import org.deustomed.User;
 
 import javax.swing.*;
@@ -29,12 +30,15 @@ public class WindowAddUser extends JFrame {
     JLabel lblName;
     JLabel lblSurname1;
     JLabel lblSurname2;
+    JLabel lblSex;
     JLabel lblEmail;
     JLabel lblDni;
     JTextField tfId;
     JTextField tfName;
     JTextField tfSurname1;
     JTextField tfSurname2;
+    JRadioButton radMale;
+    JRadioButton radFemale;
     JTextField tfEmail;
     JTextField tfDni;
     JLabel lblError;
@@ -78,6 +82,7 @@ public class WindowAddUser extends JFrame {
         lblName = new JLabel("Name:");
         lblSurname1 = new JLabel("Surname 1:");
         lblSurname2 = new JLabel("Surname 2:");
+        lblSex = new JLabel("Sex:");
         lblEmail = new JLabel("Email:");
         lblDni = new JLabel("DNI:");
         lblError = new JLabel("");
@@ -94,6 +99,11 @@ public class WindowAddUser extends JFrame {
         tfName = new JTextField();
         tfSurname1 = new JTextField();
         tfSurname2 = new JTextField();
+        radFemale = new JRadioButton("Female");
+        radMale = new JRadioButton("Male");
+        ButtonGroup group = new ButtonGroup();
+        group.add(radFemale);
+        group.add(radMale);
         tfEmail = new JTextField();
         tfDni = new JTextField();
         btnSave = new JButton("Save");
@@ -139,9 +149,9 @@ public class WindowAddUser extends JFrame {
 
         JPanel pnlPrimary = new JPanel();
         if (patients != null) {
-            pnlPrimary.setLayout(new GridLayout(10, 2));
+            pnlPrimary.setLayout(new GridLayout(11, 2));
         } else if (doctors != null) {
-            pnlPrimary.setLayout(new GridLayout(7, 2));
+            pnlPrimary.setLayout(new GridLayout(8, 2));
         }
         pnlPrimary.add(lblId);
         pnlPrimary.add(pnlId);
@@ -151,6 +161,11 @@ public class WindowAddUser extends JFrame {
         pnlPrimary.add(tfSurname1);
         pnlPrimary.add(lblSurname2);
         pnlPrimary.add(tfSurname2);
+        pnlPrimary.add(lblSex);
+        Panel pnlSex = new Panel(new GridLayout(1, 2));
+        pnlSex.add(radMale);
+        pnlSex.add(radFemale);
+        pnlPrimary.add(pnlSex);
         pnlPrimary.add(lblEmail);
         pnlPrimary.add(tfEmail);
         pnlPrimary.add(lblDni);
@@ -186,31 +201,43 @@ public class WindowAddUser extends JFrame {
                 String surname2 = tfSurname2.getText();
                 String email = tfEmail.getText();
                 String dni = tfDni.getText();
-                if (patients != null) {
-                    Date birthDate = dateChooser.getDate();
-                    String age = tfAge.getText();
-                    String phone = tfPhone.getText();
-                    String address = tfAddress.getText();
-                    if(validateData()){
-                        int id = patients.size() + 1;
-                        Patient patient = new Patient(id, name, surname1, surname2, email, "", dni, Integer.parseInt(age), phone, address, new Date());
-                        patients.add(patient);
-                        JOptionPane.showMessageDialog(null, "Patient added successfully");
-                        System.out.println("Nuevo paciente: " + patient);
-                        dispose();
+                ButtonModel selectedSex = group.getSelection();
+                Sex sex;
+                if(selectedSex != null) {
+                    if (selectedSex.equals(radMale)) {
+                        sex = Sex.MALE;
+                    } else{
+                        sex = Sex.FEMALE;
                     }
 
+                    if (patients != null) {
+                        Date birthDate = dateChooser.getDate();
+                        String age = tfAge.getText();
+                        String phone = tfPhone.getText();
+                        String address = tfAddress.getText();
+                        if (validateData()) {
+                            int id = patients.size() + 1;
+                            Patient patient = new Patient(id, name, surname1, surname2, email, "", dni, sex, Integer.parseInt(age), phone, address, birthDate);
+                            patients.add(patient);
+                            JOptionPane.showMessageDialog(null, "Patient added successfully");
+                            System.out.println("Nuevo paciente: " + patient);
+                            dispose();
+                        }
 
-                } else if (doctors != null) {
-                    String speciality = ((String) cbSpeciality.getSelectedItem()).toString();
-                    if(validateData()){
-                        int id = doctors.size() + 1;
-                        Doctor doctor = new Doctor(id, name, surname1, surname2, email, "", dni, speciality, new ArrayList<>(), new ArrayList<>());
-                        doctors.add(doctor);
-                        JOptionPane.showMessageDialog(null, "Doctor added successfully");
-                        System.out.println("Nuevo doctor: " + doctor);
-                        dispose();
+
+                    } else if (doctors != null) {
+                        String speciality = ((String) cbSpeciality.getSelectedItem()).toString();
+                        if (validateData()) {
+                            int id = doctors.size() + 1;
+                            Doctor doctor = new Doctor(id, name, surname1, surname2, email, "", dni, sex, speciality, new ArrayList<>(), new ArrayList<>());
+                            doctors.add(doctor);
+                            JOptionPane.showMessageDialog(null, "Doctor added successfully");
+                            System.out.println("Nuevo doctor: " + doctor);
+                            dispose();
+                        }
                     }
+                }else{
+                    lblError.setText("All fields are required");
                 }
 
             }
@@ -254,14 +281,14 @@ public class WindowAddUser extends JFrame {
 
             // Validate phone number
             String phoneNumber = tfPhone.getText();
-            if (!phoneNumber.matches("[69]\\d{8}")) {
+            if (!phoneNumber.matches("\\+[0-9]{9}")) {
                 lblError.setText("Invalid phone number");
                 return false;
             }
 
             // Validate address
             String address = tfAddress.getText();
-            if (!address.matches(".+, \\d+, .+, .+, .+, .+")) {
+            if (!address.matches(".+ \\d{3}, .+")) {
                 lblError.setText("Invalid address");
                 return false;
             }

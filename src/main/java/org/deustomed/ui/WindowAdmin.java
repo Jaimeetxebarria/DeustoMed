@@ -2,6 +2,7 @@ package org.deustomed.ui;
 
 import org.deustomed.Doctor;
 import org.deustomed.Patient;
+import org.deustomed.Sex;
 import org.deustomed.User;
 
 import javax.swing.*;
@@ -49,11 +50,11 @@ public class WindowAdmin extends JFrame {
 
         //pending data
         patients= new ArrayList<>();
-        patients.add(new Patient(1,"Pablo","Garcia","Iglesias","email1","1234","dni1", 20, "Phone1", "Adress1", new Date()));
-        patients.add(new Patient(2,"Andoni","Hernández","Ruiz","email2","5678", "dni2", 17, "Phone2", "Adress2", new Date()));
+        patients.add(new Patient(1,"Pablo","Garcia","Iglesias","email1","1234","dni1", Sex.MALE, 20, "Phone1", "Adress1", new Date()));
+        patients.add(new Patient(2,"Andoni","Hernández","Ruiz","email2","5678", "dni2", Sex.MALE, 17, "Phone2", "Adress2", new Date()));
         doctors= new ArrayList<>();
-        doctors.add(new Doctor(1,"Jaime","Eguskisa","Gascon","email1","4562","dni1", "Ophthalmologist", new ArrayList<>(), new ArrayList<>()));
-        doctors.add(new Doctor(2,"Iñaki","Garcia","Iglesias","email2","1234","dni2", "Ophthalmologist", new ArrayList<>(), new ArrayList<>()
+        doctors.add(new Doctor(1,"Jaime","Eguskisa","Gascon","email1","4562","dni1", Sex.MALE, "Ophthalmologist", new ArrayList<>(), new ArrayList<>()));
+        doctors.add(new Doctor(2,"Irene","Garcia","Iglesias","email2","1234","dni2", Sex.FEMALE, "Ophthalmologist", new ArrayList<>(), new ArrayList<>()
         ));
 
         tabAdmin = new JTabbedPane();
@@ -61,12 +62,13 @@ public class WindowAdmin extends JFrame {
         //Patient
         pnlPatient = new JPanel(new BorderLayout());
 
-        String[] columNamesPatients = {"ID", "Surname", "Name", "Email", "DNI", "Age", "Phone", "Address", "Birthdate"};
+        String[] columNamesPatients = {"ID", "Surnames", "Name", "Sex", "Email", "DNI", "Age", "Phone", "Address", "Birthdate"};
         mdlPatient = completeTable(columNamesPatients, patients);
         tblPatient = new JTable(mdlPatient);
         tblPatient.getColumnModel().getColumn(0).setPreferredWidth(25);
-        tblPatient.getColumnModel().getColumn(5).setPreferredWidth(25);
-        tblPatient.getColumnModel().getColumn(9).setPreferredWidth(150);
+        tblPatient.getColumnModel().getColumn(3).setPreferredWidth(25);
+        tblPatient.getColumnModel().getColumn(6).setPreferredWidth(25);
+        tblPatient.getColumnModel().getColumn(10).setPreferredWidth(150);
         tblPatient.setRowHeight(25);
 
         configureTable(tblPatient, new ButtonEditor(patients), new ButtonRenderer());
@@ -106,11 +108,12 @@ public class WindowAdmin extends JFrame {
 
         //Doctor
         pnlDoctor = new JPanel(new BorderLayout());
-        String[] columNamesDoctor = {"ID", "Surname", "Name", "Email", "DNI", "Speciality"};
+        String[] columNamesDoctor = {"ID", "Surname", "Name", "Sex", "Email", "DNI", "Speciality"};
         mdlDoctor = completeTable(columNamesDoctor, doctors);
         tblDoctor = new JTable(mdlDoctor);
         tblDoctor.getColumnModel().getColumn(0).setPreferredWidth(25);
-        tblDoctor.getColumnModel().getColumn(6).setPreferredWidth(150);
+        tblDoctor.getColumnModel().getColumn(3).setPreferredWidth(25);
+        tblDoctor.getColumnModel().getColumn(7).setPreferredWidth(150);
         tblDoctor.setRowHeight(25);
 
         configureTable(tblDoctor, new ButtonEditor(doctors), new ButtonRenderer());
@@ -126,7 +129,6 @@ public class WindowAdmin extends JFrame {
         pnlDoctor.add(pnlUpperDoctor, BorderLayout.NORTH);
 
         pnlDoctor.add(scrDoctor, BorderLayout.CENTER);
-
 
         JPanel pnlBottonDoctor = new JPanel(new BorderLayout());
         pnlBottonDoctor.add(btnLogoutDoctor, BorderLayout.WEST);
@@ -173,12 +175,13 @@ public class WindowAdmin extends JFrame {
                 row[0] = String.valueOf(patient.getId());
                 row[1] = patient.getSurname1() + " " +  user.getSurname2();
                 row[2] = patient.getName();
-                row[3] = patient.getEmail();
-                row[4] = patient.getDni();
-                row[5] = String.valueOf(patient.getAge());
-                row[6] = patient.getPhoneNumer();
-                row[7] = patient.getAddress();
-                row[8] = patient.getBirthDate().toString();
+                row[3] = patient.getSex().toString();
+                row[4] = patient.getEmail();
+                row[5] = patient.getDni();
+                row[6] = String.valueOf(patient.getAge());
+                row[7] = patient.getPhoneNumer();
+                row[8] = patient.getAddress();
+                row[9] = patient.getBirthDate().toString();
                 model.addRow(row);
             }
 
@@ -189,14 +192,15 @@ public class WindowAdmin extends JFrame {
                 row[0] = String.valueOf(doctor.getId());
                 row[1] = doctor.getSurname1() + " " + user.getSurname2();
                 row[2] = doctor.getName();
-                row[3] = doctor.getEmail();
-                row[4] = doctor.getDni();
-                row[5] = doctor.getSpeciality();
+                row[3] = doctor.getSex().toString();
+                row[4] = doctor.getEmail();
+                row[5] = doctor.getDni();
+                row[6] = doctor.getSpeciality();
                 model.addRow(row);
             }
         }
 
-        model.addColumn("Acciones");
+        model.addColumn("Actions");
         return model;
     }
 
@@ -204,6 +208,7 @@ public class WindowAdmin extends JFrame {
         table.getColumnModel().getColumn(table.getColumnCount() - 1).setCellEditor(buttonEditor);
         table.getColumnModel().getColumn(table.getColumnCount() - 1).setCellRenderer(buttonRenderer);
     }
+    /*
     private User getUserFromTable(JTable table, int row) {
         if (table.getModel() instanceof DefaultTableModel) {
             DefaultTableModel model = (DefaultTableModel) table.getModel();
@@ -219,7 +224,7 @@ public class WindowAdmin extends JFrame {
         }
         return null;
     }
-    /*
+
     private void updatePatientData(List<User> patients, int index, Object data){
         Patient patient = (Patient) getUserFromTable(tblPatient, index);
 
@@ -242,6 +247,7 @@ public class WindowAdmin extends JFrame {
             pnlButtons.add(btnDelete);
             panel.add(pnlButtons);
 
+
             btnEdit.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -252,6 +258,7 @@ public class WindowAdmin extends JFrame {
                     if (table != null) {
                         TableType tableType = getTableType(table, btnEdit);
                         int selectedRow = table.getSelectedRow();
+                        System.out.println(selectedRow);
                         if (selectedRow != -1) {
                             int modelRow = table.convertRowIndexToModel(selectedRow);
 
@@ -289,6 +296,7 @@ public class WindowAdmin extends JFrame {
                                             table.getModel().setValueAt(rowData[i], modelRow, i);
                                         }
                                     }
+                                    System.out.println(patients);
                                     break;
                                 case DOCTORS:
                                     Doctor originalDoctor = (Doctor) rowData[0];
@@ -312,12 +320,13 @@ public class WindowAdmin extends JFrame {
                                             table.getModel().setValueAt(rowData[i], modelRow, i);
                                         }
                                     }
+                                    System.out.println(doctors);
                                     break;
                                 case OTHER:
                                     break;
                             }
 
-                            System.out.println(patients);
+
                         }
                     }
                 }
