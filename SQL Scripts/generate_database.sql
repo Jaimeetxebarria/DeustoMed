@@ -62,6 +62,17 @@ create table
 
 -- ALTER table doctor ENABLE row level SECURITY;
 
+drop table if exists doctor_schedule cascade;
+create table doctor_schedule (
+    schedule_id SERIAL primary KEY,
+    doctor_id CHAR(5),
+    day_of_week VARCHAR(10),
+    start_time TIME,
+    end_time TIME,
+    foreign KEY (doctor_id) references doctor(id)
+);
+
+
 drop table if exists patient cascade;
 create table
   patient (

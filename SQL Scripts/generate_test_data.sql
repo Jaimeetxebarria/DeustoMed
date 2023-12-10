@@ -59,3 +59,66 @@ insert into doctor values
   ('00AAH'),
   ('00AAI'),
   ('00AAJ');
+
+
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAA', 'Sabado', '09:00', '17:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAA', 'Martes', '07:00', '16:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAA', 'Jueves', '07:00', '15:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAA', 'Miercoles', '08:00', '14:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAA', 'Viernes', '08:00', '14:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAB', 'Sabado', '10:00', '16:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAB', 'Viernes', '07:00', '15:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAB', 'Jueves', '08:00', '15:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAC', 'Miercoles', '10:00', '19:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAC', 'Viernes', '09:00', '15:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAC', 'Jueves', '07:00', '13:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAD', 'Sábado', '08:00', '15:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAD', 'Lunes', '08:00', '14:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAD', 'Martes', '08:00', '16:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAD', 'Jueves', '07:00', '13:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAE', 'Sábado', '10:00', '19:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAE', 'Martes', '07:00', '14:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAE', 'Jueves', '10:00', '19:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAE', 'Lunes', '10:00', '18:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAE', 'Viernes', '07:00', '15:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAF', 'Sábado', '10:00', '16:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAF', 'Lunes', '08:00', '14:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAF', 'Martes', '09:00', '18:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAF', 'Jueves', '07:00', '15:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAG', 'Sábado', '09:00', '18:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAG', 'Lunes', '10:00', '18:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAG', 'Martes', '08:00', '17:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAH', 'Sábado', '09:00', '15:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAH', 'Lunes', '07:00', '16:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAH', 'Viernes', '07:00', '16:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAH', 'Jueves', '09:00', '17:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAI', 'Miércoles', '10:00', '17:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAI', 'Viernes', '10:00', '19:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAI', 'Martes', '10:00', '19:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAJ', 'Miércoles', '07:00', '13:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAJ', 'Viernes', '10:00', '18:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAJ', 'Martes', '08:00', '14:00');
+insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAJ', 'Jueves', '09:00', '18:00');
+
+
+
+--insert into patient values
+
+CREATE OR REPLACE FUNCTION insert_person_records()
+RETURNS VOID AS $$
+DECLARE
+    i INTEGER := 0;
+BEGIN
+    FOR i IN 5..30 LOOP
+        INSERT INTO patient (id, fk_doctor_id)
+        VALUES (
+            '00A' || CHR(65 + FLOOR(i / 26)::INTEGER % 26) || CHR(65 + i % 26),
+            '00AA' || CHR(65 + FLOOR(RANDOM() * 10)::INTEGER)
+        );
+    END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+
+
+select insert_person_records();
+
