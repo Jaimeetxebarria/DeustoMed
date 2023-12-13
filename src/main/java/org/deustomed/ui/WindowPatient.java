@@ -215,8 +215,10 @@ public class WindowPatient extends JFrame {
                 getContentPane().add(chatPanel, BorderLayout.CENTER);
                 selectedButton = "chat";
                 revalidate();
+                showDoctorCodeDialog();
             }
         });
+
         sendButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -476,6 +478,40 @@ public class WindowPatient extends JFrame {
     public JCalendar getCalendar() {
         return calendar;
     }
+
+    private void showDoctorCodeDialog() {
+        JDialog dialog = new JDialog();
+        dialog.setLayout(new BorderLayout());
+        dialog.setSize(300, 130);
+        dialog.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        dialog.setLocationRelativeTo(null);
+        dialog.setTitle("Abrir chat");
+
+        JTextField doctorCodeField = new JTextField();
+        String[] opciones = {"Opción 1", "Opción 2", "Opción 3"};
+        JComboBox<String> comboBox = new JComboBox<>(opciones);
+
+        JButton confirmButton = new JButton("Confirmar");
+        JButton cancelButton = new JButton("Cancelar");
+
+        confirmButton.addActionListener(e -> {
+
+            dialog.dispose();
+        });
+
+        cancelButton.addActionListener(e -> dialog.dispose());
+
+        JPanel buttonsPanel = new JPanel();
+        buttonsPanel.add(confirmButton);
+        buttonsPanel.add(cancelButton);
+
+        dialog.add(doctorCodeField, BorderLayout.NORTH);
+        dialog.add(comboBox, BorderLayout.CENTER);
+        dialog.add(buttonsPanel, BorderLayout.SOUTH);
+
+        dialog.setVisible(true);
+    }
+
 
 
 
