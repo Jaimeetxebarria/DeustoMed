@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.toedter.calendar.JCalendar;
+import org.deustomed.DoctorMsgCode;
 import org.deustomed.chat.Client;
 import org.deustomed.chat.Server;
 import org.deustomed.postgrest.Entry;
@@ -21,6 +22,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.CellEditorListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
+import javax.swing.text.*;
 
 import static org.deustomed.postgrest.PostgrestClient.gson;
 
@@ -38,12 +40,14 @@ public class WindowPatient extends JFrame {
     protected JLabel lblNombre, lblApellido1, lblApellido2, lblEmail, lblDNI, lblTelefono, lblFechaNacimiento, lblDireccion;
     protected  JTextField txtNombre, txtApellido1, txtApellido2, txtEmail, txtDNI, txtTelefono, txtFechaNacimiento, txtDireccion;
 
-    protected JTextArea chatArea;
+    protected JTextPane chatArea = new JTextPane();
+    protected StyledDocument chatDoc = chatArea.getStyledDocument();
     protected JTextField messageField;
     protected JButton sendButton;
     protected JButton leaveChatButton;
     protected String lastMessage = "";
     protected String patientId;
+    final String[] docCode = {""};
 
     static final String HOSTNAME = "hppqxyzzghzomojqpddp.supabase.co";
     static final String ENDPOINT = "/rest/v1";
@@ -189,7 +193,6 @@ public class WindowPatient extends JFrame {
         JPanel bottomPanel = new JPanel(new BorderLayout());
         JPanel chatButtonsPanel = new JPanel(new FlowLayout());
 
-        chatArea = new JTextArea();
         chatArea.setEditable(false);
         chatArea.setBackground(Color.lightGray);
         JScrollPane scrollPaneChat = new JScrollPane(chatArea);
@@ -222,7 +225,11 @@ public class WindowPatient extends JFrame {
         sendButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                sendMessage();
+                try {
+                    sendMessage();
+                } catch (BadLocationException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
 
@@ -230,7 +237,11 @@ public class WindowPatient extends JFrame {
             @Override
             public void keyPressed(KeyEvent e) {
                 if(e.getKeyCode()==KeyEvent.VK_ENTER){
-                    sendMessage();
+                    try {
+                        sendMessage();
+                    } catch (BadLocationException ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
             }
         });
@@ -460,16 +471,33 @@ public class WindowPatient extends JFrame {
         }
     }
 
-    private void sendMessage() {
+    private void sendMessage() throws BadLocationException {
         String message = messageField.getText().trim();
         if (!message.isEmpty()) {
-            chatArea.append("Paciente: " + message + "\n");
+
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("fk_patient_id",patientId);
+            jsonObject.addProperty("fk_doctor_id",docCode[0]);
+            jsonObject.addProperty("message",message);
+            jsonObject.addProperty("patient_sent",true);
+            jsonObject.addProperty("patient_read",false);
+            jsonObject.addProperty("doctor_read",false);
+            jsonObject.addProperty("date", LocalDateTime.now().toString());
+
+            PostgrestQuery query = postgrestClient
+                    .from("message")
+                    .insert(jsonObject)
+                    .select()
+                    .getQuery();
+
+            postgrestClient.sendQuery(query);
+
             messageField.setText("");
             lastMessage = message;
         }
     }
-    public void recieveMessage(String message){
-        chatArea.append("Doctor: " + message + "\n");
+    public void recieveMessage(String message) throws BadLocationException {
+        chatDoc.insertString(chatDoc.getLength(),"Doctor: " + message + "\n",null);
     }
     public String getLastMessage(){
         return lastMessage;
@@ -480,24 +508,118 @@ public class WindowPatient extends JFrame {
     }
 
     private void showDoctorCodeDialog() {
+
         JDialog dialog = new JDialog();
         dialog.setLayout(new BorderLayout());
-        dialog.setSize(300, 130);
+        dialog.setSize(300, 120);
         dialog.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         dialog.setLocationRelativeTo(null);
         dialog.setTitle("Abrir chat");
 
         JTextField doctorCodeField = new JTextField();
+        doctorCodeField.setToolTipText("Código para chat proporcionado por el médico");
         String[] opciones = {"Opción 1", "Opción 2", "Opción 3"};
         JComboBox<String> comboBox = new JComboBox<>(opciones);
 
         JButton confirmButton = new JButton("Confirmar");
         JButton cancelButton = new JButton("Cancelar");
 
-        confirmButton.addActionListener(e -> {
+        DoctorMsgCode codeTransformator = new DoctorMsgCode();
 
-            dialog.dispose();
+
+        confirmButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                try {
+                    chatDoc.remove(0,chatDoc.getLength());
+                } catch (BadLocationException ex) {
+                    throw new RuntimeException(ex);
+                }
+
+                if(!doctorCodeField.getText().equals("")){
+                    docCode[0] = codeTransformator.MsgCodeToId(doctorCodeField.getText());
+                }
+
+                //get doctor and patient full names
+                PostgrestQuery queryDocName = postgrestClient
+                        .from("person")
+                        .select("name","surname1","surname2")
+                        .eq("id",docCode[0])
+                        .getQuery();
+
+                String jsonResponse1 = String.valueOf(postgrestClient.sendQuery(queryDocName));
+                JsonArray jsonArray1 = gson.fromJson(jsonResponse1, JsonArray.class);
+                JsonObject jsonObject1 = jsonArray1.get(0).getAsJsonObject();
+                String docName = jsonObject1.get("name").getAsString();
+                String docSurname1 = jsonObject1.get("surname1").getAsString();
+                String docSurname2 = jsonObject1.get("surname2").getAsString();
+
+                PostgrestQuery query2 = postgrestClient
+                        .from("person")
+                        .select("*")
+                        .eq("id", patientId)
+                        .getQuery();
+
+                String jsonResponse2 = String.valueOf(postgrestClient.sendQuery(query2));
+                Gson gson = new Gson();
+                JsonArray jsonArray2 = gson.fromJson(jsonResponse2, JsonArray.class);
+                JsonObject jsonObject2 = jsonArray2.get(0).getAsJsonObject();
+
+                String patName = jsonObject2.get("name").getAsString();
+                String patSurname1 = jsonObject2.get("surname1").getAsString();
+                String patSurname2 = jsonObject2.get("surname2").getAsString();
+
+                String docFullName = (docName+" "+docSurname1+" "+docSurname2);
+                String patFullName = (patName+" "+patSurname1+" "+patSurname2);
+
+                //Retrieve previous messages
+                PostgrestQuery query = postgrestClient
+                        .from("message")
+                        .select("*")
+                        .eq("fk_patient_id",patientId)
+                        .eq("fk_doctor_id",docCode[0])
+                        .order("date",true)
+                        .getQuery();
+
+                PostgrestQuery updatequery = postgrestClient
+                        .from("message")
+                        .update(new Entry("patient_read",true))
+                        .eq("fk_patient_id",patientId)
+                        .eq("fk_doctor_id",docCode[0])
+                        .getQuery();
+
+                String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
+                String jsonResponseUpdate = String.valueOf(postgrestClient.sendQuery(updatequery));
+                JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+
+                for(JsonElement jsonElement : jsonArray){
+                    JsonObject messageObject = jsonElement.getAsJsonObject();
+
+                    String message = messageObject.get("message").getAsString();
+                    String datetime = messageObject.get("date").getAsString();
+                    Boolean patientSent = messageObject.get("patient_sent").getAsBoolean();
+                    LocalDateTime date = LocalDateTime.parse(datetime);
+                    String dateFormatted = date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+                    SimpleAttributeSet bold = new SimpleAttributeSet();
+                    StyleConstants.setBold(bold, true);
+
+                    try {
+                        if(patientSent){
+                            chatDoc.insertString(chatDoc.getLength(), patFullName + " " + dateFormatted + ":\n", bold);
+                        }else{
+                            chatDoc.insertString(chatDoc.getLength(), docFullName + " " + dateFormatted + ":\n", bold);
+                        }
+                        chatDoc.insertString(chatDoc.getLength(), message + "\n\n", null);
+                    } catch (BadLocationException ex) {
+                    }
+                }
+
+                dialog.dispose();
+
+            }
         });
+
 
         cancelButton.addActionListener(e -> dialog.dispose());
 

@@ -2,6 +2,7 @@ package org.deustomed.chat;
 
 import org.deustomed.ui.WindowPatient;
 
+import javax.swing.text.BadLocationException;
 import java.io.*;
 import java.net.*;
 
@@ -31,6 +32,8 @@ public class Server {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+            } catch (BadLocationException e) {
+                throw new RuntimeException(e);
             }
 
             readThread.join();
