@@ -14,18 +14,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class PostgrestClientDatabaseTest {
-    private static final String BASE_URL = "hppqxyzzghzomojqpddp.supabase.co";
-    private static final String ENDPOINT = "/rest/v1";
-    private static final String ANONYMOUS_TOKEN = """
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwcHF4eXp6Z2h6b21vanFwZGRwIiwicm9sZSI6ImFub24\
-            iLCJpYXQiOjE2OTg2NzE5MjksImV4cCI6MjAxNDI0NzkyOX0.m5uDlUdMaDBXBSoDzRx0BScQfF3AweNGopruakwxais""";
-    private static PostgrestClient client = new PostgrestClient(BASE_URL, ENDPOINT, ANONYMOUS_TOKEN);
+    private static final PostgrestClient client = PostgrestClientFactory.createAnonymousClient();
 
     @Test
     @Order(1)
     void from() {
-        assertPathnameEquals(ENDPOINT + "/table", client.from("table").getQuery());
-        assertPathnameEquals(ENDPOINT + "/refresh_token", client.from("refresh_token").getQuery());
+        assertPathnameEquals(client.getEndpoint() + "/table", client.from("table").getQuery());
+        assertPathnameEquals(client.getEndpoint() + "/refresh_token", client.from("refresh_token").getQuery());
 
         //Check that null errors out
         assertThrows(IllegalArgumentException.class,
