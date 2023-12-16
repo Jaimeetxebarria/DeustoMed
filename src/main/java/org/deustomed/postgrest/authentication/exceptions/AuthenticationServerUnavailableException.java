@@ -1,8 +1,8 @@
-package org.deustomed.authentication.exceptions;
+package org.deustomed.postgrest.authentication.exceptions;
 
 import java.io.Serial;
 
-public class AuthenticationServerUnavailableException extends AuthenticationException {
+public class AuthenticationServerUnavailableException extends PostgrestAuthenticationException {
     @Serial
     private static final long serialVersionUID = 1L;
 
