@@ -5,24 +5,19 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.toedter.calendar.JCalendar;
-import org.deustomed.chat.Client;
+import org.deustomed.authentication.AnonymousAuthenticationService;
 import org.deustomed.chat.Server;
 import org.deustomed.postgrest.Entry;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
+
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.EventObject;
-import javax.swing.border.EmptyBorder;
-import javax.swing.event.CellEditorListener;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
-
-import static org.deustomed.postgrest.PostgrestClient.gson;
 
 public class WindowPatient extends JFrame {
     protected String selectedButton = ""; //info, calendar, medicines, chat
@@ -44,14 +39,12 @@ public class WindowPatient extends JFrame {
     protected JButton leaveChatButton;
     protected String lastMessage = "";
     protected String patientId;
-
     static final String HOSTNAME = "hppqxyzzghzomojqpddp.supabase.co";
     static final String ENDPOINT = "/rest/v1";
-    private static final String ANONYMOUS_TOKEN = """
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwcHF4eXp6Z2h6b21vanFwZGRwIiwicm9sZSI6ImFub24\
-            iLCJpYXQiOjE2OTg2NzE5MjksImV4cCI6MjAxNDI0NzkyOX0.m5uDlUdMaDBXBSoDzRx0BScQfF3AweNGopruakwxais""";
-
-    static final PostgrestClient postgrestClient = new PostgrestClient(HOSTNAME, ENDPOINT, ANONYMOUS_TOKEN);
+    static final PostgrestClient postgrestClient = new PostgrestClient(HOSTNAME, ENDPOINT,
+            new AnonymousAuthenticationService("""
+                    eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwcHF4eXp6Z2h6b21vanFwZGRwIiwicm9s\
+                    ZSI6ImFub24iLCJpYXQiOjE2OTg2NzE5MjksImV4cCI6MjAxNDI0NzkyOX0.m5uDlUdMaDBXBSoDzRx0BScQfF3AweNGopruakwxais"""));
 
     public WindowPatient(String patientId) {
         this.patientId = patientId;
