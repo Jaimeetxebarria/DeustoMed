@@ -2,6 +2,7 @@ package org.deustomed.postgrest;
 
 import org.deustomed.authentication.AnonymousAuthenticationService;
 import org.deustomed.authentication.SuperuserAuthenticationService;
+import org.deustomed.authentication.UserAuthenticationService;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -39,5 +40,9 @@ public class PostgrestClientFactory {
     public static PostgrestClient createSuperuserClient() {
         return new PostgrestClient(getProperty("hostname"), getProperty("endpoint"),
                 new SuperuserAuthenticationService(getProperty("anonymousToken"), getProperty("superuserToken")));
+    }
+
+    public static PostgrestClient createAuthenticatedClient(UserAuthenticationService userAuthenticationService) {
+        return new PostgrestClient(getProperty("hostname"), getProperty("endpoint"), userAuthenticationService);
     }
 }

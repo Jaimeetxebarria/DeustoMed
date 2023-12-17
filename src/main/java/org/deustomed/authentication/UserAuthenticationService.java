@@ -22,10 +22,11 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class UserAuthenticationService implements PostgrestAuthenticationService {
-    private final String BASE_URL;
     private final Gson gson = new Gson();
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
     private final HttpClient client;
+    private final String baseUrl;
+    private final String anonymousToken;
     private String sessionId;
     private String accessToken;
     private String refreshToken;
@@ -35,10 +36,12 @@ public class UserAuthenticationService implements PostgrestAuthenticationService
 
     /**
      * @param baseUrl      The base URL of the authentication server.
-     * @param trustManager A trust manager that trusts the authentication server's certificate
+     * @param trustManager A trust manager that trusts the authentication server's certificate.
+     * @param anonymousToken The anonymous token to use for the client.
      */
-    public UserAuthenticationService(@NotNull String baseUrl, TrustManager trustManager) {
-        BASE_URL = baseUrl;
+    public UserAuthenticationService(@NotNull String baseUrl, TrustManager trustManager, String anonymousToken) {
+        this.baseUrl = baseUrl;
+        this.anonymousToken = anonymousToken;
 
         SSLContext sslContext;
         try {
@@ -61,7 +64,7 @@ public class UserAuthenticationService implements PostgrestAuthenticationService
         postJson.addProperty("userType", userType.toString());
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/login"))
+                .uri(URI.create(baseUrl + "/login"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(postJson.toString()))
                 .build();
@@ -99,7 +102,7 @@ public class UserAuthenticationService implements PostgrestAuthenticationService
         postJson.addProperty("refreshToken", refreshToken);
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/refresh"))
+                .uri(URI.create(baseUrl + "/refresh"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(postJson.toString()))
                 .build();
@@ -132,7 +135,7 @@ public class UserAuthenticationService implements PostgrestAuthenticationService
         postJson.addProperty("accessToken", accessToken);
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/logout"))
+                .uri(URI.create(baseUrl + "/logout"))
                 .POST(HttpRequest.BodyPublishers.ofString(postJson.toString()))
                 .build();
         try {
@@ -160,8 +163,9 @@ public class UserAuthenticationService implements PostgrestAuthenticationService
             refreshSession();
         }
 
-        postgrestQuery.addHeader("sessionId", sessionId);
-        postgrestQuery.addHeader("accessToken", accessToken);
+        postgrestQuery.addHeader("apikey", anonymousToken);
+        postgrestQuery.addHeader("cookie", "sessionId=" + sessionId);
+        postgrestQuery.addHeader("cookie", "accessToken=" + accessToken);
     }
 
     boolean isLoggedIn() {

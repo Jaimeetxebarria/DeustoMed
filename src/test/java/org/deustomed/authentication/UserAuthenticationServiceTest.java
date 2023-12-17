@@ -1,6 +1,8 @@
 package org.deustomed.authentication;
 
 import org.deustomed.UserType;
+import org.deustomed.postgrest.PostgrestClient;
+import org.deustomed.postgrest.PostgrestClientFactory;
 import org.deustomed.postgrest.PostgrestQuery;
 import org.deustomed.postgrest.authentication.exceptions.InexistentUserException;
 import org.deustomed.postgrest.authentication.exceptions.InvalidCredentialsException;
@@ -10,15 +12,19 @@ import org.junit.jupiter.api.*;
 import java.lang.reflect.Method;
 import java.time.OffsetDateTime;
 
+import static org.deustomed.postgrest.PostgrestAssertions.assertDatabaseUserEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class UserAuthenticationServiceTest {
     static UserAuthenticationService userAuthenticationService;
+    static PostgrestClient postgrestClient;
 
     @BeforeAll
     static void setUp() {
-        userAuthenticationService = new UserAuthenticationService("https://localhost:8443", new BypassTrustManager());
+        userAuthenticationService = new UserAuthenticationService("https://localhost:8443", new BypassTrustManager(),
+                PostgrestClientFactory.getProperty("anonymousToken"));
+        postgrestClient = PostgrestClientFactory.createAuthenticatedClient(userAuthenticationService);
     }
 
     @Test
@@ -80,7 +86,7 @@ class UserAuthenticationServiceTest {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     void logout() {
         userAuthenticationService.logout();
         notLoggedIn();
@@ -96,7 +102,14 @@ class UserAuthenticationServiceTest {
         assertTrue(userAuthenticationService.isLoggedIn());
         PostgrestQuery postgrestQuery = new PostgrestQuery();
         userAuthenticationService.addAuthenticationHeaders(postgrestQuery);
-        assertTrue(postgrestQuery.getHeader("sessionId").contains(userAuthenticationService.getSessionId()));
-        assertTrue(postgrestQuery.getHeader("accessToken").contains(userAuthenticationService.getAccessToken()));
+        assertTrue(postgrestQuery.getHeader("apikey").contains(PostgrestClientFactory.getProperty("anonymousToken")));
+        assertTrue(postgrestQuery.getHeader("cookie").contains("sessionId=" + userAuthenticationService.getSessionId()));
+        assertTrue(postgrestQuery.getHeader("cookie").contains("accessToken=" + userAuthenticationService.getAccessToken()));
+    }
+
+    @Test
+    @Order(5)
+    void correctDatabaseUser() {
+        assertDatabaseUserEquals("authenticated", postgrestClient);
     }
 }
