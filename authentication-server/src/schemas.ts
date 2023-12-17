@@ -48,42 +48,56 @@ export const LoginDataSchema = z.object({
 export type LoginDataInfo = z.infer<typeof LoginDataSchema>;
 
 //Check that the user is older that 18 if the user is a doctor
-export const SignUpDataSchema = z.object({
-    userType: UserTypeSchema,
-    name: z
-        .string({ required_error: "Name is required" })
-        .trim()
-        .min(2, "Name must be at least 2 characters long"),
-    surname1: z
-        .string({ required_error: "First surname is required" })
-        .trim()
-        .min(2, "First surname must be at least 2 characters long"),
-    surname2: z
-        .string({ required_error: "Second surname is required" })
-        .trim()
-        .min(2, "Second surname must be at least 2 characters long"),
-    birthDate: z
-        .date({
-            required_error: "Birth date is required",
-            invalid_type_error: "Birth date must be a date",
-            coerce: true,
-        })
-        .refine((date) => date.getTime() < Date.now(), "Birth date must be in the past"),
-    sex: SexSchema,
-    password: passwordSchema,
-    // OPTIONAL FIELDS
-    dni: z
-        .string()
-        .length(9, "DNI must be 9 characters long")
-        .regex(/^[0-9]{8}[a-zA-Z]$/, "Incorrect DNI format")
-        .optional(),
-    email: z.string().email("Invalid email format").optional(),
-    phone: z
-        .string()
-        .transform((val) => val.replace(/\s/g, ""))
-        .pipe(z.string().regex(/^\+34\s?[6-9][0-9]{8}$/))
-        .optional(),
-    address: z.string().optional(),
-});
+export const SignUpDataSchema = z
+    .object({
+        userType: UserTypeSchema,
+        name: z
+            .string({ required_error: "Name is required" })
+            .trim()
+            .min(2, "Name must be at least 2 characters long"),
+        surname1: z
+            .string({ required_error: "First surname is required" })
+            .trim()
+            .min(2, "First surname must be at least 2 characters long"),
+        surname2: z
+            .string({ required_error: "Second surname is required" })
+            .trim()
+            .min(2, "Second surname must be at least 2 characters long"),
+        birthDate: z
+            .date({
+                required_error: "Birth date is required",
+                invalid_type_error: "Birth date must be a date",
+                coerce: true,
+            })
+            .refine((date) => date.getTime() < Date.now(), "Birth date must be in the past"),
+        sex: SexSchema,
+        password: passwordSchema,
+        // OPTIONAL FIELDS
+        dni: z
+            .string()
+            .length(9, "DNI must be 9 characters long")
+            .regex(/^[0-9]{8}[a-zA-Z]$/, "Incorrect DNI format")
+            .optional(),
+        email: z.string().email("Invalid email format").optional(),
+        phone: z
+            .string()
+            .transform((val) => val.replace(/\s/g, ""))
+            .pipe(z.string().regex(/^\+34\s?[6-9][0-9]{8}$/))
+            .optional(),
+        address: z.string().optional(),
+    })
+    .refine(
+        (signUpInfo) => {
+            if (signUpInfo.userType !== "doctor") return true;
+            const age = Math.floor(
+                (Date.now() - signUpInfo.birthDate.getTime()) / (1000 * 60 * 60 * 24 * 365)
+            );
+            return age >= 18;
+        },
+        {
+            message: "Doctors must be at least 18 years old",
+            path: ["birthDate"],
+        }
+    );
 
 export type SignUpDataInfo = z.infer<typeof SignUpDataSchema>;
