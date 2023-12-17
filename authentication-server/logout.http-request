@@ -1,0 +1,13 @@
+{
+  "body": {
+    "content": "ewogICJzZXNzaW9uSWQiOiIwYmEwMjcxYi05N2M2LTRjYzctODBlOC02ODZlNTg4ZjQxMDYiLAogICJhY2Nlc3NUb2tlbiI6IjMyNGE1OTI5LTAyYWUtNGU0OC1iZDNjLWU5YTIzN2ExM2ZlOSIKfQ==",
+    "file": false,
+    "fileSize": false
+  },
+  "headers": {
+    "content-type": "application/json"
+  },
+  "method": "POST",
+  "title": "New HTTP Request",
+  "url": "https://localhost:8443/logout"
+}

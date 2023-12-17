@@ -1,0 +1,13 @@
+{
+  "body": {
+    "content": "ewogICJzZXNzaW9uSWQiOiAiMGQ3YmQyYzgtYTI1MC00NTBlLWFhMzAtNzcyZDk3YTlhNzBkIiwKICAicmVmcmVzaFRva2VuIjoiMGViN2Q4MGMtMWE1Yi00Y2NhLThlMjMtYWQyOWY5NmJiNGI3Igp9",
+    "file": false,
+    "fileSize": false
+  },
+  "headers": {
+    "content-type": "application/json"
+  },
+  "method": "POST",
+  "title": "New HTTP Request",
+  "url": "https://localhost:8443/refresh"
+}

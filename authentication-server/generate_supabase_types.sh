@@ -1,0 +1,1 @@
+npx supabase gen types typescript --project-id "hppqxyzzghzomojqpddp" --schema public --schema custom_auth > src/database.types.ts 

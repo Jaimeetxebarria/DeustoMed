@@ -1,0 +1,13 @@
+{
+  "body": {
+    "content": "ewogICJ1c2VyVHlwZSI6InBhdGllbnQiLAogICJuYW1lIjogIkphaW1lIiwKICJzdXJuYW1lMSI6ICJFdHhlYmFycmlhIiwKInN1cm5hbWUyIjoiVWdhcnRlIiwKImJpcnRoRGF0ZSI6IjIwMDQtMDgtMjIiLAoicGFzc3dvcmQiOiIxMjM0NTZBQCIsCiJzZXgiOiJNQUxFIgoKfQ==",
+    "file": false,
+    "fileSize": false
+  },
+  "headers": {
+    "content-type": "application/json"
+  },
+  "method": "POST",
+  "title": "New HTTP Request",
+  "url": "https://localhost:8443/signup"
+}
