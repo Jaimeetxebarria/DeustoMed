@@ -144,6 +144,12 @@ public class UserAuthenticationService implements PostgrestAuthenticationService
         }
 
         loggedIn = false;
+
+        // Clear session data just in case.
+        sessionId = null;
+        accessToken = null;
+        refreshToken = null;
+        expiresAt = null;
     }
 
     @Override

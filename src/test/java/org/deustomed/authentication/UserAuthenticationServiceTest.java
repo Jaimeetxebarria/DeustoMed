@@ -7,6 +7,9 @@ import org.deustomed.postgrest.authentication.exceptions.InvalidCredentialsExcep
 import org.deustomed.postgrest.authentication.exceptions.PostgrestAuthenticationException;
 import org.junit.jupiter.api.*;
 
+import java.lang.reflect.Method;
+import java.time.OffsetDateTime;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -46,6 +49,38 @@ class UserAuthenticationServiceTest {
 
     @Test
     @Order(3)
+    void refreshSession() {
+        String sessionIdBefore = userAuthenticationService.getSessionId();
+        String accessTokenBefore = userAuthenticationService.getAccessToken();
+        String refreshTokenBefore = userAuthenticationService.getRefreshToken();
+        OffsetDateTime expiresAtBefore = userAuthenticationService.getExpiresAt();
+
+        // Use reflection to call the private method refreshSession()
+        Method method;
+        try {
+            method = UserAuthenticationService.class.getDeclaredMethod("refreshSession");
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+        method.setAccessible(true);
+        assertDoesNotThrow(() -> method.invoke(userAuthenticationService));
+
+        assertNotNull(userAuthenticationService.getSessionId());
+        assertNotNull(userAuthenticationService.getAccessToken());
+        assertNotNull(userAuthenticationService.getRefreshToken());
+        assertNotNull(userAuthenticationService.getExpiresAt());
+        assertTrue(userAuthenticationService.isLoggedIn());
+
+        // Make sure the session data was updated
+        assertEquals(sessionIdBefore, userAuthenticationService.getSessionId());
+        assertNotEquals(accessTokenBefore, userAuthenticationService.getAccessToken());
+        assertNotEquals(refreshTokenBefore, userAuthenticationService.getRefreshToken());
+        assertNotEquals(expiresAtBefore, userAuthenticationService.getExpiresAt());
+        assertTrue(expiresAtBefore.isBefore(userAuthenticationService.getExpiresAt()));
+    }
+
+    @Test
+    @Order(5)
     void logout() {
         userAuthenticationService.logout();
         notLoggedIn();
@@ -56,6 +91,7 @@ class UserAuthenticationServiceTest {
     }
 
     @Test
+    @Order(4)
     void addAuthenticationHeaders() {
         assertTrue(userAuthenticationService.isLoggedIn());
         PostgrestQuery postgrestQuery = new PostgrestQuery();
