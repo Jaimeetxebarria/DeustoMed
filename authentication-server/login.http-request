@@ -1,0 +1,13 @@
+{
+  "body": {
+    "content": "ewogICJpZCI6ICIwMEFBQSIsCiAgInBhc3N3b3JkIjoiMTIzNEU/IiwKICAgInVzZXJUeXBlIjoiZG9jdG9yIgp9",
+    "file": false,
+    "fileSize": false
+  },
+  "headers": {
+    "content-type": "application/json"
+  },
+  "method": "POST",
+  "title": "New HTTP Request",
+  "url": "https://localhost:8443/login"
+}

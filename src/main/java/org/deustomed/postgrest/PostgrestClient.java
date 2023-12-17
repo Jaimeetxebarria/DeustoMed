@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import org.deustomed.httputils.HttpMethod;
 import org.deustomed.httputils.UrlBuilder;
 import org.deustomed.httputils.UrlScheme;
+import org.deustomed.postgrest.authentication.PostgrestAuthenticationService;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.URISyntaxException;
@@ -20,21 +21,21 @@ public class PostgrestClient {
     private final HttpClient httpClient;
     private final String hostname;
     private final String endpoint;
-    private final String anonymousToken;
+    private final PostgrestAuthenticationService authenticationService;
 
     /**
-     * @param hostname       The URL of the Postgrest server
-     *                       Example: postgrest.example.com
-     * @param endpoint       The endpoint of the Postgrest server
-     *                       Example: /rest/v1
-     * @param anonymousToken The anonymous token of the Postgrest server
+     * @param hostname              The URL of the Postgrest server
+     *                              Example: postgrest.example.com
+     * @param endpoint              The endpoint of the Postgrest server
+     *                              Example: /rest/v1
+     * @param authenticationService The authentication service to use
      */
-    public PostgrestClient(@NotNull String hostname, String endpoint, @NotNull String anonymousToken) {
+    public PostgrestClient(@NotNull String hostname, String endpoint, @NotNull PostgrestAuthenticationService authenticationService) {
         this.hostname = hostname;
         this.endpoint = endpoint;
-        this.anonymousToken = anonymousToken;
 
         this.httpClient = HttpClient.newBuilder().build();
+        this.authenticationService = authenticationService;
     }
 
     public JsonElement sendQuery(@NotNull PostgrestQuery query) {
@@ -47,13 +48,15 @@ public class PostgrestClient {
             throw new RuntimeException(e);
         }
 
+        //Add authentication headers
+        authenticationService.addAuthenticationHeaders(query);
+
         // Set the request method and body (if applicable)
         switch (query.getHttpMethod()) {
             case GET -> requestBuilder.GET();
             case POST -> requestBuilder.POST(HttpRequest.BodyPublishers.ofString(query.getBody().toString()));
             case PUT -> requestBuilder.PUT(HttpRequest.BodyPublishers.ofString(query.getBody().toString()));
-            case PATCH ->
-                    requestBuilder.method("PATCH", HttpRequest.BodyPublishers.ofString(query.getBody().toString()));
+            case PATCH -> requestBuilder.method("PATCH", HttpRequest.BodyPublishers.ofString(query.getBody().toString()));
             case DELETE -> requestBuilder.DELETE();
         }
 
@@ -63,9 +66,6 @@ public class PostgrestClient {
                 requestBuilder.header(header.getKey(), value);
             }
         }
-        requestBuilder.header("apikey", anonymousToken);
-        requestBuilder.header("Authorization", "Bearer " + anonymousToken);
-
 
         HttpRequest request = requestBuilder.build();
 
@@ -157,4 +157,15 @@ public class PostgrestClient {
         return new PostgrestFilterBuilder(postgrestQuery);
     }
 
+    public String getHostname() {
+        return hostname;
+    }
+
+    public String getEndpoint() {
+        return endpoint;
+    }
+
+    public PostgrestAuthenticationService getAuthenticationService() {
+        return authenticationService;
+    }
 }

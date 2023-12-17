@@ -4,17 +4,24 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.deustomed.ConfigLoader;
+import org.deustomed.authentication.AnonymousAuthenticationService;
 import org.deustomed.postgrest.Entry;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
-import org.deustomed.ConfigLoader;
 
 import javax.swing.*;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import javax.swing.text.*;
 
 import static org.deustomed.postgrest.PostgrestClient.gson;
 
@@ -38,7 +45,7 @@ public class DoctorChat extends JFrame {
         String hostname = configLoader.getHostname();
         String endpoint = configLoader.getEndpoint();
         String anonymousToken = configLoader.getAnonymousToken();
-        postgrestClient = new PostgrestClient(hostname, endpoint, anonymousToken);
+        postgrestClient = new PostgrestClient(hostname, endpoint, new AnonymousAuthenticationService(anonymousToken));
 
         setTitle("DoctorChat");
         setSize(900, 600);

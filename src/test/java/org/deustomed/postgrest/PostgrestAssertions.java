@@ -13,4 +13,9 @@ public class PostgrestAssertions {
     static void assertJsonEquals(String expected, JsonElement actual) {
         assertEquals(JsonParser.parseString(expected), actual);
     }
+
+    public static void assertDatabaseUserEquals(String expected, PostgrestClient postgrestClient) {
+        PostgrestQuery query = postgrestClient.rpc("get_current_role").getQuery();
+        assertJsonEquals(expected, postgrestClient.sendQuery(query));
+    }
 }

@@ -6,12 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class FullQueryBuildingChainTest {
-    static final String HOSTNAME = "hppqxyzzghzomojqpddp.supabase.co";
-    static final String ENDPOINT = "/rest/v1";
-    static final PostgrestClient postgrestClient = new PostgrestClient(HOSTNAME, ENDPOINT, "");
+    static final PostgrestClient postgrestClient = PostgrestClientFactory.createAnonymousClient();
 
     void assertQueryEquals(String pathname, PostgrestQuery query) {
-        assertEquals("https://" + HOSTNAME + ENDPOINT + pathname, query.getUrlBuilder().toString());
+        assertEquals("https://" + postgrestClient.getHostname() + postgrestClient.getEndpoint() + pathname,
+                query.getUrlBuilder().toString());
     }
 
     @Test

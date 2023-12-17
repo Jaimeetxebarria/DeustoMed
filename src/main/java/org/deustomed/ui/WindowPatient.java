@@ -6,23 +6,24 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.toedter.calendar.JCalendar;
 import org.deustomed.DoctorMsgCode;
-import org.deustomed.chat.Client;
+import org.deustomed.authentication.AnonymousAuthenticationService;
 import org.deustomed.chat.Server;
 import org.deustomed.postgrest.Entry;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
+
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.awt.event.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.EventObject;
-import javax.swing.border.EmptyBorder;
-import javax.swing.event.CellEditorListener;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
-import javax.swing.text.*;
 
 import static org.deustomed.postgrest.PostgrestClient.gson;
 
@@ -38,7 +39,7 @@ public class WindowPatient extends JFrame {
     protected DefaultTableModel calendarTableModel;
 
     protected JLabel lblNombre, lblApellido1, lblApellido2, lblEmail, lblDNI, lblTelefono, lblFechaNacimiento, lblDireccion;
-    protected  JTextField txtNombre, txtApellido1, txtApellido2, txtEmail, txtDNI, txtTelefono, txtFechaNacimiento, txtDireccion;
+    protected JTextField txtNombre, txtApellido1, txtApellido2, txtEmail, txtDNI, txtTelefono, txtFechaNacimiento, txtDireccion;
 
     protected JTextPane chatArea = new JTextPane();
     protected StyledDocument chatDoc = chatArea.getStyledDocument();
@@ -51,11 +52,10 @@ public class WindowPatient extends JFrame {
 
     static final String HOSTNAME = "hppqxyzzghzomojqpddp.supabase.co";
     static final String ENDPOINT = "/rest/v1";
-    private static final String ANONYMOUS_TOKEN = """
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwcHF4eXp6Z2h6b21vanFwZGRwIiwicm9sZSI6ImFub24\
-            iLCJpYXQiOjE2OTg2NzE5MjksImV4cCI6MjAxNDI0NzkyOX0.m5uDlUdMaDBXBSoDzRx0BScQfF3AweNGopruakwxais""";
-
-    static final PostgrestClient postgrestClient = new PostgrestClient(HOSTNAME, ENDPOINT, ANONYMOUS_TOKEN);
+    static final PostgrestClient postgrestClient = new PostgrestClient(HOSTNAME, ENDPOINT,
+            new AnonymousAuthenticationService("""
+                    eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwcHF4eXp6Z2h6b21vanFwZGRwIiwicm9s\
+                    ZSI6ImFub24iLCJpYXQiOjE2OTg2NzE5MjksImV4cCI6MjAxNDI0NzkyOX0.m5uDlUdMaDBXBSoDzRx0BScQfF3AweNGopruakwxais"""));
 
     public WindowPatient(String patientId) {
         this.patientId = patientId;
@@ -124,7 +124,7 @@ public class WindowPatient extends JFrame {
         calendarPanel.add(calendar, BorderLayout.WEST);
 
         calendarTableModel = new DefaultTableModel();
-        String[] calendarColumns = {"Fecha","Hora","Motivo cita","Médico","Codigo Médico"};
+        String[] calendarColumns = {"Fecha", "Hora", "Motivo cita", "Médico", "Codigo Médico"};
         calendarTableModel.setColumnIdentifiers(calendarColumns);
         updateCalendarTable();
         calendarTable = new JTable(calendarTableModel);
@@ -138,15 +138,15 @@ public class WindowPatient extends JFrame {
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                if(selectedButton.equals("calendar")){
+                if (selectedButton.equals("calendar")) {
                     deleteContent();
                     getContentPane().add(calendarPanel, BorderLayout.CENTER);
-                }else if(selectedButton.equals("info")){
+                } else if (selectedButton.equals("info")) {
                     deleteContent();
                     getContentPane().add(infoPanel, BorderLayout.CENTER);
                 } else if (selectedButton.equals("chat")) {
                     deleteContent();
-                    getContentPane().add(chatPanel,BorderLayout.CENTER);
+                    getContentPane().add(chatPanel, BorderLayout.CENTER);
                 }
             }
         });
@@ -177,7 +177,8 @@ public class WindowPatient extends JFrame {
                 Object[] options = {"Sí", "No"};
                 ImageIcon atentionIcon = new ImageIcon("src/main/java/ui/atencion.png");
                 int option = JOptionPane.showOptionDialog(null, "¿Estás seguro de que quieres cerrar sesión?",
-                        "Confirmar Cierre de Sesión", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, atentionIcon, options, options[0]);
+                        "Confirmar Cierre de Sesión", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, atentionIcon, options,
+                        options[0]);
 
                 if (option == JOptionPane.YES_OPTION) {
                     dispose();
@@ -236,7 +237,7 @@ public class WindowPatient extends JFrame {
         messageField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if(e.getKeyCode()==KeyEvent.VK_ENTER){
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     try {
                         sendMessage();
                     } catch (BadLocationException ex) {
@@ -311,9 +312,9 @@ public class WindowPatient extends JFrame {
         txtEmail.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
-                if(!prevEmail.equals(txtEmail.getText())){
+                if (!prevEmail.equals(txtEmail.getText())) {
                     guardarCambiosButton.setEnabled(true);
-                }else{
+                } else {
                     guardarCambiosButton.setEnabled(false);
                 }
             }
@@ -322,9 +323,9 @@ public class WindowPatient extends JFrame {
         txtTelefono.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
-                if(!prevTfn.equals(txtTelefono.getText())){
+                if (!prevTfn.equals(txtTelefono.getText())) {
                     guardarCambiosButton.setEnabled(true);
-                }else{
+                } else {
                     guardarCambiosButton.setEnabled(false);
                 }
             }
@@ -333,9 +334,9 @@ public class WindowPatient extends JFrame {
         txtDireccion.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
-                if(!prevDirect.equals(txtDireccion.getText())){
+                if (!prevDirect.equals(txtDireccion.getText())) {
                     guardarCambiosButton.setEnabled(true);
-                }else{
+                } else {
                     guardarCambiosButton.setEnabled(false);
                 }
             }
@@ -349,10 +350,10 @@ public class WindowPatient extends JFrame {
                 prevTfn = txtTelefono.getText();
 
                 PostgrestQuery query = postgrestClient.from("person")
-                        .update(new Entry("email",prevEmail),
-                                new Entry("phone",prevTfn),
-                                new Entry("address",prevDirect))
-                        .eq("id",patientId)
+                        .update(new Entry("email", prevEmail),
+                                new Entry("phone", prevTfn),
+                                new Entry("address", prevDirect))
+                        .eq("id", patientId)
                         .select()
                         .getQuery();
                 postgrestClient.sendQuery(query);
@@ -371,10 +372,11 @@ public class WindowPatient extends JFrame {
         setVisible(true);
     }
     //OTHER METHODS------------------------------------------------------------------------------------------------------
+
     /**
      * Removes all the contents of WindowPatient, setting the side menu
      */
-    public void deleteContent(){
+    public void deleteContent() {
         getContentPane().removeAll();
         getContentPane().add(menuPanel, BorderLayout.WEST);
         revalidate();
@@ -384,7 +386,7 @@ public class WindowPatient extends JFrame {
     /**
      * Set the infoPanel textfields to DB values
      */
-    public void setInfoPanelTexfields(){
+    public void setInfoPanelTexfields() {
 
         PostgrestQuery query = postgrestClient
                 .from("person")
@@ -427,11 +429,11 @@ public class WindowPatient extends JFrame {
     /**
      * Add all the appointments from the logged patient to the JTable at CalendarPanel using the DB
      */
-    public void updateCalendarTable(){
+    public void updateCalendarTable() {
         PostgrestQuery query = postgrestClient
                 .from("appointment")
                 .select("*")
-                .eq("fk_patient_id",patientId)
+                .eq("fk_patient_id", patientId)
                 .getQuery();
 
         String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
@@ -452,8 +454,8 @@ public class WindowPatient extends JFrame {
 
             PostgrestQuery query1 = postgrestClient
                     .from("person")
-                    .select("name","surname1","surname2")
-                    .eq("id",fkDoctorId)
+                    .select("name", "surname1", "surname2")
+                    .eq("id", fkDoctorId)
                     .getQuery();
 
             String jsonResponse1 = String.valueOf(postgrestClient.sendQuery(query1));
@@ -476,12 +478,12 @@ public class WindowPatient extends JFrame {
         if (!message.isEmpty()) {
 
             JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("fk_patient_id",patientId);
-            jsonObject.addProperty("fk_doctor_id",docCode[0]);
-            jsonObject.addProperty("message",message);
-            jsonObject.addProperty("patient_sent",true);
-            jsonObject.addProperty("patient_read",false);
-            jsonObject.addProperty("doctor_read",false);
+            jsonObject.addProperty("fk_patient_id", patientId);
+            jsonObject.addProperty("fk_doctor_id", docCode[0]);
+            jsonObject.addProperty("message", message);
+            jsonObject.addProperty("patient_sent", true);
+            jsonObject.addProperty("patient_read", false);
+            jsonObject.addProperty("doctor_read", false);
             jsonObject.addProperty("date", LocalDateTime.now().toString());
 
             PostgrestQuery query = postgrestClient
@@ -496,10 +498,12 @@ public class WindowPatient extends JFrame {
             lastMessage = message;
         }
     }
+
     public void recieveMessage(String message) throws BadLocationException {
-        chatDoc.insertString(chatDoc.getLength(),"Doctor: " + message + "\n",null);
+        chatDoc.insertString(chatDoc.getLength(), "Doctor: " + message + "\n", null);
     }
-    public String getLastMessage(){
+
+    public String getLastMessage() {
         return lastMessage;
     }
 
@@ -532,20 +536,20 @@ public class WindowPatient extends JFrame {
             public void actionPerformed(ActionEvent e) {
 
                 try {
-                    chatDoc.remove(0,chatDoc.getLength());
+                    chatDoc.remove(0, chatDoc.getLength());
                 } catch (BadLocationException ex) {
                     throw new RuntimeException(ex);
                 }
 
-                if(!doctorCodeField.getText().equals("")){
+                if (!doctorCodeField.getText().equals("")) {
                     docCode[0] = codeTransformator.MsgCodeToId(doctorCodeField.getText());
                 }
 
                 //get doctor and patient full names
                 PostgrestQuery queryDocName = postgrestClient
                         .from("person")
-                        .select("name","surname1","surname2")
-                        .eq("id",docCode[0])
+                        .select("name", "surname1", "surname2")
+                        .eq("id", docCode[0])
                         .getQuery();
 
                 String jsonResponse1 = String.valueOf(postgrestClient.sendQuery(queryDocName));
@@ -570,30 +574,30 @@ public class WindowPatient extends JFrame {
                 String patSurname1 = jsonObject2.get("surname1").getAsString();
                 String patSurname2 = jsonObject2.get("surname2").getAsString();
 
-                String docFullName = (docName+" "+docSurname1+" "+docSurname2);
-                String patFullName = (patName+" "+patSurname1+" "+patSurname2);
+                String docFullName = (docName + " " + docSurname1 + " " + docSurname2);
+                String patFullName = (patName + " " + patSurname1 + " " + patSurname2);
 
                 //Retrieve previous messages
                 PostgrestQuery query = postgrestClient
                         .from("message")
                         .select("*")
-                        .eq("fk_patient_id",patientId)
-                        .eq("fk_doctor_id",docCode[0])
-                        .order("date",true)
+                        .eq("fk_patient_id", patientId)
+                        .eq("fk_doctor_id", docCode[0])
+                        .order("date", true)
                         .getQuery();
 
                 PostgrestQuery updatequery = postgrestClient
                         .from("message")
-                        .update(new Entry("patient_read",true))
-                        .eq("fk_patient_id",patientId)
-                        .eq("fk_doctor_id",docCode[0])
+                        .update(new Entry("patient_read", true))
+                        .eq("fk_patient_id", patientId)
+                        .eq("fk_doctor_id", docCode[0])
                         .getQuery();
 
                 String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
                 String jsonResponseUpdate = String.valueOf(postgrestClient.sendQuery(updatequery));
                 JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
 
-                for(JsonElement jsonElement : jsonArray){
+                for (JsonElement jsonElement : jsonArray) {
                     JsonObject messageObject = jsonElement.getAsJsonObject();
 
                     String message = messageObject.get("message").getAsString();
@@ -605,9 +609,9 @@ public class WindowPatient extends JFrame {
                     StyleConstants.setBold(bold, true);
 
                     try {
-                        if(patientSent){
+                        if (patientSent) {
                             chatDoc.insertString(chatDoc.getLength(), patFullName + " " + dateFormatted + ":\n", bold);
-                        }else{
+                        } else {
                             chatDoc.insertString(chatDoc.getLength(), docFullName + " " + dateFormatted + ":\n", bold);
                         }
                         chatDoc.insertString(chatDoc.getLength(), message + "\n\n", null);
@@ -633,8 +637,6 @@ public class WindowPatient extends JFrame {
 
         dialog.setVisible(true);
     }
-
-
 
 
     //MAIN(JUST TEST)------------------------------------------------------------------------------------------------------
