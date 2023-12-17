@@ -6,6 +6,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.deustomed.ConfigLoader;
 import org.deustomed.authentication.AnonymousAuthenticationService;
+import org.deustomed.chat.MessageCheckerThread;
+import org.deustomed.chat.chatUser;
 import org.deustomed.postgrest.Entry;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
@@ -22,22 +24,27 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.deustomed.postgrest.PostgrestClient.gson;
 
 
 
-public class DoctorChat extends JFrame {
+public class DoctorChat extends JFrame implements MessageCheckerThread {
 
     private JTextPane chatArea;
     private JTextField messageField;
     private JButton sendButton, leaveChatButton;
-    private JList<String> conversationsList;
-    private DefaultListModel<String> conversationsModel;
+    private JList<chatUser> conversationsList;
+    private DefaultListModel<chatUser> conversationsModel;
     private StyledDocument chatDocument;
     private String docCodeF = "";
+    private String patientId = "";
 
     private static PostgrestClient postgrestClient;
+
+    protected Thread msgThread;
 
     public DoctorChat(String docCode) {
 
@@ -61,11 +68,15 @@ public class DoctorChat extends JFrame {
         conversationsList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                loadConversation(conversationsList.getSelectedValue());
+                chatUser selectedUser = conversationsList.getSelectedValue();
+                patientId = selectedUser.getId();
+                loadConversation(patientId);
+                messageCheckerStart(patientId);
             }
         });
         JScrollPane scrollPaneConversations = new JScrollPane(conversationsList);
         conversationsPanel.add(scrollPaneConversations);
+        conversationsPanel.setBackground(Color.DARK_GRAY);
 
         JPanel chatPanel = new JPanel(new BorderLayout());
         chatArea = new JTextPane();
@@ -92,8 +103,43 @@ public class DoctorChat extends JFrame {
         add(conversationsPanel, BorderLayout.WEST);
         add(chatPanel, BorderLayout.CENTER);
 
-        conversationsModel.addElement("Alejandro Hernandez");
-        conversationsModel.addElement("Marta García");
+        //Load previous conversations
+        PostgrestQuery query = postgrestClient
+                .from("message")
+                .select("fk_patient_id")
+                .eq("fk_doctor_id", docCodeF)
+                .getQuery();
+
+        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
+        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+
+        HashSet<String> uniquePatientIds = new HashSet<>();
+
+        for (JsonElement jsonElement : jsonArray) {
+            JsonObject messageObject = jsonElement.getAsJsonObject();
+            String patientId = messageObject.get("fk_patient_id").getAsString();
+
+            // Añadir al modelo solo si el ID del paciente es único
+            if (uniquePatientIds.add(patientId)) {
+                PostgrestQuery query1 = postgrestClient
+                        .from("person")
+                        .select("id","name","surname1","surname2")
+                        .eq("id", patientId)
+                        .getQuery();
+
+                String jsonResponse1 = String.valueOf(postgrestClient.sendQuery(query1));
+                JsonArray jsonArray1 = gson.fromJson(jsonResponse1, JsonArray.class);
+                JsonObject jsonObject = jsonArray1.get(0).getAsJsonObject();
+
+                String name = jsonObject.get("name").getAsString();
+                String surname1 = jsonObject.get("surname1").getAsString();
+                String surname2 = jsonObject.get("surname2").getAsString();
+                String id = jsonObject.get("id").getAsString();
+
+                chatUser user = new chatUser(name, surname1, surname2, id);
+                conversationsModel.addElement(user);
+            }
+        }
 
         sendButton.addActionListener(e -> {
             try {
@@ -118,69 +164,165 @@ public class DoctorChat extends JFrame {
     }
 
     private void sendMessage() throws BadLocationException {
-        String message = messageField.getText();
-        chatDocument.insertString(chatDocument.getLength(), message + "\n", null);
-        messageField.setText("");
+        String message = messageField.getText().trim();
+        if (!message.isEmpty()) {
+
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("fk_patient_id", patientId);
+            jsonObject.addProperty("fk_doctor_id", docCodeF);
+            jsonObject.addProperty("message", message);
+            jsonObject.addProperty("patient_sent", false);
+            jsonObject.addProperty("patient_read", false);
+            jsonObject.addProperty("doctor_read", false);
+            jsonObject.addProperty("date", LocalDateTime.now().toString());
+
+            PostgrestQuery query = postgrestClient
+                    .from("message")
+                    .insert(jsonObject)
+                    .select()
+                    .getQuery();
+
+            postgrestClient.sendQuery(query);
+
+            messageField.setText("");
+
+        }
+    }
+
+
+    @Override
+    public void messageCheckerStart() {
+
+    }
+
+    public void messageThreadInterrupt(){
+        if(msgThread != null && msgThread.isAlive()){
+            msgThread.interrupt();
+        }
+    }
+
+    public void messageCheckerStart(String patientId){
+
+        messageThreadInterrupt();
+        msgThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                String patientName = getPatientName(patientId);
+                String doctorName = getDoctorName(docCodeF);
+
+                while(!Thread.interrupted()){
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    PostgrestQuery query = postgrestClient
+                            .from("message")
+                            .select("*")
+                            .eq("fk_patient_id", patientId)
+                            .eq("fk_doctor_id", docCodeF)
+                            .eq("patient_read", String.valueOf(false))
+                            .getQuery();
+
+                    String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
+
+                    //Update patient_read to true (query 2)
+                    PostgrestQuery query2 = postgrestClient
+                            .from("message")
+                            .update(new Entry("patient_read", true))
+                            .eq("fk_patient_id", patientId)
+                            .eq("fk_doctor_id", docCodeF)
+                            .getQuery();
+
+                    postgrestClient.sendQuery(query2);
+
+                    //Set the previously unread messages at chatArea
+                    JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+
+                    for (JsonElement jsonElement : jsonArray) {
+                        JsonObject messageObject = jsonElement.getAsJsonObject();
+
+                        String message = messageObject.get("message").getAsString();
+                        String datetime = messageObject.get("date").getAsString();
+                        Boolean patientSent = messageObject.get("patient_sent").getAsBoolean();
+                        LocalDateTime date = LocalDateTime.parse(datetime);
+                        String dateFormatted = date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+                        SimpleAttributeSet bold = new SimpleAttributeSet();
+                        StyleConstants.setBold(bold, true);
+
+                        try {
+                            if (patientSent) {
+                                chatDocument.insertString(chatDocument.getLength(), patientName + " " + dateFormatted + ":\n", bold);
+                            } else {
+                                chatDocument.insertString(chatDocument.getLength(), doctorName + " " + dateFormatted + ":\n", bold);
+                            }
+                            chatDocument.insertString(chatDocument.getLength(), message + "\n\n", null);
+                        } catch (BadLocationException ex) {
+                        }
+                    }
+
+                }
+
+            }
+        });
+        msgThread.start();
+    }
+
+
+
+    public String getDoctorName(String doctorId) {
+        PostgrestQuery query = postgrestClient
+                .from("person")
+                .select("name", "surname1", "surname2")
+                .eq("id", doctorId)
+                .getQuery();
+
+        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
+        Gson gson = new Gson();
+        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+        JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
+
+        String name = jsonObject.get("name").getAsString();
+        String surname1 = jsonObject.get("surname1").getAsString();
+        String surname2 = jsonObject.get("surname2").getAsString();
+
+        String fullName = (name + " " + surname1 + " " + surname2);
+        return fullName;
+    }
+
+    public String getPatientName(String patientId) {
+        PostgrestQuery query = postgrestClient
+                .from("person")
+                .select("name", "surname1", "surname2")
+                .eq("id", patientId)
+                .getQuery();
+
+        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
+        Gson gson = new Gson();
+        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+        JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
+
+        String name = jsonObject.get("name").getAsString();
+        String surname1 = jsonObject.get("surname1").getAsString();
+        String surname2 = jsonObject.get("surname2").getAsString();
+
+        String fullName = (name + " " + surname1 + " " + surname2);
+        return fullName;
     }
 
     private void loadConversation(String patientId) {
-        try {
 
-            //EXAMPLE WITHOUT DB (DELETE)
-            chatDocument.remove(0, chatDocument.getLength());
-
-            if ("Alejandro Hernandez".equals(patientId)) {
-                chatDocument.insertString(chatDocument.getLength(), "Usuario 1 (Paciente): Hola, he estado sintiendo dolor en mi muñeca desde ayer. ¿Podría ser algo serio?\n", null);
-                chatDocument.insertString(chatDocument.getLength(), "Usuario 2 (Doctor): Hola, ¿puedes describir el dolor? ¿Hubo alguna lesión o movimiento inusual que lo haya provocado?\n", null);
-
-            } else if ("Marta García".equals(patientId)) {
-                chatDocument.insertString(chatDocument.getLength(), "Usuario 1 (Paciente): Buenos días, doctor. Solo quería informarle que he estado tomando la medicación como me indicó y me siento mucho mejor.\n", null);
-                chatDocument.insertString(chatDocument.getLength(), "Usuario 2 (Doctor): Buenos días, me alegra escuchar eso. ¿Has experimentado algún efecto secundario?\n", null);
-
-            }
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-        }
-
-        /*
         try {
             chatDocument.remove(0,chatDocument.getLength());
         } catch (BadLocationException ex) {
             throw new RuntimeException(ex);
         }
-        */
 
         //get doctor and patient full names
-        PostgrestQuery queryDocName = postgrestClient
-                .from("person")
-                .select("name","surname1","surname2")
-                .eq("id",docCodeF)
-                .getQuery();
-
-        String jsonResponse1 = String.valueOf(postgrestClient.sendQuery(queryDocName));
-        JsonArray jsonArray1 = gson.fromJson(jsonResponse1, JsonArray.class);
-        JsonObject jsonObject1 = jsonArray1.get(0).getAsJsonObject();
-        String docName = jsonObject1.get("name").getAsString();
-        String docSurname1 = jsonObject1.get("surname1").getAsString();
-        String docSurname2 = jsonObject1.get("surname2").getAsString();
-
-        PostgrestQuery query2 = postgrestClient
-                .from("person")
-                .select("*")
-                .eq("id", patientId)
-                .getQuery();
-
-        String jsonResponse2 = String.valueOf(postgrestClient.sendQuery(query2));
-        Gson gson = new Gson();
-        JsonArray jsonArray2 = gson.fromJson(jsonResponse2, JsonArray.class);
-        JsonObject jsonObject2 = jsonArray2.get(0).getAsJsonObject();
-
-        String patName = jsonObject2.get("name").getAsString();
-        String patSurname1 = jsonObject2.get("surname1").getAsString();
-        String patSurname2 = jsonObject2.get("surname2").getAsString();
-
-        String docFullName = (docName+" "+docSurname1+" "+docSurname2);
-        String patFullName = (patName+" "+patSurname1+" "+patSurname2);
+        String docFullName = getDoctorName(docCodeF);
+        String patFullName = getPatientName(patientId);
 
         //Retrieve previous messages
         PostgrestQuery query = postgrestClient
@@ -193,7 +335,7 @@ public class DoctorChat extends JFrame {
 
         PostgrestQuery updatequery = postgrestClient
                 .from("message")
-                .update(new Entry("patient_read",true))
+                .update(new Entry("doctor_read",true))
                 .eq("fk_patient_id",patientId)
                 .eq("fk_doctor_id",docCodeF)
                 .getQuery();
@@ -227,6 +369,6 @@ public class DoctorChat extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new DoctorChat("").setVisible(true));
+        SwingUtilities.invokeLater(() -> new DoctorChat("00AAA").setVisible(true));
     }
 }

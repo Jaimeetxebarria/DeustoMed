@@ -8,7 +8,7 @@ import com.toedter.calendar.JCalendar;
 import org.deustomed.ConfigLoader;
 import org.deustomed.DoctorMsgCode;
 import org.deustomed.authentication.AnonymousAuthenticationService;
-import org.deustomed.chat.Server;
+import org.deustomed.chat.MessageCheckerThread;
 import org.deustomed.postgrest.Entry;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
@@ -28,7 +28,7 @@ import java.time.format.DateTimeFormatter;
 
 import static org.deustomed.postgrest.PostgrestClient.gson;
 
-public class WindowPatient extends JFrame {
+public class WindowPatient extends JFrame implements MessageCheckerThread {
     protected String selectedButton = ""; //info, calendar, medicines, chat
     protected String prevDirect, prevTfn, prevEmail;
 
@@ -50,6 +50,8 @@ public class WindowPatient extends JFrame {
     protected String lastMessage = "";
     protected String patientId;
     final String[] docCode = {""};
+
+    protected Thread msgThread;
 
     private static PostgrestClient postgrestClient;
 
@@ -210,9 +212,6 @@ public class WindowPatient extends JFrame {
         bottomPanel.add(messageField, BorderLayout.CENTER);
         bottomPanel.add(chatButtonsPanel, BorderLayout.EAST);
         chatPanel.add(bottomPanel, BorderLayout.SOUTH);
-
-        Server server = new Server();
-        //server.initServer(this);
 
         chatButton.addActionListener(new ActionListener() {
             @Override
@@ -548,36 +547,9 @@ public class WindowPatient extends JFrame {
                 }
 
                 //get doctor and patient full names
-                PostgrestQuery queryDocName = postgrestClient
-                        .from("person")
-                        .select("name", "surname1", "surname2")
-                        .eq("id", docCode[0])
-                        .getQuery();
 
-                String jsonResponse1 = String.valueOf(postgrestClient.sendQuery(queryDocName));
-                JsonArray jsonArray1 = gson.fromJson(jsonResponse1, JsonArray.class);
-                JsonObject jsonObject1 = jsonArray1.get(0).getAsJsonObject();
-                String docName = jsonObject1.get("name").getAsString();
-                String docSurname1 = jsonObject1.get("surname1").getAsString();
-                String docSurname2 = jsonObject1.get("surname2").getAsString();
-
-                PostgrestQuery query2 = postgrestClient
-                        .from("person")
-                        .select("*")
-                        .eq("id", patientId)
-                        .getQuery();
-
-                String jsonResponse2 = String.valueOf(postgrestClient.sendQuery(query2));
-                Gson gson = new Gson();
-                JsonArray jsonArray2 = gson.fromJson(jsonResponse2, JsonArray.class);
-                JsonObject jsonObject2 = jsonArray2.get(0).getAsJsonObject();
-
-                String patName = jsonObject2.get("name").getAsString();
-                String patSurname1 = jsonObject2.get("surname1").getAsString();
-                String patSurname2 = jsonObject2.get("surname2").getAsString();
-
-                String docFullName = (docName + " " + docSurname1 + " " + docSurname2);
-                String patFullName = (patName + " " + patSurname1 + " " + patSurname2);
+                String docFullName = getDoctorName(docCode[0]);
+                String patFullName = getPatientName(patientId);
 
                 //Retrieve previous messages
                 PostgrestQuery query = postgrestClient
@@ -622,6 +594,7 @@ public class WindowPatient extends JFrame {
                 }
 
                 dialog.dispose();
+                messageCheckerStart();
 
             }
         });
@@ -640,6 +613,120 @@ public class WindowPatient extends JFrame {
         dialog.setVisible(true);
     }
 
+    public String getDoctorName(String doctorId) {
+        PostgrestQuery query = postgrestClient
+                .from("person")
+                .select("name", "surname1", "surname2")
+                .eq("id", doctorId)
+                .getQuery();
+
+        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
+        Gson gson = new Gson();
+        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+        JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
+
+        String name = jsonObject.get("name").getAsString();
+        String surname1 = jsonObject.get("surname1").getAsString();
+        String surname2 = jsonObject.get("surname2").getAsString();
+
+        String fullName = (name + " " + surname1 + " " + surname2);
+        return fullName;
+    }
+
+    public String getPatientName(String patientId) {
+        PostgrestQuery query = postgrestClient
+                .from("person")
+                .select("name", "surname1", "surname2")
+                .eq("id", patientId)
+                .getQuery();
+
+        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
+        Gson gson = new Gson();
+        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+        JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
+
+        String name = jsonObject.get("name").getAsString();
+        String surname1 = jsonObject.get("surname1").getAsString();
+        String surname2 = jsonObject.get("surname2").getAsString();
+
+        String fullName = (name + " " + surname1 + " " + surname2);
+        return fullName;
+    }
+
+    public void messageThreadInterrupt(){
+        if(msgThread != null && msgThread.isAlive()){
+            msgThread.interrupt();
+        }
+    }
+
+    public void messageCheckerStart(){
+
+        messageThreadInterrupt();
+        msgThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                String patientName = getPatientName(patientId);
+                String doctorName = getDoctorName(docCode[0]);
+
+                while(!Thread.interrupted()){
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    PostgrestQuery query = postgrestClient
+                            .from("message")
+                            .select("*")
+                            .eq("fk_patient_id", patientId)
+                            .eq("fk_doctor_id", docCode[0])
+                            .eq("patient_read", String.valueOf(false))
+                            .getQuery();
+
+                    String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
+
+                    //Update patient_read to true (query 2)
+                    PostgrestQuery query2 = postgrestClient
+                            .from("message")
+                            .update(new Entry("patient_read", true))
+                            .eq("fk_patient_id", patientId)
+                            .eq("fk_doctor_id", docCode[0])
+                            .getQuery();
+
+                    postgrestClient.sendQuery(query2);
+
+                    //Set the previously unread messages at chatArea
+                    JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+
+                    for (JsonElement jsonElement : jsonArray) {
+                        JsonObject messageObject = jsonElement.getAsJsonObject();
+
+                        String message = messageObject.get("message").getAsString();
+                        String datetime = messageObject.get("date").getAsString();
+                        Boolean patientSent = messageObject.get("patient_sent").getAsBoolean();
+                        LocalDateTime date = LocalDateTime.parse(datetime);
+                        String dateFormatted = date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+                        SimpleAttributeSet bold = new SimpleAttributeSet();
+                        StyleConstants.setBold(bold, true);
+
+                        try {
+                            if (patientSent) {
+                                chatDoc.insertString(chatDoc.getLength(), patientName + " " + dateFormatted + ":\n", bold);
+                            } else {
+                                chatDoc.insertString(chatDoc.getLength(), doctorName + " " + dateFormatted + ":\n", bold);
+                            }
+                            chatDoc.insertString(chatDoc.getLength(), message + "\n\n", null);
+                        } catch (BadLocationException ex) {
+                        }
+                    }
+
+                }
+
+            }
+        });
+        msgThread.start();
+    }
 
     //MAIN(JUST TEST)------------------------------------------------------------------------------------------------------
     public static void main(String[] args) {
