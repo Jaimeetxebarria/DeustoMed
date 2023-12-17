@@ -9,6 +9,7 @@ import org.deustomed.ConfigLoader;
 import org.deustomed.DoctorMsgCode;
 import org.deustomed.authentication.AnonymousAuthenticationService;
 import org.deustomed.chat.MessageCheckerThread;
+import org.deustomed.logs.LogerMaker;
 import org.deustomed.postgrest.Entry;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
@@ -22,9 +23,14 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.logging.Logger;
 
 import static org.deustomed.postgrest.PostgrestClient.gson;
 
@@ -46,7 +52,7 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
     protected StyledDocument chatDoc = chatArea.getStyledDocument();
     protected JTextField messageField;
     protected JButton sendButton;
-    protected JButton leaveChatButton;
+    protected JButton saveChatButton;
     protected String lastMessage = "";
     protected String patientId;
     final String[] docCode = {""};
@@ -54,6 +60,8 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
     protected Thread msgThread;
 
     private static PostgrestClient postgrestClient;
+
+    private Logger logger;
 
     public WindowPatient(String patientId) {
         this.patientId = patientId;
@@ -63,6 +71,9 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
         String endpoint = configLoader.getEndpoint();
         String anonymousToken = configLoader.getAnonymousToken();
         postgrestClient = new PostgrestClient(hostname, endpoint, new AnonymousAuthenticationService(anonymousToken));
+
+        LogerMaker.setLOG_FILE_PATH("src/main/java/org/deustomed/logs/WindowPatient.log");
+        logger = LogerMaker.getLogger();
 
         //WINDOW SETTINGS--------------------------------------------------------------------------------------------
         UIManager.put("Button.font", new Font("Arial", Font.BOLD, 14));
@@ -205,9 +216,9 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
 
         messageField = new JTextField();
         sendButton = new JButton("Enviar");
-        leaveChatButton = new JButton("Salir");
+        saveChatButton = new JButton("Descargar");
         chatButtonsPanel.add(sendButton);
-        chatButtonsPanel.add(leaveChatButton);
+        chatButtonsPanel.add(saveChatButton);
 
         bottomPanel.add(messageField, BorderLayout.CENTER);
         bottomPanel.add(chatButtonsPanel, BorderLayout.EAST);
@@ -230,7 +241,7 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
                 try {
                     sendMessage();
                 } catch (BadLocationException ex) {
-                    throw new RuntimeException(ex);
+                    logger.severe("Error al enviar mensaje: " + ex.getMessage() + "por el paciente: " + patientId);
                 }
             }
         });
@@ -242,9 +253,20 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
                     try {
                         sendMessage();
                     } catch (BadLocationException ex) {
-                        throw new RuntimeException(ex);
+                        logger.severe("Error al enviar mensaje: " + ex.getMessage() + "por el paciente: " + patientId);
                     }
                 }
+            }
+        });
+
+        saveChatButton.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Guardar chat como...");
+            int userSelection = fileChooser.showSaveDialog(this);
+
+            if (userSelection == JFileChooser.APPROVE_OPTION) {
+                File fileToSave = fileChooser.getSelectedFile();
+                saveChatToFile(fileToSave.getAbsolutePath());
             }
         });
 
@@ -539,7 +561,7 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
                 try {
                     chatDoc.remove(0, chatDoc.getLength());
                 } catch (BadLocationException ex) {
-                    throw new RuntimeException(ex);
+                    logger.severe("Error al limpiar el chat: " + ex.getMessage() + "por el paciente: " + patientId);
                 }
 
                 if (!doctorCodeField.getText().equals("")) {
@@ -590,6 +612,7 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
                         }
                         chatDoc.insertString(chatDoc.getLength(), message + "\n\n", null);
                     } catch (BadLocationException ex) {
+                        logger.severe("Error al mostrar el chat: " + ex.getMessage() + "por el paciente: " + patientId);
                     }
                 }
 
@@ -673,7 +696,7 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
                     try {
                         Thread.sleep(500);
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        logger.severe("Error al interrumpir el hilo: " + e.getMessage() + "por el paciente: " + patientId);
                     }
 
                     PostgrestQuery query = postgrestClient
@@ -718,6 +741,7 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
                             }
                             chatDoc.insertString(chatDoc.getLength(), message + "\n\n", null);
                         } catch (BadLocationException ex) {
+                            logger.severe("Error al mostrar el chat: " + ex.getMessage() + "por el paciente: " + patientId);
                         }
                     }
 
@@ -726,6 +750,25 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
             }
         });
         msgThread.start();
+    }
+
+    /**
+     * Saves the chat to a file.
+     * @param filePath the path of the file to save the chat to.
+     */
+
+    public void saveChatToFile(String filePath) {
+        try {
+            String content = chatDoc.getText(0, chatDoc.getLength());
+            BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
+            writer.write(content);
+            writer.close();
+            JOptionPane.showMessageDialog(this, "Chat guardado en " + filePath);
+            logger.info("Chat guardado en " + filePath + " por el paciente " + patientId + ".");
+        } catch (BadLocationException | IOException ex) {
+            JOptionPane.showMessageDialog(this, "Error al guardar el archivo: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            logger.severe("Error al guardar el chat: " + ex.getMessage() + "por el paciente: " + patientId);
+        }
     }
 
     //MAIN(JUST TEST)------------------------------------------------------------------------------------------------------

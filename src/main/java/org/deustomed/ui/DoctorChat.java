@@ -8,6 +8,7 @@ import org.deustomed.ConfigLoader;
 import org.deustomed.authentication.AnonymousAuthenticationService;
 import org.deustomed.chat.MessageCheckerThread;
 import org.deustomed.chat.chatUser;
+import org.deustomed.logs.LogerMaker;
 import org.deustomed.postgrest.Entry;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
@@ -22,10 +23,17 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 import static org.deustomed.postgrest.PostgrestClient.gson;
 
@@ -35,7 +43,7 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
 
     private JTextPane chatArea;
     private JTextField messageField;
-    private JButton sendButton, leaveChatButton;
+    private JButton sendButton, saveChatButton;
     private JList<chatUser> conversationsList;
     private DefaultListModel<chatUser> conversationsModel;
     private StyledDocument chatDocument;
@@ -43,8 +51,8 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
     private String patientId = "";
 
     private static PostgrestClient postgrestClient;
-
     protected Thread msgThread;
+    private Logger logger;
 
     public DoctorChat(String docCode) {
 
@@ -53,6 +61,10 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
         String endpoint = configLoader.getEndpoint();
         String anonymousToken = configLoader.getAnonymousToken();
         postgrestClient = new PostgrestClient(hostname, endpoint, new AnonymousAuthenticationService(anonymousToken));
+
+        LogerMaker.setLOG_FILE_PATH("src/main/java/org/deustomed/logs/DoctorChat.log");
+        logger = LogerMaker.getLogger();
+        logger.info("DoctorChat iniciado por el doctor " + docCode + ".");
 
         setTitle("DoctorChat");
         setSize(900, 600);
@@ -91,10 +103,10 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
 
         messageField = new JTextField();
         sendButton = new JButton("Enviar");
-        leaveChatButton = new JButton("Salir");
+        saveChatButton = new JButton("Descargar");
 
         chatButtonsPanel.add(sendButton);
-        chatButtonsPanel.add(leaveChatButton);
+        chatButtonsPanel.add(saveChatButton);
 
         bottomPanel.add(messageField, BorderLayout.CENTER);
         bottomPanel.add(chatButtonsPanel, BorderLayout.EAST);
@@ -141,11 +153,22 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
             }
         }
 
+        saveChatButton.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Guardar chat como...");
+            int userSelection = fileChooser.showSaveDialog(this);
+
+            if (userSelection == JFileChooser.APPROVE_OPTION) {
+                File fileToSave = fileChooser.getSelectedFile();
+                saveChatToFile(fileToSave.getAbsolutePath());
+            }
+        });
+
         sendButton.addActionListener(e -> {
             try {
                 sendMessage();
             } catch (BadLocationException ex) {
-                throw new RuntimeException(ex);
+                logger.severe("Error al enviar el mensaje: " + ex.getMessage() + " por el doctor " + docCodeF + ".");
             }
         });
 
@@ -156,7 +179,7 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
                     try {
                         sendMessage();
                     } catch (BadLocationException ex) {
-                        throw new RuntimeException(ex);
+                        logger.severe("Error al enviar el mensaje: " + ex.getMessage() + " por el doctor " + docCodeF + ".");
                     }
                 }
             }
@@ -188,6 +211,25 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
 
         }
     }
+    
+    /**
+     * Saves the chat to a file.
+     * @param filePath the path of the file to save the chat to.
+     */
+
+    public void saveChatToFile(String filePath) {
+        try {
+            String content = chatDocument.getText(0, chatDocument.getLength());
+            BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
+            writer.write(content);
+            writer.close();
+            JOptionPane.showMessageDialog(this, "Chat guardado en " + filePath);
+            logger.info("Chat guardado en " + filePath + " por el doctor " + docCodeF + ".");
+        } catch (BadLocationException | IOException ex) {
+            JOptionPane.showMessageDialog(this, "Error al guardar el archivo: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            logger.severe("Error al guardar el archivo: " + ex.getMessage() + " por el doctor " + docCodeF + ".");
+        }
+    }
 
 
     @Override
@@ -215,7 +257,7 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
                     try {
                         Thread.sleep(500);
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        logger.severe("Hilo de comprobación de mensajes interrumpido para el doctor " + docCodeF);
                     }
 
                     PostgrestQuery query = postgrestClient
@@ -260,6 +302,7 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
                             }
                             chatDocument.insertString(chatDocument.getLength(), message + "\n\n", null);
                         } catch (BadLocationException ex) {
+                            logger.severe("Error al insertar el mensaje en el chat: " + ex.getMessage() + " por el doctor " + docCodeF + ".");
                         }
                     }
 
@@ -317,7 +360,7 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
         try {
             chatDocument.remove(0,chatDocument.getLength());
         } catch (BadLocationException ex) {
-            throw new RuntimeException(ex);
+            logger.severe("Error al borrar el chat: " + ex.getMessage() + " por el doctor " + docCodeF + ".");
         }
 
         //get doctor and patient full names
@@ -363,6 +406,7 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
                 }
                 chatDocument.insertString(chatDocument.getLength(), message + "\n\n", null);
             } catch (BadLocationException ex) {
+                logger.severe("Error al insertar el mensaje en el chat: " + ex.getMessage() + " por el doctor " + docCodeF + ".");
             }
         }
 
