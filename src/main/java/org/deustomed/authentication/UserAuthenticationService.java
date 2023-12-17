@@ -26,10 +26,10 @@ public class UserAuthenticationService implements PostgrestAuthenticationService
     private final Gson gson = new Gson();
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSZ");
     private final HttpClient client;
-    String sessionId;
-    String accessToken;
-    String refreshToken;
-    OffsetDateTime expiresAt;
+    private String sessionId;
+    private String accessToken;
+    private String refreshToken;
+    private OffsetDateTime expiresAt;
 
     private boolean loggedIn = false;
 
@@ -59,8 +59,6 @@ public class UserAuthenticationService implements PostgrestAuthenticationService
         postJson.addProperty("id", userId);
         postJson.addProperty("password", password);
         postJson.addProperty("userType", userType.toString());
-
-        System.out.println(postJson);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/login"))
@@ -165,5 +163,21 @@ public class UserAuthenticationService implements PostgrestAuthenticationService
 
     boolean isLoggedIn() {
         return loggedIn;
+    }
+
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public OffsetDateTime getExpiresAt() {
+        return expiresAt;
     }
 }

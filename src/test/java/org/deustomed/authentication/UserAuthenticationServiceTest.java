@@ -28,10 +28,10 @@ class UserAuthenticationServiceTest {
     @Order(2)
     void login() {
         assertDoesNotThrow(() -> userAuthenticationService.login("00AAA", "test", UserType.PATIENT));
-        assertNotNull(userAuthenticationService.sessionId);
-        assertNotNull(userAuthenticationService.accessToken);
-        assertNotNull(userAuthenticationService.refreshToken);
-        assertNotNull(userAuthenticationService.expiresAt);
+        assertNotNull(userAuthenticationService.getSessionId());
+        assertNotNull(userAuthenticationService.getAccessToken());
+        assertNotNull(userAuthenticationService.getRefreshToken());
+        assertNotNull(userAuthenticationService.getExpiresAt());
         assertTrue(userAuthenticationService.isLoggedIn());
     }
 
@@ -40,10 +40,10 @@ class UserAuthenticationServiceTest {
     void logout() {
         userAuthenticationService.logout();
         notLoggedIn();
-        assertNull(userAuthenticationService.sessionId);
-        assertNull(userAuthenticationService.accessToken);
-        assertNull(userAuthenticationService.refreshToken);
-        assertNull(userAuthenticationService.expiresAt);
+        assertNull(userAuthenticationService.getSessionId());
+        assertNull(userAuthenticationService.getAccessToken());
+        assertNull(userAuthenticationService.getRefreshToken());
+        assertNull(userAuthenticationService.getExpiresAt());
     }
 
     @Test
@@ -51,7 +51,7 @@ class UserAuthenticationServiceTest {
         assertTrue(userAuthenticationService.isLoggedIn());
         PostgrestQuery postgrestQuery = new PostgrestQuery();
         userAuthenticationService.addAuthenticationHeaders(postgrestQuery);
-        assertTrue(postgrestQuery.getHeader("sessionId").contains(userAuthenticationService.sessionId));
-        assertTrue(postgrestQuery.getHeader("accessToken").contains(userAuthenticationService.accessToken));
+        assertTrue(postgrestQuery.getHeader("sessionId").contains(userAuthenticationService.getSessionId()));
+        assertTrue(postgrestQuery.getHeader("accessToken").contains(userAuthenticationService.getAccessToken()));
     }
 }
