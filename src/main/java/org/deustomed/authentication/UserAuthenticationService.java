@@ -24,7 +24,7 @@ import java.time.format.DateTimeFormatter;
 public class UserAuthenticationService implements PostgrestAuthenticationService {
     private final String BASE_URL;
     private final Gson gson = new Gson();
-    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSZ");
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
     private final HttpClient client;
     private String sessionId;
     private String accessToken;
