@@ -84,13 +84,9 @@ public class UserAuthenticationService implements PostgrestAuthenticationService
                 expiresAt = OffsetDateTime.parse(responseJson.get("expiresAt").getAsString(), dateTimeFormatter);
                 loggedIn = true;
             }
-            case 400 -> {
-                if (response.body().equals("User does not exist")) {
-                    throw new InexistentUserException();
-                }
-                throw new PostgrestAuthenticationException(response.body());
-            }
+            case 400 -> throw new PostgrestAuthenticationException(response.body());
             case 401 -> throw new InvalidCredentialsException();
+            case 404 -> throw new InexistentUserException();
             case 500 -> throw new AuthenticationServerInternalErrorException();
             default -> throw new RuntimeException("Unexpected response code: " + response.statusCode());
         }
@@ -123,7 +119,8 @@ public class UserAuthenticationService implements PostgrestAuthenticationService
                 refreshToken = responseJson.get("refreshToken").getAsString();
                 expiresAt = OffsetDateTime.parse(responseJson.get("expiresAt").getAsString(), dateTimeFormatter);
             }
-            case 400, 401 -> throw new InvalidCredentialsException(response.body()); //TODO change
+            case 400 -> throw new PostgrestAuthenticationException(response.body());
+            case 401 -> throw new InvalidCredentialsException(response.body());
             case 500 -> throw new AuthenticationServerInternalErrorException();
             default -> throw new RuntimeException("Unexpected response code: " + response.statusCode());
         }

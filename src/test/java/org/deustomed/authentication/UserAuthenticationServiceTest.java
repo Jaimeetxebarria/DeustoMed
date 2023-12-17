@@ -2,6 +2,8 @@ package org.deustomed.authentication;
 
 import org.deustomed.UserType;
 import org.deustomed.postgrest.PostgrestQuery;
+import org.deustomed.postgrest.authentication.exceptions.InexistentUserException;
+import org.deustomed.postgrest.authentication.exceptions.InvalidCredentialsException;
 import org.deustomed.postgrest.authentication.exceptions.PostgrestAuthenticationException;
 import org.junit.jupiter.api.*;
 
@@ -27,7 +29,14 @@ class UserAuthenticationServiceTest {
     @Test
     @Order(2)
     void login() {
-        assertDoesNotThrow(() -> userAuthenticationService.login("00AAA", "test", UserType.PATIENT));
+        assertThrows(InvalidCredentialsException.class,
+                () -> userAuthenticationService.login("00AAA", "wrong password", UserType.PATIENT));
+
+        assertThrows(InexistentUserException.class,
+                () -> userAuthenticationService.login("00AAA", "1234E?", UserType.PATIENT));
+
+        assertDoesNotThrow(() -> userAuthenticationService.login("00AAA", "1234E?", UserType.DOCTOR));
+
         assertNotNull(userAuthenticationService.getSessionId());
         assertNotNull(userAuthenticationService.getAccessToken());
         assertNotNull(userAuthenticationService.getRefreshToken());
