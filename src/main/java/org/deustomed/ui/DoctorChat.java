@@ -223,15 +223,15 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
                             .select("*")
                             .eq("fk_patient_id", patientId)
                             .eq("fk_doctor_id", docCodeF)
-                            .eq("patient_read", String.valueOf(false))
+                            .is("doctor_read", false)
                             .getQuery();
 
                     String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
 
-                    //Update patient_read to true (query 2)
+                    //Update doctor_read to true (query 2)
                     PostgrestQuery query2 = postgrestClient
                             .from("message")
-                            .update(new Entry("patient_read", true))
+                            .update(new Entry("doctor_read", true))
                             .eq("fk_patient_id", patientId)
                             .eq("fk_doctor_id", docCodeF)
                             .getQuery();
