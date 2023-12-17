@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.toedter.calendar.JCalendar;
+import org.deustomed.ConfigLoader;
 import org.deustomed.DoctorMsgCode;
 import org.deustomed.authentication.AnonymousAuthenticationService;
 import org.deustomed.chat.Server;
@@ -50,15 +51,16 @@ public class WindowPatient extends JFrame {
     protected String patientId;
     final String[] docCode = {""};
 
-    static final String HOSTNAME = "hppqxyzzghzomojqpddp.supabase.co";
-    static final String ENDPOINT = "/rest/v1";
-    static final PostgrestClient postgrestClient = new PostgrestClient(HOSTNAME, ENDPOINT,
-            new AnonymousAuthenticationService("""
-                    eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwcHF4eXp6Z2h6b21vanFwZGRwIiwicm9s\
-                    ZSI6ImFub24iLCJpYXQiOjE2OTg2NzE5MjksImV4cCI6MjAxNDI0NzkyOX0.m5uDlUdMaDBXBSoDzRx0BScQfF3AweNGopruakwxais"""));
+    private static PostgrestClient postgrestClient;
 
     public WindowPatient(String patientId) {
         this.patientId = patientId;
+
+        ConfigLoader configLoader = new ConfigLoader();
+        String hostname = configLoader.getHostname();
+        String endpoint = configLoader.getEndpoint();
+        String anonymousToken = configLoader.getAnonymousToken();
+        postgrestClient = new PostgrestClient(hostname, endpoint, new AnonymousAuthenticationService(anonymousToken));
 
         //WINDOW SETTINGS--------------------------------------------------------------------------------------------
         UIManager.put("Button.font", new Font("Arial", Font.BOLD, 14));
