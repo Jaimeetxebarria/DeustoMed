@@ -5,13 +5,13 @@ import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
-public class LogerMaker {
+public class LoggerMaker {
 
-    private static final Logger LOGGER = Logger.getLogger(LogerMaker.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(LoggerMaker.class.getName());
     private static String LOG_FILE_PATH = "";
     private static boolean isConfigured = false;
 
-    public static void setLOG_FILE_PATH(String logFilePath) {
+    public static void setlogFilePath(String logFilePath) {
         if (logFilePath == null || logFilePath.trim().isEmpty()) {
             throw new IllegalArgumentException("La ruta del archivo de log no puede ser null o vacía.");
         }

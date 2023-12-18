@@ -8,7 +8,7 @@ import org.deustomed.ConfigLoader;
 import org.deustomed.authentication.AnonymousAuthenticationService;
 import org.deustomed.chat.MessageCheckerThread;
 import org.deustomed.chat.chatUser;
-import org.deustomed.logs.LogerMaker;
+import org.deustomed.logs.LoggerMaker;
 import org.deustomed.postgrest.Entry;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
@@ -30,10 +30,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
-import java.util.Set;
-import java.util.logging.FileHandler;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 
 import static org.deustomed.postgrest.PostgrestClient.gson;
 
@@ -62,8 +59,8 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
         String anonymousToken = configLoader.getAnonymousToken();
         postgrestClient = new PostgrestClient(hostname, endpoint, new AnonymousAuthenticationService(anonymousToken));
 
-        LogerMaker.setLOG_FILE_PATH("src/main/java/org/deustomed/logs/DoctorChat.log");
-        logger = LogerMaker.getLogger();
+        LoggerMaker.setlogFilePath("src/main/java/org/deustomed/logs/DoctorChat.log");
+        logger = LoggerMaker.getLogger();
         logger.info("DoctorChat iniciado por el doctor " + docCode + ".");
 
         setTitle("DoctorChat");
@@ -86,6 +83,7 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
                 messageCheckerStart(patientId);
             }
         });
+
         JScrollPane scrollPaneConversations = new JScrollPane(conversationsList);
         conversationsPanel.add(scrollPaneConversations);
         conversationsPanel.setBackground(Color.DARK_GRAY);

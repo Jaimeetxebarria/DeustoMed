@@ -9,7 +9,8 @@ import org.deustomed.ConfigLoader;
 import org.deustomed.DoctorMsgCode;
 import org.deustomed.authentication.AnonymousAuthenticationService;
 import org.deustomed.chat.MessageCheckerThread;
-import org.deustomed.logs.LogerMaker;
+import org.deustomed.chat.chatUser;
+import org.deustomed.logs.LoggerMaker;
 import org.deustomed.postgrest.Entry;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
@@ -30,6 +31,8 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.logging.Logger;
 
 import static org.deustomed.postgrest.PostgrestClient.gson;
@@ -72,8 +75,8 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
         String anonymousToken = configLoader.getAnonymousToken();
         postgrestClient = new PostgrestClient(hostname, endpoint, new AnonymousAuthenticationService(anonymousToken));
 
-        LogerMaker.setLOG_FILE_PATH("src/main/java/org/deustomed/logs/WindowPatient.log");
-        logger = LogerMaker.getLogger();
+        LoggerMaker.setlogFilePath("src/main/java/org/deustomed/logs/WindowPatient.log");
+        logger = LoggerMaker.getLogger();
 
         //WINDOW SETTINGS--------------------------------------------------------------------------------------------
         UIManager.put("Button.font", new Font("Arial", Font.BOLD, 14));
@@ -545,8 +548,47 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
 
         JTextField doctorCodeField = new JTextField();
         doctorCodeField.setToolTipText("Código para chat proporcionado por el médico");
-        String[] opciones = {"Opción 1", "Opción 2", "Opción 3"};
-        JComboBox<String> comboBox = new JComboBox<>(opciones);
+
+        ArrayList<chatUser> opcionesList = new ArrayList<>();
+
+        PostgrestQuery query = postgrestClient
+                .from("message")
+                .select("fk_doctor_id")
+                .eq("fk_patient_id", patientId)
+                .getQuery();
+
+        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
+        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+
+        HashSet<String> uniqueDoctorIds = new HashSet<>();
+
+        for (JsonElement jsonElement : jsonArray) {
+            JsonObject messageObject = jsonElement.getAsJsonObject();
+            String doctorId = messageObject.get("fk_doctor_id").getAsString();
+
+            // Añadir al modelo solo si el ID del paciente es único
+            if (uniqueDoctorIds.add(doctorId)) {
+                PostgrestQuery query1 = postgrestClient
+                        .from("person")
+                        .select("id","name","surname1","surname2")
+                        .eq("id", doctorId)
+                        .getQuery();
+
+                String jsonResponse1 = String.valueOf(postgrestClient.sendQuery(query1));
+                JsonArray jsonArray1 = gson.fromJson(jsonResponse1, JsonArray.class);
+                JsonObject jsonObject = jsonArray1.get(0).getAsJsonObject();
+
+                String name = jsonObject.get("name").getAsString();
+                String surname1 = jsonObject.get("surname1").getAsString();
+                String surname2 = jsonObject.get("surname2").getAsString();
+                String id = jsonObject.get("id").getAsString();
+
+                chatUser user = new chatUser(name, surname1, surname2, id);
+                opcionesList.add(user);
+            }
+        }
+
+        JComboBox<chatUser> comboBox = new JComboBox<>(new DefaultComboBoxModel<>(opcionesList.toArray(new chatUser[0])));
 
         JButton confirmButton = new JButton("Confirmar");
         JButton cancelButton = new JButton("Cancelar");
@@ -566,6 +608,9 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
 
                 if (!doctorCodeField.getText().equals("")) {
                     docCode[0] = codeTransformator.MsgCodeToId(doctorCodeField.getText());
+                }else{
+                    chatUser selectedUser = (chatUser) comboBox.getSelectedItem();
+                    docCode[0] = selectedUser.getId();
                 }
 
                 //get doctor and patient full names
@@ -672,8 +717,7 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
         String surname1 = jsonObject.get("surname1").getAsString();
         String surname2 = jsonObject.get("surname2").getAsString();
 
-        String fullName = (name + " " + surname1 + " " + surname2);
-        return fullName;
+        return (name + " " + surname1 + " " + surname2);
     }
 
     public void messageThreadInterrupt(){
