@@ -46,19 +46,40 @@ insert into person (name, surname1, surname2, birthdate, sex, encrypted_password
   ('Ivan', 'Jiménez', 'Olivares', '1999-11-23', 'MALE', '$2a$12$5BB.QxUGvukjYEszgYZZAuTHiz2K2QkiNx3cmZ1u0vD7zN1vVIMeK', '34567890MM', 'Avenue 678, Village', '+456789012', 'ivan.jimenez@email.com');
 
 
-
+insert into speciality values
+  (default, 'Alergología'),
+  (default, 'Anestesiología'),
+  (default, 'Angiología'),
+  (default, 'Cardiología'),
+  (default, 'Endocrinología'),
+  (default, 'Gastroenterología'),
+  (default, 'Geriatría'),
+  (default, 'Hematología'),
+  (default, 'Hepatología'),
+  (default, 'Infectología'),
+  (default, 'Medicina interna'),
+  (default, 'Medico de Familia'),
+  (default, 'Nefrología'),
+  (default, 'Neumología'),
+  (default, 'Neurología'),
+  (default, 'Oncología'),
+  (default, 'Pediatría'),
+  (default, 'Psiquiatría'),
+  (default, 'Reumatología'),
+  (default, 'Toxicología'),
+  (default, 'Urología');
 
 insert into doctor values
-  ('00AAA'),
-  ('00AAB'),
-  ('00AAC'),
-  ('00AAD'),
-  ('00AAE'),
-  ('00AAF'),
-  ('00AAG'),
-  ('00AAH'),
-  ('00AAI'),
-  ('00AAJ');
+  ('00AAA', 1),
+  ('00AAB', 3),
+  ('00AAC', 5),
+  ('00AAD', 7),
+  ('00AAE', 8),
+  ('00AAF', 10),
+  ('00AAG', 12),
+  ('00AAH', 11),
+  ('00AAI', 13),
+  ('00AAJ', 15);
 
 
 insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAA', 'Sabado', '09:00', '17:00');

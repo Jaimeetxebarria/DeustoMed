@@ -18,6 +18,7 @@ public class Doctor extends User {
         this.appointments = new ArrayList<>();
     }
 
+
     public ArrayList<Appoinment> getAppointments() {
         return appointments;
     }
