@@ -146,7 +146,7 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
         calendarPanel.add(calendar, BorderLayout.WEST);
 
         calendarTableModel = new DefaultTableModel();
-        String[] calendarColumns = {"Fecha", "Hora", "Motivo cita", "Médico", "Codigo Médico"};
+        String[] calendarColumns = {"Fecha", "Motivo cita", "Médico", "Codigo Médico"};
         calendarTableModel.setColumnIdentifiers(calendarColumns);
         updateCalendarTable();
         calendarTable = new JTable(calendarTableModel);
@@ -473,14 +473,13 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
         for (JsonElement jsonElement : jsonArray) {
             JsonObject appointmentObject = jsonElement.getAsJsonObject();
 
-            String datetime = appointmentObject.get("datetime").getAsString();
+            String datetime = appointmentObject.get("date").getAsString();
             String reason = appointmentObject.get("reason").getAsString();
             String fkDoctorId = appointmentObject.get("fk_doctor_id").getAsString();
-            String hour = appointmentObject.get("hour").getAsString();
 
-            LocalDate date = LocalDate.parse(datetime);
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy");
-            String formatted = date.format(formatter);
+            LocalDateTime dateTime = LocalDateTime.parse(datetime);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy hh:mm a");
+            String formatted = dateTime.format(formatter);
 
             PostgrestQuery query1 = postgrestClient
                     .from("person")
@@ -497,7 +496,7 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
             String surname2 = jsonObject.get("surname2").getAsString();
             String docname = String.format("%s %s %s", name, surname1, surname2);
 
-            Object[] rowData = {formatted, hour, reason, docname, fkDoctorId};
+            Object[] rowData = {formatted, reason, docname, fkDoctorId};
             calendarTableModel.addRow(rowData);
 
         }
