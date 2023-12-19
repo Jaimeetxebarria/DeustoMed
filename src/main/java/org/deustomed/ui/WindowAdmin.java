@@ -4,10 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.deustomed.Doctor;
-import org.deustomed.Patient;
-import org.deustomed.Sex;
-import org.deustomed.User;
+import org.deustomed.*;
+import org.deustomed.authentication.AnonymousAuthenticationService;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
 
@@ -47,16 +45,16 @@ public class WindowAdmin extends JFrame {
 
     protected JPanel pnlLogs;
 
-    static final String HOSTNAME = "hppqxyzzghzomojqpddp.supabase.co";
-    static final String ENDPOINT = "/rest/v1";
-    private static final String ANONYMOUS_TOKEN = """
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwcHF4eXp6Z2h6b21vanFwZGRwIiwicm9sZSI6ImFub24\
-            iLCJpYXQiOjE2OTg2NzE5MjksImV4cCI6MjAxNDI0NzkyOX0.m5uDlUdMaDBXBSoDzRx0BScQfF3AweNGopruakwxais""";
-
-    static final PostgrestClient postgrestClient = new PostgrestClient(HOSTNAME, ENDPOINT, ANONYMOUS_TOKEN);
+    private static PostgrestClient postgrestClient;
     static final Gson gson = new Gson();
 
     public WindowAdmin(){
+        ConfigLoader configLoader = new ConfigLoader();
+        String hostname = configLoader.getHostname();
+        String endpoint = configLoader.getEndpoint();
+        String anonymousToken = configLoader.getAnonymousToken();
+        postgrestClient = new PostgrestClient(hostname, endpoint, new AnonymousAuthenticationService(anonymousToken));
+
         this.setTitle("DeustoMed");
         this.setSize(950, 600);
         this.setLocationRelativeTo(null);
