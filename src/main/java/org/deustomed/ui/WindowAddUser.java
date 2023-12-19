@@ -1,10 +1,7 @@
 package org.deustomed.ui;
 
 import com.toedter.calendar.JDateChooser;
-import org.deustomed.Doctor;
-import org.deustomed.Patient;
-import org.deustomed.Sex;
-import org.deustomed.User;
+import org.deustomed.*;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -229,7 +226,9 @@ public class WindowAddUser extends JFrame {
                         String speciality = ((String) cbSpeciality.getSelectedItem()).toString();
                         if (validateData()) {
                             int id = doctors.size() + 1;
-                            Doctor doctor = new Doctor(id, name, surname1, surname2, email, "", dni, sex, speciality, new ArrayList<>(), new ArrayList<>());
+                            // TODO: 19/12/23 diferenciar entre médicos de familia y especialistas;
+                            // TODO: 19/12/23 en este ejemplo es médico de familia, por los que la especialidad es predeterminada
+                            Doctor doctor = new FamilyDoctor(id, name, surname1, surname2, email, "", dni, sex, new ArrayList<>(), new ArrayList<>());
                             doctors.add(doctor);
                             JOptionPane.showMessageDialog(null, "Doctor added successfully");
                             System.out.println("Nuevo doctor: " + doctor);
@@ -357,8 +356,8 @@ public class WindowAddUser extends JFrame {
         patients.add(new Patient(2,"Andoni","Hernández","Ruiz","email2","5678", "dni2", 17, "Phone2", "Adress2", new Date()));
 
         List<User> doctors= new ArrayList<>();
-        doctors.add(new Doctor(1,"Pablo","Garcia","Iglesias","email1","1234","dni1", "speciality1", new ArrayList<>(), new ArrayList<>()));
-        doctors.add(new Doctor(2,"Andoni","Hernández","Ruiz","email2","5678", "dni2", "speciality2", new ArrayList<>(), new ArrayList<>()));
+        doctors.add(new Doctor(1,"Pablo","Garcia","Iglesias","email1","1234","dni1", Sex.MALE,"speciality1", new ArrayList<>()));
+        doctors.add(new Doctor(2,"Andoni","Hernández","Ruiz","email2","5678", "dni2", Sex.MALE, "speciality2", new ArrayList<>()));
         SwingUtilities.invokeLater(() -> {
             new WindowAddUser(patients);
             new WindowAddUser(doctors);

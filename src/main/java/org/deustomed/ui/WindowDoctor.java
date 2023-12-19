@@ -2,9 +2,7 @@ package org.deustomed.ui;
 
 import com.toedter.calendar.JMonthChooser;
 import com.toedter.calendar.JYearChooser;
-import org.deustomed.Appoinment;
-import org.deustomed.Doctor;
-import org.deustomed.Patient;
+import org.deustomed.*;
 //import org.jetbrains.annotations.Nls;
 
 import javax.swing.*;
@@ -13,7 +11,6 @@ import javax.swing.event.CellEditorListener;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,7 +27,10 @@ public class WindowDoctor extends JFrame {
     private JPanel pnlAppoinments;
     private static Dimension screenSize;
     private JPanel pnlDisplayAppoinments;
-    private JTable tablePatient;
+    private JTable tableOwnPatient;
+    private JTable tableTreatedPatient;
+    private JTable tableInTreatmentPatient;
+    private JTable tableToTreatPatient;
     private JTable tableMedication;
     private JTabbedPane tabbedPaneCenter;
 
@@ -96,11 +96,8 @@ public class WindowDoctor extends JFrame {
 
 
         //--------------------- Panel CENTER: TabbedPane: Pacientes, Medicamentos, Char Médico-Paciente... --------------------------------
-        TableModelPatient tmp = new TableModelPatient();
-        tablePatient = new JTable(tmp);
-        tablePatient.setDefaultRenderer(Patient.class, new TablePatientRenderer());
-        tablePatient.setDefaultEditor(Patient.class, new TablePatienteEditor(new JTextField()));
-        JScrollPane spTablePatient = new JScrollPane(tablePatient);
+
+        JScrollPane spTablePatient = new JScrollPane(tableOwnPatient);
         tableMedication = new JTable();
 
         tabbedPaneCenter = new JTabbedPane();
@@ -108,10 +105,44 @@ public class WindowDoctor extends JFrame {
         Icon iconPatients = new ImageIcon("src/main/java/ui/patient.png");
         Icon iconMedication = new ImageIcon("src/main/java/ui/medication.png");
 
-        tabbedPaneCenter.addTab("Tabla Pacientes", iconPatients, spTablePatient);
-        tabbedPaneCenter.addTab("Table Medicamentos", iconMedication, tableMedication);
+        tabbedPaneCenter.addTab("Registro Completo Pacientes", null, spTablePatient);
+        tabbedPaneCenter.addTab("Table Medicamentos", null, tableMedication);
+        tabbedPaneCenter.addTab("Calendario", null, null);
+        tabbedPaneCenter.addTab("Chats en Curso", null, null);
         add(tabbedPaneCenter, BorderLayout.CENTER);
 
+        // Para Doctor de Medicina Familiar:
+        if(doctor instanceof FamilyDoctor){
+            TableModelPatient tmp1 = new TableModelPatient(((FamilyDoctor) doctor).getOwnPatients());
+            tableOwnPatient = new JTable(tmp1);
+            tableOwnPatient.setDefaultRenderer(Patient.class, new TablePatientRenderer());
+            tableOwnPatient.setDefaultEditor(Patient.class, new TablePatienteEditor(new JTextField()));
+            JScrollPane spTableOwnPatient = new JScrollPane(tableOwnPatient);
+
+            tabbedPaneCenter.addTab("Registro Pacientes Propios", iconPatients, spTableOwnPatient);
+        } else {
+            TableModelPatient tmp2 = new TableModelPatient(((SpecialistDoctor) doctor).getTreatedPatients());
+            tableTreatedPatient = new JTable(tmp2);
+            tableTreatedPatient.setDefaultRenderer(Patient.class, new TablePatientRenderer());
+            tableTreatedPatient.setDefaultEditor(Patient.class, new TablePatienteEditor(new JTextField()));
+            JScrollPane spTableTreatedPatients = new JScrollPane(tableTreatedPatient);
+
+            TableModelPatient tmp3 = new TableModelPatient(((SpecialistDoctor) doctor).getInTreatmentPatients());
+            tableInTreatmentPatient = new JTable(tmp3);
+            tableInTreatmentPatient.setDefaultRenderer(Patient.class, new TablePatientRenderer());
+            tableInTreatmentPatient.setDefaultEditor(Patient.class, new TablePatienteEditor(new JTextField()));
+            JScrollPane spTableInTreatmentPatients = new JScrollPane(tableInTreatmentPatient);
+
+            TableModelPatient tmp4 = new TableModelPatient(((SpecialistDoctor) doctor).getToTreatPatients());
+            tableToTreatPatient = new JTable(tmp4);
+            tableToTreatPatient.setDefaultRenderer(Patient.class, new TablePatientRenderer());
+            tableToTreatPatient.setDefaultEditor(Patient.class, new TablePatienteEditor(new JTextField()));
+            JScrollPane spTableToTreatPatients = new JScrollPane(tableToTreatPatient);
+
+            tabbedPaneCenter.addTab("Registro Pacientes Tratados", iconPatients, spTableTreatedPatients);
+            tabbedPaneCenter.addTab("Registro Pacientes Tratamiento", iconPatients, spTableInTreatmentPatients);
+            tabbedPaneCenter.addTab("Registro Futuros Pacientes", iconPatients, spTableToTreatPatients);
+        }
 
         //--------------------- Panel EAST: Citas (Appointments) --------------------------------
         pnlAppoinments = new JPanel();
@@ -182,7 +213,8 @@ public class WindowDoctor extends JFrame {
         appoinments.add( new Appoinment(patient1, doctor, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
         ArrayList<org.deustomed.Patient> patients = new ArrayList<>();
         patients.add(patient1);
-        Doctor doctor1 = new Doctor(1000, "Carlos", "Rodriguez", "Martinez", "carlosrodri@gmail.com", "carlosrodriguez", "", "Medicina Familiar", appoinments, patients);
+        // TODO: 19/12/23 ajustar instancia a constructor
+        Doctor doctor1 = new FamilyDoctor(1000, "Carlos", "Rodriguez", "Martinez", "carlosrodri@gmail.com", "carlosrodriguez", "", Sex.MALE, appoinments, patients);
         WindowDoctor win = new WindowDoctor(doctor1);
         win.setVisible(true);
     }
@@ -305,12 +337,17 @@ public class WindowDoctor extends JFrame {
         }
     }
     class TableModelPatient extends DefaultTableModel {
+        ArrayList<Patient> patients = new ArrayList<>();
+
+        public TableModelPatient(ArrayList<Patient> data){
+            this.patients = data;
+        }
 
         String[] columns = {"Nombre", "1º Apellido", "2º Apellido", "DNI", "NSS", "Correo", "Día de Nacimiento", "Edad", "nº Teléfono", "Dirección", ""};
         Class[] columnClass = {String.class, String.class, String.class, String.class, String.class, String.class, Date.class, Integer.class, String.class, String.class, Patient.class};
         @Override
         public int getRowCount() {
-            return doctor.getPatients().size();
+            return patients.size();
         }
 
         @Override
@@ -341,7 +378,7 @@ public class WindowDoctor extends JFrame {
             //System.out.println(doctor.getPatients().size());
             org.deustomed.Patient patient = null;
             try {
-                patient = doctor.getPatients().get(rowIndex);
+                patient = patients.get(rowIndex);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -376,7 +413,7 @@ public class WindowDoctor extends JFrame {
 
         @Override
         public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-            Patient patient = doctor.getPatients().get(rowIndex);
+            Patient patient = patients.get(rowIndex);
             switch (columnIndex) {
                 case 0:
                     patient.setName((String) aValue);

@@ -1,5 +1,6 @@
 package org.deustomed;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 public class Patient extends User {
@@ -8,6 +9,7 @@ public class Patient extends User {
     private String address;
     private Date birthDate;
     private String NSS;
+    private ArrayList<Appoinment> medicalRecord;
 
     public Patient(int id, String name, String surname1, String surname2, String email, String password, String dni, int age, String phoneNumer, String address, Date birthDate, String NSS) {
         super(id, name, surname1, surname2, email, password, dni);
