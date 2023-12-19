@@ -1,13 +1,13 @@
 package org.deustomed.chat;
 
-public class chatUser {
+public class ChatUser {
 
     protected String name;
     protected String surname1;
     protected String surname2;
     protected String id;
 
-    public chatUser(String name, String surname1, String surname2, String id) {
+    public ChatUser(String name, String surname1, String surname2, String id) {
         this.name = name;
         this.surname1 = surname1;
         this.surname2 = surname2;

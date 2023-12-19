@@ -6,8 +6,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.deustomed.ConfigLoader;
 import org.deustomed.authentication.AnonymousAuthenticationService;
+import org.deustomed.chat.ChatUser;
 import org.deustomed.chat.MessageCheckerThread;
-import org.deustomed.chat.chatUser;
 import org.deustomed.logs.LoggerMaker;
 import org.deustomed.postgrest.Entry;
 import org.deustomed.postgrest.PostgrestClient;
@@ -41,8 +41,8 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
     private JTextPane chatArea;
     private JTextField messageField;
     private JButton sendButton, saveChatButton;
-    private JList<chatUser> conversationsList;
-    private DefaultListModel<chatUser> conversationsModel;
+    private JList<ChatUser> conversationsList;
+    private DefaultListModel<ChatUser> conversationsModel;
     private StyledDocument chatDocument;
     private String docCodeF = "";
     private String patientId = "";
@@ -77,7 +77,7 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
         conversationsList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                chatUser selectedUser = conversationsList.getSelectedValue();
+                ChatUser selectedUser = conversationsList.getSelectedValue();
                 patientId = selectedUser.getId();
                 loadConversation(patientId);
                 messageCheckerStart(patientId);
@@ -146,7 +146,7 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
                 String surname2 = jsonObject.get("surname2").getAsString();
                 String id = jsonObject.get("id").getAsString();
 
-                chatUser user = new chatUser(name, surname1, surname2, id);
+                ChatUser user = new ChatUser(name, surname1, surname2, id);
                 conversationsModel.addElement(user);
             }
         }

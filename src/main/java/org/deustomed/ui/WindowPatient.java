@@ -4,6 +4,7 @@ package org.deustomed.ui;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;*/
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -12,8 +13,8 @@ import com.toedter.calendar.JCalendar;
 import org.deustomed.ConfigLoader;
 import org.deustomed.DoctorMsgCode;
 import org.deustomed.authentication.AnonymousAuthenticationService;
+import org.deustomed.chat.ChatUser;
 import org.deustomed.chat.MessageCheckerThread;
-import org.deustomed.chat.chatUser;
 import org.deustomed.logs.LoggerMaker;
 import org.deustomed.postgrest.Entry;
 import org.deustomed.postgrest.PostgrestClient;
@@ -552,7 +553,7 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
         JTextField doctorCodeField = new JTextField();
         doctorCodeField.setToolTipText("Código para chat proporcionado por el médico");
 
-        ArrayList<chatUser> opcionesList = new ArrayList<>();
+        ArrayList<ChatUser> opcionesList = new ArrayList<>();
 
         PostgrestQuery query = postgrestClient
                 .from("message")
@@ -586,12 +587,12 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
                 String surname2 = jsonObject.get("surname2").getAsString();
                 String id = jsonObject.get("id").getAsString();
 
-                chatUser user = new chatUser(name, surname1, surname2, id);
+                ChatUser user = new ChatUser(name, surname1, surname2, id);
                 opcionesList.add(user);
             }
         }
 
-        JComboBox<chatUser> comboBox = new JComboBox<>(new DefaultComboBoxModel<>(opcionesList.toArray(new chatUser[0])));
+        JComboBox<ChatUser> comboBox = new JComboBox<>(new DefaultComboBoxModel<>(opcionesList.toArray(new ChatUser[0])));
 
         JButton confirmButton = new JButton("Confirmar");
         JButton cancelButton = new JButton("Cancelar");
@@ -612,7 +613,7 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
                 if (!doctorCodeField.getText().equals("")) {
                     docCode[0] = codeTransformator.MsgCodeToId(doctorCodeField.getText());
                 }else{
-                    chatUser selectedUser = (chatUser) comboBox.getSelectedItem();
+                    ChatUser selectedUser = (ChatUser) comboBox.getSelectedItem();
                     docCode[0] = selectedUser.getId();
                 }
 
