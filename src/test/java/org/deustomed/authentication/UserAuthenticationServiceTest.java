@@ -9,20 +9,37 @@ import org.deustomed.postgrest.authentication.exceptions.InvalidCredentialsExcep
 import org.deustomed.postgrest.authentication.exceptions.PostgrestAuthenticationException;
 import org.junit.jupiter.api.*;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.Socket;
 import java.time.OffsetDateTime;
 
 import static org.deustomed.postgrest.PostgrestAssertions.assertDatabaseUserEquals;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class UserAuthenticationServiceTest {
     static UserAuthenticationService userAuthenticationService;
     static PostgrestClient postgrestClient;
 
+    private static final String HOSTNAME = "localhost";
+    private static final int PORT = 8443;
+
+
+    static boolean isAuthServerAvailable() {
+        try (Socket s = new Socket(HOSTNAME, PORT)) {
+            return true;
+        } catch (IOException ex) {
+            return false;
+        }
+    }
+
     @BeforeAll
     static void setUp() {
-        userAuthenticationService = new UserAuthenticationService("https://localhost:8443", new BypassTrustManager(),
+        assumeTrue(isAuthServerAvailable(), "Authentication server not available"); // Skip tests if the auth server is not available
+
+        userAuthenticationService = new UserAuthenticationService("https://" + HOSTNAME + ":" + PORT, new BypassTrustManager(),
                 PostgrestClientFactory.getProperty("anonymousToken"));
         postgrestClient = PostgrestClientFactory.createAuthenticatedClient(userAuthenticationService);
     }
