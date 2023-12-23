@@ -59,7 +59,7 @@ app.post("/signup", async (req: Request, res: Response) => {
         if (createPersonError) return res.status(500).send("Error creating user");
         if (newId[0] !== null) await database.createUser(newId[0].id, parseResult.data);
 
-        return res.send("User created successfully");
+        return res.send({ id: newId[0].id, newPerson: true });
     }
 
     // Person exists, check that the user doesn't exist
@@ -67,7 +67,7 @@ app.post("/signup", async (req: Request, res: Response) => {
     if (userExists) return res.status(400).send("User already exists");
     await database.createUser(userId, parseResult.data);
 
-    return res.send("User created successfully");
+    return res.send({ id: userId, newPerson: false });
 });
 
 app.post("/login", async (req: Request, res: Response) => {
