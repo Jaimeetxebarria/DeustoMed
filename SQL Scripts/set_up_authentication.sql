@@ -13,7 +13,7 @@ create table
   );
 
 -- Start expired session deletion event
-SELECT cron.schedule('delete expired sessions', '*/1 * * * *', 'delete from custom_auth.session where session_expiry <= current_timestamp');
+select cron.schedule('delete expired sessions', '*/1 * * * *', 'delete from custom_auth.session where session_expiry <= current_timestamp');
 
 drop table if exists custom_auth.refresh_token cascade;
 create table
