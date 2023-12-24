@@ -13,7 +13,7 @@ create table
   );
 
 -- Start expired session deletion event
-SELECT cron.schedule('delete expired sessions', '*/1 * * * *', 'delete from custom_auth.session where session_expiry <= current_timestamp');
+select cron.schedule('delete expired sessions', '*/1 * * * *', 'delete from custom_auth.session where session_expiry <= current_timestamp');
 
 drop table if exists custom_auth.refresh_token cascade;
 create table
@@ -57,9 +57,6 @@ create or replace function custom_auth.authenticate () returns void as $$
 
     -- Handle anonymous users and superusers
     if session_id is null then
-        perform set_config('auth.user_id', '', true);
-        perform set_config('auth.user_type', '', true);
-
         -- In a IRL situation use a configuration parameter. Here we can't because we aren't admin.
         if access_token = 'a77d4f49-be93-458b-8036-78c1ce6526bc'::uuid then
             set local role to service_role;
@@ -83,8 +80,8 @@ create or replace function custom_auth.authenticate () returns void as $$
     -- Handle authenticated users
     if session_user_id is not null then
         set local role to authenticated;
-        perform set_config('auth.user_id', session_user_id, true);
-  		  perform set_config('auth.user_type', session_user_type, true);
+        perform set_config('custom_auth.user_id', session_user_id, true);
+  		perform set_config('custom_auth.user_type', session_user_type, true);
     end if;
   end;
 $$ language plpgsql;
