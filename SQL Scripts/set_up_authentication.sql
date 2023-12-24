@@ -57,9 +57,6 @@ create or replace function custom_auth.authenticate () returns void as $$
 
     -- Handle anonymous users and superusers
     if session_id is null then
-        perform set_config('auth.user_id', '', true);
-        perform set_config('auth.user_type', '', true);
-
         -- In a IRL situation use a configuration parameter. Here we can't because we aren't admin.
         if access_token = 'a77d4f49-be93-458b-8036-78c1ce6526bc'::uuid then
             set local role to service_role;
