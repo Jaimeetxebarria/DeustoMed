@@ -80,8 +80,8 @@ create or replace function custom_auth.authenticate () returns void as $$
     -- Handle authenticated users
     if session_user_id is not null then
         set local role to authenticated;
-        perform set_config('auth.user_id', session_user_id, true);
-  		  perform set_config('auth.user_type', session_user_type, true);
+        perform set_config('custom_auth.user_id', session_user_id, true);
+  		perform set_config('custom_auth.user_type', session_user_type, true);
     end if;
   end;
 $$ language plpgsql;
