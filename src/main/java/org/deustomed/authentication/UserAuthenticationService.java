@@ -130,6 +130,8 @@ public class UserAuthenticationService implements PostgrestAuthenticationService
     }
 
     public void logout() {
+        if (!isLoggedIn()) return;
+
         JsonObject postJson = new JsonObject();
         postJson.addProperty("sessionId", sessionId);
         postJson.addProperty("accessToken", accessToken);
