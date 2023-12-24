@@ -1,5 +1,6 @@
 package org.deustomed.authentication;
 
+import com.google.gson.JsonElement;
 import org.deustomed.UserType;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestClientFactory;
@@ -35,6 +36,14 @@ class UserAuthenticationServiceTest {
         }
     }
 
+    boolean sessionExists(String sessionId) {
+        PostgrestClient superuserClient = PostgrestClientFactory.createSuperuserClient();
+        PostgrestQuery postgrestQuery = superuserClient.from("session").select().eq("id", sessionId).getQuery();
+        postgrestQuery.addHeader("Accept-Profile", "custom_auth"); // Set the schema TODO: Update this when schema selection is implemented
+        JsonElement responseJson = superuserClient.sendQuery(postgrestQuery);
+        return responseJson.isJsonArray() && responseJson.getAsJsonArray().size() == 1;
+    }
+
     @BeforeAll
     static void setUp() {
         assumeTrue(isAuthServerAvailable(), "Authentication server not available"); // Skip tests if the auth server is not available
@@ -68,6 +77,8 @@ class UserAuthenticationServiceTest {
         assertNotNull(userAuthenticationService.getRefreshToken());
         assertNotNull(userAuthenticationService.getExpiresAt());
         assertTrue(userAuthenticationService.isLoggedIn());
+
+        assertTrue(sessionExists(userAuthenticationService.getSessionId()));
     }
 
     @Test
@@ -105,12 +116,16 @@ class UserAuthenticationServiceTest {
     @Test
     @Order(6)
     void logout() {
+        String sessionId = userAuthenticationService.getSessionId();
+
         userAuthenticationService.logout();
         notLoggedIn();
         assertNull(userAuthenticationService.getSessionId());
         assertNull(userAuthenticationService.getAccessToken());
         assertNull(userAuthenticationService.getRefreshToken());
         assertNull(userAuthenticationService.getExpiresAt());
+
+        assertFalse(sessionExists(sessionId));
     }
 
     @Test

@@ -136,8 +136,10 @@ public class UserAuthenticationService implements PostgrestAuthenticationService
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(baseUrl + "/logout"))
+                .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(postJson.toString()))
                 .build();
+
         try {
             client.send(request, HttpResponse.BodyHandlers.discarding());
         } catch (IOException e) {
