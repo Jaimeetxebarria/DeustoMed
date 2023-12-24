@@ -144,4 +144,44 @@ class UserAuthenticationServiceTest {
     void correctDatabaseUser() {
         assertDatabaseUserEquals("authenticated", postgrestClient);
     }
+
+
+    @Test
+    void logoutWhenGarbageCollected() throws InterruptedException {
+        UserAuthenticationService authenticationService = new UserAuthenticationService("https://" + HOSTNAME + ":" + PORT,
+                new BypassTrustManager(),
+                PostgrestClientFactory.getProperty("anonymousToken"));
+
+        authenticationService.login("00AAA", "1234E?", UserType.DOCTOR);
+        String sessionId = authenticationService.getSessionId();
+
+        assertTrue(sessionExists(sessionId));
+
+        // Forget about the only object reference to force garbage collection
+        authenticationService = null;
+        System.gc();
+
+        Thread.sleep(500); // Wait for the garbage collector (Just in case)
+        assertFalse(sessionExists(sessionId));
+    }
+
+    @Test
+    void logoutTryWithResources() {
+        assertDoesNotThrow(() -> {
+            String sessionId;
+
+            try (UserAuthenticationService authenticationService = new UserAuthenticationService("https://" + HOSTNAME + ":" + PORT,
+                    new BypassTrustManager(),
+                    PostgrestClientFactory.getProperty("anonymousToken"))) {
+                authenticationService.login("00AAA", "1234E?", UserType.DOCTOR);
+                sessionId = authenticationService.getSessionId();
+
+                assertTrue(sessionExists(sessionId));
+            }
+
+            Thread.sleep(500); // Wait for the garbage collector (Just in case)
+            assertFalse(sessionExists(sessionId));
+        });
+    }
+
 }
