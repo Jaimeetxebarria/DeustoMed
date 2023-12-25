@@ -94,7 +94,6 @@ public class Patient extends User {
                 ", surname1='" + surname1 + '\'' +
                 ", surname2='" + surname2 + '\'' +
                 ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
                 ", dni='" + dni + '\'' +
                 ", age=" + age +
                 ", phoneNumer='" + phoneNumer + '\'' +

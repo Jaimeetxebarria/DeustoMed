@@ -42,7 +42,6 @@ public class Doctor extends User {
                 ", surname='" + surname1 + '\'' +
                 ", id=" + id +
                 ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
                 ", speciality='" + speciality + '\'' +
                 '}';
     }
