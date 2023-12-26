@@ -1,7 +1,14 @@
 package org.deustomed.ui;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.toedter.calendar.JDateChooser;
 import org.deustomed.*;
+import org.deustomed.authentication.AnonymousAuthenticationService;
+import org.deustomed.postgrest.PostgrestClient;
+import org.deustomed.postgrest.PostgrestQuery;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,12 +25,12 @@ import java.util.stream.Collectors;
 public class WindowAddUser extends JFrame {
 
     // General
-    JLabel lblId, lblName, lblSurname1, lblSurname2, lblSex, lblEmail, lblDni, lblError;
-    JTextField tfId, tfName, tfSurname1, tfSurname2, tfEmail, tfDni;
+    JLabel lblName, lblSurname1, lblSurname2, lblSex, lblEmail, lblDni, lblError;
+    JTextField tfName, tfSurname1, tfSurname2, tfEmail, tfDni;
     JRadioButton radMale, radFemale;
     JButton btnSave;
 
-    // For patient
+    //For patient
     List<User> patients;
     JLabel lblAge, lblPhone, lblAddress, lblBirthDate;
     JTextField tfAge, tfPhone, tfAddress;
@@ -34,13 +41,19 @@ public class WindowAddUser extends JFrame {
     List<User> doctors;
     JLabel lblSpeciality;
     JComboBox<String> cbSpeciality;
-    List<String> specialities = Arrays.asList("Alergología", "Anestesiología", "Angiología", "Cardiología", "Endocrinología",
-            "Gastroenterología", "Geriatría", "Hematología", "Infectología", "Medicina interna", "Nefrología", "Neumología", "Neurología"
-            , "Obstetricia", "Oftalmología", "Oncología", "Pediatría", "Psiquiatría", "Reumatología", "Toxicología", "Urología");
+    protected JsonArray jsonSpeciality;
+    protected List<String> specialities = new ArrayList<>();
 
-
+    private static PostgrestClient postgrestClient;
+    private static final Gson gson = new Gson();
 
     public WindowAddUser(List<User> users) {
+        ConfigLoader configLoader = new ConfigLoader();
+        String hostname = configLoader.getHostname();
+        String endpoint = configLoader.getEndpoint();
+        String anonymousToken = configLoader.getAnonymousToken();
+        postgrestClient = new PostgrestClient(hostname, endpoint, new AnonymousAuthenticationService(anonymousToken));
+
         if(users.get(0) instanceof Patient){
             patients = users.stream().map(user -> (Patient) user).collect(Collectors.toList());
             setTitle("New patient");
@@ -63,9 +76,6 @@ public class WindowAddUser extends JFrame {
         lblDni = createCenteredLabel("DNI:");
         lblError = createCenteredLabel("");
         lblError.setForeground(Color.RED);
-
-        tfId.setEditable(false);
-
 
         tfName = new JTextField();
         tfSurname1 = new JTextField();
@@ -110,6 +120,16 @@ public class WindowAddUser extends JFrame {
         } else if (doctors != null) {
             lblSpeciality = createCenteredLabel("Specialidad:");
             cbSpeciality = new JComboBox<>();
+            PostgrestQuery specialityQuery = postgrestClient
+                    .from("speciality")
+                    .select("name")
+                    .getQuery();
+            String jsonResponse = String.valueOf(postgrestClient.sendQuery(specialityQuery));
+            jsonSpeciality = gson.fromJson(jsonResponse, JsonArray.class);
+            for(JsonElement speciality:jsonSpeciality){
+                JsonObject specialityObj = speciality.getAsJsonObject();
+                specialities.add(specialityObj.getAsString());
+            }
             cbSpeciality.setModel(new DefaultComboBoxModel<>(specialities.toArray(new String[0])));
 
         }
@@ -205,7 +225,7 @@ public class WindowAddUser extends JFrame {
                             Doctor doctor = new FamilyDoctor(id, name, surname1, surname2, birthDate, sex,
                                     dni, email, phone, address, new ArrayList<>(), new ArrayList<>());
                             doctors.add(doctor);
-                            JOptionPane.showMessageDialog(null, "Doctor added successfully");
+                            new WindowConfirmNewUser(doctors);
                             System.out.println("Nuevo doctor: " + doctor);
                             dispose();
                         }
