@@ -1,11 +1,13 @@
 package org.deustomed;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public abstract class User implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
-    protected int id;
+    protected String id;
     protected String name;
     protected String surname1;
     protected String surname2;
@@ -13,7 +15,7 @@ public abstract class User implements Serializable {
     protected String dni;
     protected Sex sex;
 
-    public User(int id, String name, String surname1, String surname2, String email, String password, String dni) {
+    public User(String id, String name, String surname1, String surname2, String email, String password, String dni) {
         this.id = id;
         this.name = name;
         this.surname1 = surname1;
@@ -21,7 +23,8 @@ public abstract class User implements Serializable {
         this.email = email;
         this.dni = dni;
     }
-    public User(int id, String name, String surname1, String surname2, String email, String password, String dni, Sex sex) {
+
+    public User(String id, String name, String surname1, String surname2, String email, String password, String dni, Sex sex) {
         this.id = id;
         this.name = name;
         this.surname1 = surname1;
@@ -31,7 +34,7 @@ public abstract class User implements Serializable {
         this.sex = sex;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
@@ -59,7 +62,7 @@ public abstract class User implements Serializable {
         this.email = email;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

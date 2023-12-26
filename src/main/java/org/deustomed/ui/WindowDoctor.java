@@ -3,7 +3,6 @@ package org.deustomed.ui;
 import com.toedter.calendar.JMonthChooser;
 import com.toedter.calendar.JYearChooser;
 import org.deustomed.*;
-//import org.jetbrains.annotations.Nls;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -206,7 +205,8 @@ public class WindowDoctor extends JFrame {
 }
 
     public static void main(String[] args) {
-        org.deustomed.Patient patient1 = new org.deustomed.Patient(1001, "Paciente1", "Surname1", "Surname2", "paciente1@gmail.com", "password", 24);
+        org.deustomed.Patient patient1 = new org.deustomed.Patient("FIXME", "Paciente1", "Surname1", "Surname2", "paciente1@gmail.com",
+                "password", 24);
         ArrayList<Appoinment> appoinments = new ArrayList<>();
         appoinments.add( new Appoinment(patient1, doctor, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
         appoinments.add( new Appoinment(patient1, doctor, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
@@ -214,7 +214,8 @@ public class WindowDoctor extends JFrame {
         ArrayList<org.deustomed.Patient> patients = new ArrayList<>();
         patients.add(patient1);
         // TODO: 19/12/23 ajustar instancia a constructor
-        Doctor doctor1 = new FamilyDoctor(1000, "Carlos", "Rodriguez", "Martinez", "carlosrodri@gmail.com", "carlosrodriguez", "", Sex.MALE, appoinments, patients);
+        Doctor doctor1 = new FamilyDoctor("FIXME", "Carlos", "Rodriguez", "Martinez", "carlosrodri@gmail.com", "carlosrodriguez", "",
+                Sex.MALE, appoinments, patients);
         WindowDoctor win = new WindowDoctor(doctor1);
         win.setVisible(true);
     }
@@ -462,7 +463,8 @@ public class WindowDoctor extends JFrame {
         private final JPanel panelWest;
 
         public static void main(String[] args) {
-            Patient patient = new Patient(1, "Antonio", "Gonzalez", "Gonzalez", "mail@gmail.vpm", "antonio", "12345678A", 50, "612345678", "Calle Dirección Inventada", new Date(), "NSS123456");
+            Patient patient = new Patient("FIXME", "Antonio", "Gonzalez", "Gonzalez", "mail@gmail.vpm", "antonio", "12345678A", 50,
+                    "612345678", "Calle Dirección Inventada", new Date(), "NSS123456");
             ShowPatientWindow spw = new ShowPatientWindow(patient);
             spw.setVisible(true);
             spw.setDefaultCloseOperation(EXIT_ON_CLOSE);

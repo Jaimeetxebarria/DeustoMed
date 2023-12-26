@@ -4,20 +4,13 @@ import com.toedter.calendar.JDateChooser;
 import org.deustomed.*;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
-import java.awt.event.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.Period;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class WindowAddUser extends JFrame {
@@ -214,7 +207,8 @@ public class WindowAddUser extends JFrame {
                         String address = tfAddress.getText();
                         if (validateData()) {
                             int id = patients.size() + 1;
-                            Patient patient = new Patient(id, name, surname1, surname2, email, "", dni, sex, Integer.parseInt(age), phone, address, birthDate);
+                            Patient patient = new Patient("FIXME", name, surname1, surname2, email, "", dni, sex, Integer.parseInt(age),
+                                    phone, address, birthDate);
                             patients.add(patient);
                             JOptionPane.showMessageDialog(null, "Patient added successfully");
                             System.out.println("Nuevo paciente: " + patient);
@@ -228,7 +222,8 @@ public class WindowAddUser extends JFrame {
                             int id = doctors.size() + 1;
                             // TODO: 19/12/23 diferenciar entre médicos de familia y especialistas;
                             // TODO: 19/12/23 en este ejemplo es médico de familia, por los que la especialidad es predeterminada
-                            Doctor doctor = new FamilyDoctor(id, name, surname1, surname2, email, "", dni, sex, new ArrayList<>(), new ArrayList<>());
+                            Doctor doctor = new FamilyDoctor("FIXME", name, surname1, surname2, email, "", dni, sex, new ArrayList<>(),
+                                    new ArrayList<>());
                             doctors.add(doctor);
                             JOptionPane.showMessageDialog(null, "Doctor added successfully");
                             System.out.println("Nuevo doctor: " + doctor);
@@ -352,12 +347,14 @@ public class WindowAddUser extends JFrame {
 
     public static void main(String[] args) {
         List<User> patients= new ArrayList<>();
-        patients.add(new Patient(1,"Pablo","Garcia","Iglesias","email1","1234","dni1", 20, "Phone1", "Adress1", new Date()));
-        patients.add(new Patient(2,"Andoni","Hernández","Ruiz","email2","5678", "dni2", 17, "Phone2", "Adress2", new Date()));
+        patients.add(new Patient("00ABA", "Pablo", "Garcia", "Iglesias", "email1", "1234", "dni1", 20, "Phone1", "Adress1", new Date()));
+        patients.add(new Patient("00ABB", "Andoni", "Hernández", "Ruiz", "email2", "5678", "dni2", 17, "Phone2", "Adress2", new Date()));
 
         List<User> doctors= new ArrayList<>();
-        doctors.add(new Doctor(1,"Pablo","Garcia","Iglesias","email1","1234","dni1", Sex.MALE,"speciality1", new ArrayList<>()));
-        doctors.add(new Doctor(2,"Andoni","Hernández","Ruiz","email2","5678", "dni2", Sex.MALE, "speciality2", new ArrayList<>()));
+        doctors.add(new Doctor("00ABC", "Pablo", "Garcia", "Iglesias", "email1", "1234", "dni1", Sex.MALE, "speciality1",
+                new ArrayList<>()));
+        doctors.add(new Doctor("00ABD", "Andoni", "Hernández", "Ruiz", "email2", "5678", "dni2", Sex.MALE, "speciality2",
+                new ArrayList<>()));
         SwingUtilities.invokeLater(() -> {
             new WindowAddUser(patients);
             new WindowAddUser(doctors);
