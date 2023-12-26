@@ -24,14 +24,14 @@ public class WindowAddUser extends JFrame {
     JButton btnSave;
 
     // For patient
-    List<Patient> patients;
+    List<User> patients;
     JLabel lblAge, lblPhone, lblAddress, lblBirthDate;
     JTextField tfAge, tfPhone, tfAddress;
     JDateChooser dateChooser;
     Date previousDate;
 
-    // For doctor
-    List<Doctor> doctors;
+    //For doctor
+    List<User> doctors;
     JLabel lblSpeciality;
     JComboBox<String> cbSpeciality;
     List<String> specialities = Arrays.asList("Alergología", "Anestesiología", "Angiología", "Cardiología", "Endocrinología",
@@ -41,21 +41,20 @@ public class WindowAddUser extends JFrame {
 
 
     public WindowAddUser(List<User> users) {
-        if (users.get(0) instanceof Patient) {
+        if(users.get(0) instanceof Patient){
             patients = users.stream().map(user -> (Patient) user).collect(Collectors.toList());
             setTitle("New patient");
-        } else {
+        }else{
             doctors = users.stream().map(user -> (Doctor) user).collect(Collectors.toList());
-            setTitle("Crear Doctor");
+            setTitle("New Doctor");
         }
 
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
         //setResizable(false);
         setLocationRelativeTo(null);
-        setSize(450, 350);
+        setSize(300, 550);
 
-        lblId = createCenteredLabel("ID:");
         lblName = createCenteredLabel("Nombre:");
         lblSurname1 = createCenteredLabel("Apellido 1:");
         lblSurname2 = createCenteredLabel("Apellido 2:");
@@ -65,14 +64,8 @@ public class WindowAddUser extends JFrame {
         lblError = createCenteredLabel("");
         lblError.setForeground(Color.RED);
 
-
-        tfId = new JTextField("Id generado automáticamente");
-        JButton btnCopyId = new JButton("Copiar");
-        btnCopyId.addActionListener(e -> copyToClipboard(tfId.getText()));
         tfId.setEditable(false);
-        JPanel pnlId = new JPanel(new BorderLayout());
-        pnlId.add(tfId, BorderLayout.CENTER);
-        pnlId.add(btnCopyId, BorderLayout.EAST);
+
 
         tfName = new JTextField();
         tfSurname1 = new JTextField();
@@ -109,10 +102,9 @@ public class WindowAddUser extends JFrame {
             tfAge.setEditable(false);
             tfAge.setText(String.valueOf(getAge(dateChooser.getDate())));
             tfPhone = new JTextField();
-            tfPhone.setToolTipText("Phone should start with 6 or 9 and have 9 digits");
+            tfPhone.setToolTipText("Phone number should have 9 digits");
             tfAddress = new JTextField();
-            tfAddress.setToolTipText("Address should be in the format: Street, number, city, province, country\nExample: Sabino Arana, " +
-                    "15, 2A, Bilbao, Biscay, Spain");
+            tfAddress.setToolTipText("Address should be in the format: Street, number, city, province, country\nExample: Sabino Arana, 15, 2A, Bilbao, Biscay, Spain");
 
 
         } else if (doctors != null) {
@@ -127,12 +119,10 @@ public class WindowAddUser extends JFrame {
 
         JPanel pnlPrimary = new JPanel();
         if (patients != null) {
-            pnlPrimary.setLayout(new GridLayout(11, 2));
+            pnlPrimary.setLayout(new GridLayout(10, 2));
         } else if (doctors != null) {
-            pnlPrimary.setLayout(new GridLayout(8, 2));
+            pnlPrimary.setLayout(new GridLayout(9, 2));
         }
-        pnlPrimary.add(lblId);
-        pnlPrimary.add(pnlId);
         pnlPrimary.add(lblName);
         pnlPrimary.add(tfName);
         pnlPrimary.add(lblSurname1);
@@ -197,7 +187,7 @@ public class WindowAddUser extends JFrame {
                             Patient patient = new Patient(id, name, surname1, surname2, birthDate, sex, dni, email, phone,
                                     address, new ArrayList<>());
                             patients.add(patient);
-                            JOptionPane.showMessageDialog(null, "Patient added successfully");
+                            new WindowConfirmNewUser(patients);
                             System.out.println("Nuevo paciente: " + patient);
                             dispose();
                         }
@@ -242,8 +232,7 @@ public class WindowAddUser extends JFrame {
 
     private boolean validateData() {
         // Verificar que ningún campo esté vacío
-        if (tfId.getText().isEmpty() ||
-                tfName.getText().isEmpty() ||
+        if (tfName.getText().isEmpty() ||
                 tfSurname1.getText().isEmpty() ||
                 tfSurname2.getText().isEmpty() ||
                 tfDni.getText().isEmpty()) {
@@ -294,18 +283,6 @@ public class WindowAddUser extends JFrame {
 
         }
         return true;
-    }
-
-    /**
-     * Copies a text of the id textfield to the clipboard
-     *
-     * @param id The id to copy
-     */
-    private void copyToClipboard(String id) {
-        StringSelection stringSelection = new StringSelection(id);
-        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-        clipboard.setContents(stringSelection, null);
-        JOptionPane.showMessageDialog(null, "ID copiado al portapapeles: " + id);
     }
 
     /**
