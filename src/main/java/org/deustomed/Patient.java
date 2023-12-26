@@ -9,10 +9,9 @@ public class Patient extends User {
     private String address;
     private Date birthDate;
     private String NSS;
-    private ArrayList<Appoinment> medicalRecord;
+    private ArrayList<Appointment> medicalRecord;
 
-    public Patient(String id, String name, String surname1, String surname2, String email, String password, String dni, int age,
-                   String phoneNumer, String address, Date birthDate, String NSS) {
+    public Patient(String id, String name, String surname1, String surname2, String email, String password, String dni, int age, String phoneNumer, String address, Date birthDate, String NSS) {
         super(id, name, surname1, surname2, email, password, dni);
         this.age = age;
         this.phoneNumer = phoneNumer;
@@ -21,17 +20,14 @@ public class Patient extends User {
         this.NSS = NSS;
     }
 
-    public Patient(String id, String name, String surname1, String surname2, String email, String password, String dni, int age,
-                   String phoneNumer, String address, Date birthDate) {
+    public Patient(String id, String name, String surname1, String surname2, String email, String password, String dni, int age, String phoneNumer, String address, Date birthDate) {
         super(id, name, surname1, surname2, email, password, dni);
         this.age = age;
         this.phoneNumer = phoneNumer;
         this.address = address;
         this.birthDate = birthDate;
     }
-
-    public Patient(String id, String name, String surname1, String surname2, String email, String password, String dni, Sex sex, int age,
-                   String phoneNumer, String address, Date birthDate) {
+    public Patient(String id, String name, String surname1, String surname2, String email, String password, String dni, Sex sex, int age, String phoneNumer, String address, Date birthDate) {
         super(id, name, surname1, surname2, email, password, dni, sex);
         this.age = age;
         this.phoneNumer = phoneNumer;
@@ -45,7 +41,7 @@ public class Patient extends User {
     }
 
     public Patient(){
-        super("", "", "", "", "", "", "");
+        super("-1", "", "", "", "", "", "");
         this.age = 0;
         this.phoneNumer = "";
         this.address = "";

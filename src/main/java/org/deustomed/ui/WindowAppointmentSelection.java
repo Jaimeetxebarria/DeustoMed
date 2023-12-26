@@ -1,6 +1,6 @@
 package org.deustomed.ui;
 
-import org.deustomed.Appoinment;
+import org.deustomed.Appointment;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -16,7 +16,7 @@ public class WindowAppointmentSelection extends JFrame {
     JButton cancelButton;
     JButton confirmButton;
 
-    public WindowAppointmentSelection(TreeSet<Appoinment> appointments) {
+    public WindowAppointmentSelection(TreeSet<Appointment> appointments) {
         setLayout(new BorderLayout());
 
 
@@ -31,7 +31,7 @@ public class WindowAppointmentSelection extends JFrame {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy hh:mm a");
 
-        for(Appoinment ap:appointments){
+        for(Appointment ap:appointments){
             String[] row = {ap.getDoctor().getName() +" "+ ap.getDoctor().getSurname1()+" "+ap.getDoctor().getSurname2(), String.valueOf(ap.getDoctor().getId()), dateFormat.format(ap.getDateAsDate())};
             model.addRow(row);
             comboBox.addItem(ap.getDoctor().getName() +" "+ ap.getDoctor().getSurname1()+" "+ap.getDoctor().getSurname2()+" - "+dateFormat.format(ap.getDateAsDate()));

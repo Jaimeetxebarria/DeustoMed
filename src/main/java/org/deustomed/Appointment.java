@@ -1,12 +1,9 @@
 package org.deustomed;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.Objects;
 
-public class Appoinment implements Comparable<Appoinment> {
+public class Appointment implements Comparable<Appointment> {
     private String id;
     private Patient patient;
     private Doctor doctor;
@@ -14,7 +11,7 @@ public class Appoinment implements Comparable<Appoinment> {
     private String shortDesciption;
     private String longDescription;
 
-    public Appoinment(Patient patient, Doctor doctor, LocalDateTime date, String shortDesciption, String longDescription) {
+    public Appointment(Patient patient, Doctor doctor, LocalDateTime date, String shortDesciption, String longDescription) {
         this.patient = patient;
         this.doctor = doctor;
         this.date = date;
@@ -71,7 +68,7 @@ public class Appoinment implements Comparable<Appoinment> {
     }
 
     @Override
-    public int compareTo(Appoinment o) {
+    public int compareTo(Appointment o) {
         return (this.date).compareTo(o.date);
     }
 

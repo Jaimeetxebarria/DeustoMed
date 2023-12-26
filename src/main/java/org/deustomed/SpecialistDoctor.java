@@ -7,9 +7,7 @@ public class SpecialistDoctor extends Doctor {
     ArrayList<Patient> toTreatPatients;
     ArrayList<Patient> inTreatmentPatients;
 
-    public SpecialistDoctor(String id, String name, String surname1, String surname2, String email, String password, String dni, Sex sex,
-                            String speciality, ArrayList<Appoinment> appointments, ArrayList<Patient> treatedPatients,
-                            ArrayList<Patient> toTreatPatients, ArrayList<Patient> inTreatmentPatients) {
+    public SpecialistDoctor(String id, String name, String surname1, String surname2, String email, String password, String dni, Sex sex, String speciality, ArrayList<Appointment> appointments, ArrayList<Patient> treatedPatients, ArrayList<Patient> toTreatPatients, ArrayList<Patient> inTreatmentPatients) {
         super(id, name, surname1, surname2, email, password, dni, sex, speciality, appointments);
         this.treatedPatients = treatedPatients;
         this.toTreatPatients = toTreatPatients;

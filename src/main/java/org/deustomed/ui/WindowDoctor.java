@@ -1,29 +1,44 @@
 package org.deustomed.ui;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.toedter.calendar.JDateChooser;
+import com.toedter.calendar.JDayChooser;
 import com.toedter.calendar.JMonthChooser;
 import com.toedter.calendar.JYearChooser;
 import org.deustomed.*;
+import org.deustomed.authentication.AnonymousAuthenticationService;
+import org.deustomed.logs.LoggerMaker;
+import org.deustomed.postgrest.PostgrestQuery;
+import org.deustomed.postgrest.PostgrestClient;
+//import org.jetbrains.annotations.Nls;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Ellipse2D;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.EventObject;
+import java.util.logging.Logger;
 
 public class WindowDoctor extends JFrame {
     private static Doctor doctor;
     private JPanel pnlInfo;
     private JPanel pnlCentral;
-    private JPanel pnlAppoinments;
+    private JPanel pnlAppointments;
     private static Dimension screenSize;
     private JPanel pnlDisplayAppoinments;
     private JTable tableOwnPatient;
@@ -32,12 +47,24 @@ public class WindowDoctor extends JFrame {
     private JTable tableToTreatPatient;
     private JTable tableMedication;
     private JTabbedPane tabbedPaneCenter;
-
+    private ArrayList<Patient> ownPatients;
+    private Date selectedDate = new Date();
+    private static PostgrestClient postgrestClient;
+    private Logger logger;
     public WindowDoctor(Doctor doctor){
         screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setBounds((int) screenSize.getWidth()/4, (int) screenSize.getHeight()/4, (int) screenSize.getWidth(), (int) screenSize.getHeight());
         setLayout(new BorderLayout());
         this.doctor=doctor;
+
+        ConfigLoader configLoader = new ConfigLoader();
+        String hostname = configLoader.getHostname();
+        String endpoint = configLoader.getEndpoint();
+        String anonymousToken = configLoader.getAnonymousToken();
+        postgrestClient = new PostgrestClient(hostname, endpoint, new AnonymousAuthenticationService(anonymousToken));
+
+        LoggerMaker.setlogFilePath("src/main/java/org/deustomed/logs/WindowPatient.log");
+        logger = LoggerMaker.getLogger();
 
 
         // ------------------ pnlInfo ------------------
@@ -112,13 +139,20 @@ public class WindowDoctor extends JFrame {
 
         // Para Doctor de Medicina Familiar:
         if(doctor instanceof FamilyDoctor){
-            TableModelPatient tmp1 = new TableModelPatient(((FamilyDoctor) doctor).getOwnPatients());
-            tableOwnPatient = new JTable(tmp1);
-            tableOwnPatient.setDefaultRenderer(Patient.class, new TablePatientRenderer());
-            tableOwnPatient.setDefaultEditor(Patient.class, new TablePatienteEditor(new JTextField()));
-            JScrollPane spTableOwnPatient = new JScrollPane(tableOwnPatient);
+            //System.out.println(((FamilyDoctor) doctor).getOwnPatients());
+            ArrayList<Patient> pat = ((FamilyDoctor) doctor).getOwnPatients();
+            System.out.println("This are the patients: "+pat);
+            ownPatients = pat;
+            if(pat != null){
+                TableModelPatient tmp1 = new TableModelPatient(pat);
+                tableOwnPatient = new JTable(tmp1);
+                tableOwnPatient.setDefaultRenderer(Patient.class, new TablePatientRenderer());
+                tableOwnPatient.setDefaultEditor(Patient.class, new TablePatienteEditor(new JTextField()));
+                JScrollPane spTableOwnPatient = new JScrollPane(tableOwnPatient);
 
-            tabbedPaneCenter.addTab("Registro Pacientes Propios", iconPatients, spTableOwnPatient);
+                tabbedPaneCenter.addTab("Registro Pacientes Propios", iconPatients, spTableOwnPatient);
+            }
+
         } else {
             TableModelPatient tmp2 = new TableModelPatient(((SpecialistDoctor) doctor).getTreatedPatients());
             tableTreatedPatient = new JTable(tmp2);
@@ -144,30 +178,43 @@ public class WindowDoctor extends JFrame {
         }
 
         //--------------------- Panel EAST: Citas (Appointments) --------------------------------
-        pnlAppoinments = new JPanel();
-        add(pnlAppoinments, BorderLayout.EAST);
-        pnlAppoinments.setLayout(new BorderLayout());
-        pnlAppoinments.setPreferredSize(new Dimension((int) (screenSize.width/4.1),(int) (screenSize.height*0.75)));
+        pnlAppointments = new JPanel();
+        add(pnlAppointments, BorderLayout.EAST);
+        pnlAppointments.setLayout(new BorderLayout());
+        pnlAppointments.setPreferredSize(new Dimension((int) (screenSize.width/4.1),(int) (screenSize.height*0.75)));
         TitledBorder bordeEast = BorderFactory.createTitledBorder("Citas");
-        pnlAppoinments.setBorder(bordeEast);
+        pnlAppointments.setBorder(bordeEast);
         JMonthChooser monthChooser = new JMonthChooser();
         pnlDisplayAppoinments = new JPanel();
         JYearChooser yearChooser = new JYearChooser();
-        pnlAppoinments.add(pnlDisplayAppoinments, BorderLayout.CENTER);
+
+        pnlAppointments.add(pnlDisplayAppoinments, BorderLayout.CENTER);
         JScrollPane sbarPedidos = new JScrollPane(pnlDisplayAppoinments);
-        pnlAppoinments.add(sbarPedidos, BorderLayout.CENTER);
+        pnlAppointments.add(sbarPedidos, BorderLayout.CENTER);
 
         JPanel pnlDateChooser =  new JPanel();
-        pnlDateChooser.add(monthChooser);
-        pnlDateChooser.add(yearChooser);
-        pnlDisplayAppoinments.add(pnlDateChooser, BorderLayout.NORTH);
+        pnlDateChooser.setLayout(new FlowLayout());
+        pnlDateChooser.add(new JLabel("Select date: "));
+        JDateChooser dateChooser = new JDateChooser();
+        dateChooser.getDateEditor().addPropertyChangeListener(e -> {
+            if ("date".equals(e.getPropertyName())) {
+                Date newDate = (Date) e.getNewValue();
+                System.out.println("Selected date changed to: " + newDate);
+                selectedDate = newDate;
+                visualiseAppoinments(newDate);
+            }
+        });
+        dateChooser.setPreferredSize(new Dimension(200,25));
+        pnlDateChooser.add(dateChooser);
+        pnlAppointments.add(pnlDateChooser, BorderLayout.NORTH);
 
-        JPanel panelBotones = new JPanel();
+
+        /*JPanel panelBotones = new JPanel();
         panelBotones.setLayout(new GridLayout(2,2));
 
         JButton visualizarPedido = new JButton("Visualizar Pedido");
-        panelBotones.add(visualizarPedido);
-        visualiseAppoinments();
+        panelBotones.add(visualizarPedido);*/
+        visualiseAppoinments(new Date());
 
         /*anadirPedido = new JButton("Añadir Pedido");
         anadirPedido.setPreferredSize(new Dimension(80,50));
@@ -205,69 +252,128 @@ public class WindowDoctor extends JFrame {
 }
 
     public static void main(String[] args) {
-        org.deustomed.Patient patient1 = new org.deustomed.Patient("FIXME", "Paciente1", "Surname1", "Surname2", "paciente1@gmail.com",
-                "password", 24);
-        ArrayList<Appoinment> appoinments = new ArrayList<>();
-        appoinments.add( new Appoinment(patient1, doctor, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
-        appoinments.add( new Appoinment(patient1, doctor, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
-        appoinments.add( new Appoinment(patient1, doctor, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
-        ArrayList<org.deustomed.Patient> patients = new ArrayList<>();
+        org.deustomed.Patient patient1 = new org.deustomed.Patient("1001", "Paciente1", "Surname1", "Surname2", "paciente1@gmail.com", "password", 24);
+        ArrayList<Appointment> appoinments = new ArrayList<>();
+        appoinments.add( new Appointment(patient1, doctor, LocalDateTime.of(2023, 12, 24, 12, 0), "Cita consulta", "Cita consulta con paciente"));
+        appoinments.add( new Appointment(patient1, doctor, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
+        appoinments.add( new Appointment(patient1, doctor, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
+        ArrayList<Patient> patients = new ArrayList<>();
         patients.add(patient1);
         // TODO: 19/12/23 ajustar instancia a constructor
-        Doctor doctor1 = new FamilyDoctor("FIXME", "Carlos", "Rodriguez", "Martinez", "carlosrodri@gmail.com", "carlosrodriguez", "",
-                Sex.MALE, appoinments, patients);
+        Doctor doctor1 = new FamilyDoctor("1000", "Carlos", "Rodriguez", "Martinez", "carlosrodri@gmail.com", "carlosrodriguez", "", Sex.MALE, appoinments, patients);
         WindowDoctor win = new WindowDoctor(doctor1);
         win.setVisible(true);
     }
 
-    public void visualiseAppoinments() {
+    public void visualiseAppoinments(Date date) {
         pnlDisplayAppoinments.removeAll();
         pnlDisplayAppoinments.updateUI();
         JPanel pnlModApp = new JPanel();
         pnlDisplayAppoinments.add(pnlModApp, BorderLayout.CENTER);
         pnlModApp.setLayout(new GridLayout(40,1));
-        for(Appoinment appointment : doctor.getAppointments()) {
+        for(Appointment appointment : doctor.getAppointments()) {
+            LocalDateTime ldt = appointment.getDate();
+            Date asDate = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
+            //System.out.println(truncateTime(asDate));
+            //System.out.println("Date: "+truncateTime(date));
 
-                TitledBorder borde = new TitledBorder("");
-                JPanel panel = new JPanel();
-                panel.setLayout(new BorderLayout(3, 3));
-                panel.setPreferredSize(new Dimension(300,150));
-                JPanel nombre = new JPanel();
-                JPanel pnlButton = new JPanel();
 
-                panel.setBorder(borde);
-                org.deustomed.Patient pat = appointment.getPatient();
-                nombre.setLayout(new BoxLayout(nombre, BoxLayout.Y_AXIS));
-                JLabel name = new JLabel(pat.getName()+" "+pat.getSurname1()+" "+pat.getSurname2());
-                name.setHorizontalAlignment(SwingConstants.LEFT);
-                name.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-                nombre.add(name);
+            if(compareDateParts(asDate, date)){
+                    TitledBorder border = new TitledBorder("");
+                    JPanel panel = new JPanel();
+                    panel.setLayout(new BorderLayout(3, 3));
+                    panel.setPreferredSize(new Dimension(300,200));
+                    JPanel nombre = new JPanel();
+                    //panel.setLayout(new GridLayout(2, 1));
+                    JPanel pnlButton = new JPanel();
+                    pnlButton.setLayout(new GridLayout(4,1));
 
-                JPanel pnTa = new JPanel();
+                    panel.setBorder(border);
+                    org.deustomed.Patient pat = appointment.getPatient();
+                    nombre.setLayout(new BoxLayout(nombre, BoxLayout.Y_AXIS));
+                    JLabel appointmentDate = new JLabel("                            "+capitalizeFirstLetter(ldt.getDayOfWeek().toString())+", "+ldt.getDayOfMonth()+" "+capitalizeFirstLetter(ldt.getMonth().toString())+" "+ldt.toLocalTime());
+                    JLabel name = new JLabel(pat.getName()+" "+pat.getSurname1()+" "+pat.getSurname2());
+                    name.setHorizontalAlignment(SwingConstants.LEFT);
+                    name.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+                    nombre.add(appointmentDate);
+                    nombre.add(name);
 
-                pnTa.setBorder(BorderFactory.createEmptyBorder(0,5,5,0));
-                JTextArea ta = new JTextArea(appointment.getShortDesciption());
-                ta.setEditable(false);
-                ta.setPreferredSize(new Dimension(200,106));
-                ta.setBorder(BorderFactory.createTitledBorder(""));
-                pnTa.add(ta);
-                panel.add(pnTa, BorderLayout.CENTER);
+                    JPanel pnTa = new JPanel();
 
-                JButton btn = new JButton("+Info");
-                btn.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
+                    pnTa.setBorder(BorderFactory.createEmptyBorder(0,5,5,0));
+                    JTextArea ta = new JTextArea(appointment.getShortDesciption());
+                    ta.setEditable(false);
+                    ta.setPreferredSize(new Dimension(200,140));
+                    ta.setBorder(BorderFactory.createTitledBorder(""));
+                    pnTa.add(ta);
+                    panel.add(pnTa, BorderLayout.CENTER);
 
-                    }
-                });
-                pnlButton.add(btn);
-                panel.add(nombre, BorderLayout.NORTH);
-                panel.add(pnlButton, BorderLayout.EAST);
-                pnlModApp.add(panel);
-                pnlModApp.updateUI();
-                pnlDisplayAppoinments.updateUI();
+                    JButton btn = new JButton("Más Info");
+                    btn.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+
+                        }
+                    });
+
+                    JButton btn2 = new JButton("Iniciar");
+                    btn2.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+
+                        }
+                    });
+
+                    JButton btn3 = new JButton("Cancelar");
+                    btn2.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+
+                        }
+                    });
+
+                    pnlButton.add(btn);
+                    pnlButton.add(btn2);
+                    pnlButton.add(btn3);
+
+                    panel.add(nombre, BorderLayout.NORTH);
+                    panel.add(pnlButton, BorderLayout.EAST);
+                    pnlModApp.add(panel);
+                    pnlModApp.updateUI();
+                    pnlDisplayAppoinments.updateUI();
+                }
+
         }
     }
+
+    private static boolean compareDateParts(Date date1, Date date2) {
+        Date truncatedDate1 = truncateTime(date1);
+        Date truncatedDate2 = truncateTime(date2);
+
+        return truncatedDate1.equals(truncatedDate2);
+    }
+
+    // Set the time components of a Date object to midnight
+    private static Date truncateTime(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        return calendar.getTime();
+    }
+    private static String capitalizeFirstLetter(String input) {
+        if (input == null || input.isEmpty()) {
+            return input;
+        }
+
+        return input.substring(0, 1).toUpperCase() + input.substring(1).toLowerCase();
+    }
+
+
     class TablePatientRenderer extends DefaultTableCellRenderer {
 
         @Override
@@ -337,18 +443,18 @@ public class WindowDoctor extends JFrame {
 
         }
     }
-    class TableModelPatient extends DefaultTableModel {
-        ArrayList<Patient> patients = new ArrayList<>();
+    public class TableModelPatient extends AbstractTableModel {
+        private ArrayList<Patient> patients;
 
         public TableModelPatient(ArrayList<Patient> data){
-            this.patients = data;
+            this.patients = new ArrayList<Patient>(data);
         }
 
         String[] columns = {"Nombre", "1º Apellido", "2º Apellido", "DNI", "NSS", "Correo", "Día de Nacimiento", "Edad", "nº Teléfono", "Dirección", ""};
         Class[] columnClass = {String.class, String.class, String.class, String.class, String.class, String.class, Date.class, Integer.class, String.class, String.class, Patient.class};
         @Override
         public int getRowCount() {
-            return patients.size();
+            return this.patients.size();
         }
 
         @Override
@@ -379,7 +485,7 @@ public class WindowDoctor extends JFrame {
             //System.out.println(doctor.getPatients().size());
             org.deustomed.Patient patient = null;
             try {
-                patient = patients.get(rowIndex);
+                patient = this.patients.get(rowIndex);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -414,7 +520,7 @@ public class WindowDoctor extends JFrame {
 
         @Override
         public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-            Patient patient = patients.get(rowIndex);
+            Patient patient = this.patients.get(rowIndex);
             switch (columnIndex) {
                 case 0:
                     patient.setName((String) aValue);
@@ -463,8 +569,7 @@ public class WindowDoctor extends JFrame {
         private final JPanel panelWest;
 
         public static void main(String[] args) {
-            Patient patient = new Patient("FIXME", "Antonio", "Gonzalez", "Gonzalez", "mail@gmail.vpm", "antonio", "12345678A", 50,
-                    "612345678", "Calle Dirección Inventada", new Date(), "NSS123456");
+            Patient patient = new Patient("1", "Antonio", "Gonzalez", "Gonzalez", "mail@gmail.vpm", "antonio", "12345678A", 50, "612345678", "Calle Dirección Inventada", new Date(), "NSS123456");
             ShowPatientWindow spw = new ShowPatientWindow(patient);
             spw.setVisible(true);
             spw.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -507,7 +612,7 @@ public class WindowDoctor extends JFrame {
             pnlTitle.add(surname2);
             //pnlTitle.add(new JLabel("Paciente del doctor: "));
             panelWest.add(pnlTitle);
-    }
+    }}
 
 class CreateRoundButton extends JButton {
     Shape shape;
@@ -556,4 +661,135 @@ class CreateRoundButton extends JButton {
         frame.setVisible(true);
     }*/
 }
-}}
+
+    public void loadDoctors() {
+
+        PostgrestQuery query = postgrestClient
+                .from("doctor_with_personal_data")
+                .select("*")
+                .getQuery();
+
+        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
+        Gson gson = new Gson();
+        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+        JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
+
+        String id = jsonObject.get("id").getAsString();
+        String name = jsonObject.get("name").getAsString();
+        String surname1 = jsonObject.get("surname1").getAsString();
+        String surname2 = jsonObject.get("surname2").getAsString();
+        String dni = jsonObject.get("dni").getAsString();
+        String birthdate = jsonObject.get("birthdate").getAsString();
+        String email = jsonObject.get("email").getAsString();
+        String phone = jsonObject.get("phone").getAsString();
+        String address = jsonObject.get("address").getAsString();
+        String speciality = jsonObject.get("speciality").getAsString();
+        String sexString = jsonObject.get("sex").getAsString();
+        Sex sex;
+        if (sexString.equals("MALE")) {
+            sex = Sex.MALE;
+        } else {
+            sex = Sex.FEMALE;
+        }
+
+        LocalDate date = LocalDate.parse(birthdate);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy");
+        String formatted = date.format(formatter);
+
+        if (speciality.equals("Medicina Familiar")) {
+            ArrayList<Patient> ownPatients = loadOwnPatients(id);
+            ArrayList<Appointment> appointments = loadDoctorAppointments(id);
+
+            FamilyDoctor newFamilyDoctor = new FamilyDoctor(id, name, surname1, surname2, email, "password", dni, sex, appointments, ownPatients);
+        } else {
+            // TODO: 26/12/23 Create new SpecialistDoctor: load patients Treated, OnTreatment and ToBeTreated 
+            //SpecialistDoctor newSpecialistDoctor = new SpecialistDoctor();
+        }
+
+    }
+
+    public ArrayList<Patient> loadOwnPatients(String doctorID) {
+
+        ArrayList<Patient> resultArrayList = new ArrayList<>();
+
+        PostgrestQuery query = postgrestClient
+                .from("patient_with_personal_data")
+                .select("*")
+                .eq("doctor_id", doctorID)
+                .getQuery();
+
+        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
+        Gson gson = new Gson();
+        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
+
+            String id = jsonObject.get("id").getAsString();
+            String name = jsonObject.get("name").getAsString();
+            String surname1 = jsonObject.get("surname1").getAsString();
+            String surname2 = jsonObject.get("surname2").getAsString();
+            String dni = jsonObject.get("dni").getAsString();
+            String birthdate = jsonObject.get("birthdate").getAsString();
+            String email = jsonObject.get("email").getAsString();
+            String phone = jsonObject.get("phone").getAsString();
+            String address = jsonObject.get("address").getAsString();
+            String sexString = jsonObject.get("sex").getAsString();
+            int age = Integer.parseInt(jsonObject.get("age").getAsString());
+            Sex sex;
+            if (sexString.equals("MALE")) {
+                sex = Sex.MALE;
+            } else {
+                sex = Sex.FEMALE;
+            }
+
+            LocalDate localDate = LocalDate.parse(birthdate);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy");
+            String formatted = localDate.format(formatter);
+            Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+
+            Patient newPatient = new Patient(id, name, surname1, surname2, email, "password", dni, sex, age, phone, address, date);
+            resultArrayList.add(newPatient);
+        }
+
+        return resultArrayList;
+    }
+
+    public ArrayList<Appointment> loadDoctorAppointments(String doctorID) {
+        ArrayList<Appointment> resultArrayList = new ArrayList<>();
+
+        PostgrestQuery query = postgrestClient
+                .from("appointment")
+                .select("*")
+                .eq("fk_doctor_id", doctorID)
+                .getQuery();
+
+        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
+        Gson gson = new Gson();
+        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
+
+            String reason = jsonObject.get("reason").getAsString();
+            String dateString = jsonObject.get("date").getAsString();
+            Patient appointmentPatient = getPatientWithThisID("");
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime localDateTime = LocalDateTime.parse(dateString, formatter);
+
+
+            Appointment newAppointment = new Appointment(appointmentPatient, null, localDateTime, reason, "");
+            resultArrayList.add(newAppointment);
+        }
+
+
+        return resultArrayList;
+    }
+
+    public Patient getPatientWithThisID(String id){
+        return new Patient();
+    }
+
+}
