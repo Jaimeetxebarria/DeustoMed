@@ -2,6 +2,7 @@ package org.deustomed;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Objects;
 
 public abstract class User implements Serializable {
     @Serial
@@ -88,5 +89,17 @@ public abstract class User implements Serializable {
 
     public void setSex(Sex sex) {
         this.sex = sex;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User user)) return false;
+        return Objects.equals(getId(), user.getId()) &&
+                Objects.equals(getName(), user.getName()) &&
+                Objects.equals(getSurname1(), user.getSurname1()) &&
+                Objects.equals(getSurname2(), user.getSurname2()) &&
+                Objects.equals(getEmail(), user.getEmail()) &&
+                Objects.equals(getDni(), user.getDni()) && getSex() == user.getSex();
     }
 }

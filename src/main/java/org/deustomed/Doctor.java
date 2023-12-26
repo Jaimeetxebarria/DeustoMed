@@ -1,6 +1,7 @@
 package org.deustomed;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Doctor extends User {
     private String speciality;
@@ -33,6 +34,14 @@ public class Doctor extends User {
 
     public void setSpeciality(String speciality) {
         this.speciality = speciality;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Doctor doctor)) return false;
+        if (!super.equals(o)) return false;
+        return Objects.equals(getSpeciality(), doctor.getSpeciality()) && Objects.equals(getAppointments(), doctor.getAppointments());
     }
 
     @Override

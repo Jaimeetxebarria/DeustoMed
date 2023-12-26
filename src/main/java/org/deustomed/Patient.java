@@ -2,6 +2,7 @@ package org.deustomed;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Objects;
 
 public class Patient extends User {
     private int age;
@@ -85,6 +86,19 @@ public class Patient extends User {
 
     public void setBirthDate(Date birthDate) {
         this.birthDate = birthDate;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Patient patient)) return false;
+        if (!super.equals(o)) return false;
+        return getAge() == patient.getAge() &&
+                Objects.equals(getPhoneNumer(), patient.getPhoneNumer()) &&
+                Objects.equals(getAddress(), patient.getAddress()) &&
+                Objects.equals(getBirthDate(), patient.getBirthDate()) &&
+                Objects.equals(getNSS(), patient.getNSS()) &&
+                Objects.equals(medicalRecord, patient.medicalRecord);
     }
 
     @Override
