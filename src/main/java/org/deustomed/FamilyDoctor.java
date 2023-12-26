@@ -5,8 +5,9 @@ import java.util.ArrayList;
 public class FamilyDoctor extends Doctor{
     ArrayList<Patient> ownPatients;
 
-    public FamilyDoctor(String id, String name, String surname1, String surname2, String email, String password, String dni, Sex sex, ArrayList<Appointment> appointments, ArrayList<Patient> ownPatients) {
-        super(id, name, surname1, surname2, email, password, dni, sex, "Medicina Familiar", appointments);
+    public FamilyDoctor(String id, String name, String surname1, String surname2, String email, String dni, Sex sex,
+                        ArrayList<Appointment> appointments, ArrayList<Patient> ownPatients) {
+        super(id, name, surname1, surname2, email, dni, sex, "Medicina Familiar", appointments);
         this.ownPatients = ownPatients;
     }
 

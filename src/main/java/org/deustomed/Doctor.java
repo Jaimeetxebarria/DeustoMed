@@ -7,14 +7,15 @@ public class Doctor extends User {
     private String speciality;
     private ArrayList<Appointment> appointments = new ArrayList<>();
 
-    public Doctor(String id, String name, String surname1, String surname2, String email, String password, String dni, Sex sex,  String speciality, ArrayList<Appointment> appointments) {
-        super(id, name, surname1, surname2, email, password, dni, sex);
+    public Doctor(String id, String name, String surname1, String surname2, String email, String dni, Sex sex, String speciality,
+                  ArrayList<Appointment> appointments) {
+        super(id, name, surname1, surname2, email, dni, sex);
         this.speciality = speciality;
         this.appointments = appointments;
 
     }
     public Doctor() {
-        super("-1", "", "", "", "", "", "");
+        super("-1", "", "", "", "", null);
         this.speciality = "";
         this.appointments = new ArrayList<>();
     }

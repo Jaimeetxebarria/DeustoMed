@@ -16,16 +16,12 @@ public abstract class User implements Serializable {
     protected String dni;
     protected Sex sex;
 
-    public User(String id, String name, String surname1, String surname2, String email, String password, String dni) {
-        this.id = id;
-        this.name = name;
-        this.surname1 = surname1;
-        this.surname2 = surname2;
-        this.email = email;
-        this.dni = dni;
+    //TODO: Remove unnecessary constructors
+    public User(String id, String name, String surname1, String surname2, String email, String dni) {
+        this(id, name, surname1, surname2, email, dni, null);
     }
 
-    public User(String id, String name, String surname1, String surname2, String email, String password, String dni, Sex sex) {
+    public User(String id, String name, String surname1, String surname2, String email, String dni, Sex sex) {
         this.id = id;
         this.name = name;
         this.surname1 = surname1;

@@ -4,15 +4,13 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.toedter.calendar.JDateChooser;
-import com.toedter.calendar.JDayChooser;
 import com.toedter.calendar.JMonthChooser;
 import com.toedter.calendar.JYearChooser;
 import org.deustomed.*;
 import org.deustomed.authentication.AnonymousAuthenticationService;
 import org.deustomed.logs.LoggerMaker;
-import org.deustomed.postgrest.PostgrestQuery;
 import org.deustomed.postgrest.PostgrestClient;
-//import org.jetbrains.annotations.Nls;
+import org.deustomed.postgrest.PostgrestQuery;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -252,7 +250,7 @@ public class WindowDoctor extends JFrame {
 }
 
     public static void main(String[] args) {
-        org.deustomed.Patient patient1 = new org.deustomed.Patient("1001", "Paciente1", "Surname1", "Surname2", "paciente1@gmail.com", "password", 24);
+        org.deustomed.Patient patient1 = new org.deustomed.Patient("1001", "Paciente1", "Surname1", "Surname2", "paciente1@gmail.com", 24);
         ArrayList<Appointment> appoinments = new ArrayList<>();
         appoinments.add( new Appointment(patient1, doctor, LocalDateTime.of(2023, 12, 24, 12, 0), "Cita consulta", "Cita consulta con paciente"));
         appoinments.add( new Appointment(patient1, doctor, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
@@ -260,7 +258,8 @@ public class WindowDoctor extends JFrame {
         ArrayList<Patient> patients = new ArrayList<>();
         patients.add(patient1);
         // TODO: 19/12/23 ajustar instancia a constructor
-        Doctor doctor1 = new FamilyDoctor("1000", "Carlos", "Rodriguez", "Martinez", "carlosrodri@gmail.com", "carlosrodriguez", "", Sex.MALE, appoinments, patients);
+        Doctor doctor1 = new FamilyDoctor("1000", "Carlos", "Rodriguez", "Martinez", "carlosrodri@gmail.com", "", Sex.MALE, appoinments,
+                patients);
         WindowDoctor win = new WindowDoctor(doctor1);
         win.setVisible(true);
     }
@@ -569,7 +568,8 @@ public class WindowDoctor extends JFrame {
         private final JPanel panelWest;
 
         public static void main(String[] args) {
-            Patient patient = new Patient("1", "Antonio", "Gonzalez", "Gonzalez", "mail@gmail.vpm", "antonio", "12345678A", 50, "612345678", "Calle Dirección Inventada", new Date(), "NSS123456");
+            Patient patient = new Patient("1", "Antonio", "Gonzalez", "Gonzalez", "mail@gmail.vpm", "12345678A", 50, "612345678", "Calle " +
+                    "Dirección Inventada", new Date(), "NSS123456");
             ShowPatientWindow spw = new ShowPatientWindow(patient);
             spw.setVisible(true);
             spw.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -700,7 +700,7 @@ class CreateRoundButton extends JButton {
             ArrayList<Patient> ownPatients = loadOwnPatients(id);
             ArrayList<Appointment> appointments = loadDoctorAppointments(id);
 
-            FamilyDoctor newFamilyDoctor = new FamilyDoctor(id, name, surname1, surname2, email, "password", dni, sex, appointments, ownPatients);
+            FamilyDoctor newFamilyDoctor = new FamilyDoctor(id, name, surname1, surname2, email, dni, sex, appointments, ownPatients);
         } else {
             // TODO: 26/12/23 Create new SpecialistDoctor: load patients Treated, OnTreatment and ToBeTreated 
             //SpecialistDoctor newSpecialistDoctor = new SpecialistDoctor();
@@ -749,7 +749,7 @@ class CreateRoundButton extends JButton {
             Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
 
-            Patient newPatient = new Patient(id, name, surname1, surname2, email, "password", dni, sex, age, phone, address, date);
+            Patient newPatient = new Patient(id, name, surname1, surname2, email, dni, sex, age, phone, address, date);
             resultArrayList.add(newPatient);
         }
 

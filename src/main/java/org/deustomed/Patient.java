@@ -12,8 +12,9 @@ public class Patient extends User {
     private String NSS;
     private ArrayList<Appointment> medicalRecord;
 
-    public Patient(String id, String name, String surname1, String surname2, String email, String password, String dni, int age, String phoneNumer, String address, Date birthDate, String NSS) {
-        super(id, name, surname1, surname2, email, password, dni);
+    public Patient(String id, String name, String surname1, String surname2, String email, String dni, int age, String phoneNumer,
+                   String address, Date birthDate, String NSS) {
+        super(id, name, surname1, surname2, email, dni);
         this.age = age;
         this.phoneNumer = phoneNumer;
         this.address = address;
@@ -21,28 +22,31 @@ public class Patient extends User {
         this.NSS = NSS;
     }
 
-    public Patient(String id, String name, String surname1, String surname2, String email, String password, String dni, int age, String phoneNumer, String address, Date birthDate) {
-        super(id, name, surname1, surname2, email, password, dni);
-        this.age = age;
-        this.phoneNumer = phoneNumer;
-        this.address = address;
-        this.birthDate = birthDate;
-    }
-    public Patient(String id, String name, String surname1, String surname2, String email, String password, String dni, Sex sex, int age, String phoneNumer, String address, Date birthDate) {
-        super(id, name, surname1, surname2, email, password, dni, sex);
+    public Patient(String id, String name, String surname1, String surname2, String email, String dni, int age, String phoneNumer,
+                   String address, Date birthDate) {
+        super(id, name, surname1, surname2, email, dni);
         this.age = age;
         this.phoneNumer = phoneNumer;
         this.address = address;
         this.birthDate = birthDate;
     }
 
-    public Patient(String id, String name, String surname1, String surname2, String email, String password, int age) {
-        super(id, name, surname1, surname2, email, password, "");
+    public Patient(String id, String name, String surname1, String surname2, String email, String dni, Sex sex, int age,
+                   String phoneNumer, String address, Date birthDate) {
+        super(id, name, surname1, surname2, email, dni, sex);
+        this.age = age;
+        this.phoneNumer = phoneNumer;
+        this.address = address;
+        this.birthDate = birthDate;
+    }
+
+    public Patient(String id, String name, String surname1, String surname2, String email, int age) {
+        super(id, name, surname1, surname2, email, null);
         this.age = age;
     }
 
     public Patient(){
-        super("-1", "", "", "", "", "", "");
+        super("-1", "", "", "", "", null);
         this.age = 0;
         this.phoneNumer = "";
         this.address = "";
