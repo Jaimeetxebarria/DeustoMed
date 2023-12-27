@@ -18,6 +18,7 @@ import javax.swing.event.CellEditorListener;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -564,55 +565,6 @@ public class WindowDoctor extends JFrame {
 
         }
     }
-    static class ShowPatientWindow extends JFrame {
-        private final JPanel panelWest;
-
-        public static void main(String[] args) {
-            Patient patient = new Patient("1", "Antonio", "Gonzalez", "Gonzalez", "mail@gmail.vpm", "12345678A", 50, "612345678", "Calle " +
-                    "Dirección Inventada", new Date(), "NSS123456");
-            ShowPatientWindow spw = new ShowPatientWindow(patient);
-            spw.setVisible(true);
-            spw.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        }
-        public ShowPatientWindow(Patient patient){
-            setTitle(patient.getName()+" "+patient.getSurname1()+" "+patient.getSurname2());
-            screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-            setBounds((int) screenSize.getWidth()/4, (int) screenSize.getHeight()/4, (int) screenSize.getWidth()/2, (int) screenSize.getHeight()/2);
-            setLayout(new BorderLayout());
-
-            // ----------------------- mostrando la información -------------------
-            panelWest = new JPanel();
-            panelWest.setPreferredSize(new Dimension(200,200));
-            panelWest.setLayout(new BorderLayout());
-            JButton btnPhoto = new JButton("");
-            ImageIcon icon = new ImageIcon("src/main/java/ui/profileImg.png");
-            Image png = icon.getImage().getScaledInstance(150,150, DO_NOTHING_ON_CLOSE);
-            btnPhoto.setIcon(new ImageIcon(png));
-            btnPhoto.setEnabled(false);
-            btnPhoto.setPreferredSize(new Dimension(150,150));
-            JPanel p = new JPanel();
-            p.add(btnPhoto);
-            panelWest.add(p, BorderLayout.NORTH);
-            add(panelWest, BorderLayout.WEST);
-
-            FlowLayout fl = new FlowLayout(FlowLayout.LEFT);
-            fl.setHgap(30);
-            JPanel pnlTitle = new JPanel(fl);
-
-            JLabel name = new JLabel(patient.getName());
-            JLabel surname1 = new JLabel(patient.getSurname1());
-            JLabel surname2 = new JLabel(patient.getSurname2());
-
-            name.setFont(new Font(name.getFont().getName(), Font.BOLD, 20));
-            surname1.setFont(new Font(name.getFont().getName(), Font.BOLD, 20));
-            surname2.setFont(new Font(name.getFont().getName(), Font.BOLD, 20));
-
-            pnlTitle.add(name);
-            pnlTitle.add(surname1);
-            pnlTitle.add(surname2);
-            //pnlTitle.add(new JLabel("Paciente del doctor: "));
-            panelWest.add(pnlTitle);
-    }}
 
 class CreateRoundButton extends JButton {
     Shape shape;

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public class Medication {
     public static ArrayList<Medication> medications = new ArrayList<>();
+    private String id;
     private String activeSubstance;
     private String commercialName;
     private int stock;
@@ -11,7 +12,8 @@ public class Medication {
     private String compnay;
     private String shortDescription;
 
-    public Medication(String activeSubstance, String commercialName, int stock, double dose, String compnay, String shortDescription) {
+    public Medication(String id, String activeSubstance, String commercialName, int stock, double dose, String compnay, String shortDescription) {
+        this.id = id;
         this.activeSubstance = activeSubstance;
         this.commercialName = commercialName;
         this.stock = stock;
