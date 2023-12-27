@@ -493,63 +493,35 @@ public class WindowDoctor extends JFrame {
                 throw new RuntimeException(e);
             }
 
-            switch (columnIndex) {
-                case 0:
-                    return patient.getName();
-                case 1:
-                    return patient.getSurname1();
-                case 2:
-                    return patient.getSurname2();
-                case 3:
-                    return patient.getDni();
-                case 4:
-                    return patient.getEmail();
-                case 5:
-                    return patient.getBirthDate();
-                case 6:
-                    return patient.getAgeInYears();
-                case 7:
-                    return patient.getPhoneNumber();
-                case 8:
-                    return patient.getAddress();
-                case 9:
-                    return patient;
-                default:
-                    return null;
-            }
+            return switch (columnIndex) {
+                case 0 -> patient.getName();
+                case 1 -> patient.getSurname1();
+                case 2 -> patient.getSurname2();
+                case 3 -> patient.getDni();
+                case 4 -> patient.getEmail();
+                case 5 -> patient.getBirthDate();
+                case 6 -> patient.getAgeInYears();
+                case 7 -> patient.getPhoneNumber();
+                case 8 -> patient.getAddress();
+                case 9 -> patient;
+                default -> null;
+            };
         }
 
         @Override
         public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
             Patient patient = this.patients.get(rowIndex);
             switch (columnIndex) {
-                case 0:
-                    patient.setName((String) aValue);
-                    break;
-                case 1:
-                    patient.setSurname1((String) aValue);
-                    break;
-                case 2:
-                    patient.setSurname2((String) aValue);
-                    break;
-                case 3:
-                    patient.setDni((String) aValue);
-                    break;
-                case 4:
-                    patient.setEmail((String) aValue);
-                    break;
-                case 5:
-                    patient.setBirthDate((LocalDate) aValue);
-                    break;
-                case 6:
-                    //FIXME: Cannot edit age, only birthdate
-                    break;
-                case 7:
-                    patient.setPhoneNumber((String) aValue);
-                    break;
-                case 8:
-                    patient.setAddress((String) aValue);
-                    break;
+                case 0 -> patient.setName((String) aValue);
+                case 1 -> patient.setSurname1((String) aValue);
+                case 2 -> patient.setSurname2((String) aValue);
+                case 3 -> patient.setDni((String) aValue);
+                case 4 -> patient.setEmail((String) aValue);
+                case 5 -> patient.setBirthDate((LocalDate) aValue);
+                case 6 -> {//FIXME: Cannot edit age, only birthdate
+                }
+                case 7 -> patient.setPhoneNumber((String) aValue);
+                case 8 -> patient.setAddress((String) aValue);
             }
         }
 
