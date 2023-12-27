@@ -1,40 +1,38 @@
 package org.deustomed;
 
+import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
+
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Objects;
 
+//TODO make doctor abstract
+@Getter
 public class Doctor extends User {
     private String speciality;
     private ArrayList<Appointment> appointments = new ArrayList<>();
 
-    public Doctor(String id, String name, String surname1, String surname2, String email, String dni, Sex sex, String speciality,
-                  ArrayList<Appointment> appointments) {
-        super(id, name, surname1, surname2, email, dni, sex);
+    public Doctor(@NotNull String id, @NotNull String name, @NotNull String surname1, @NotNull String surname2,
+                  @NotNull LocalDate birthDate, @NotNull Sex sex, String dni, String email, String phoneNumber,
+                  String address, String speciality, ArrayList<Appointment> appointments) {
+        super(id, name, surname1, surname2, birthDate, sex, dni, email, phoneNumber, address);
         this.speciality = speciality;
         this.appointments = appointments;
 
     }
-    public Doctor() {
-        super("-1", "", "", "", "", null);
-        this.speciality = "";
-        this.appointments = new ArrayList<>();
-    }
 
-
-    public ArrayList<Appointment> getAppointments() {
-        return appointments;
-    }
-
-    public void setAppointments(ArrayList<Appointment> appointments) {
-        this.appointments = appointments;
-    }
-
-    public String getSpeciality() {
-        return speciality;
+    public Doctor(@NotNull String id, @NotNull String name, @NotNull String surname1, @NotNull String surname2,
+                  @NotNull LocalDate birthDate, @NotNull Sex sex) {
+        super(id, name, surname1, surname2, birthDate, sex, null, null, null, null);
     }
 
     public void setSpeciality(String speciality) {
         this.speciality = speciality;
+    }
+
+    public void setAppointments(ArrayList<Appointment> appointments) {
+        this.appointments = appointments;
     }
 
     @Override
@@ -48,9 +46,9 @@ public class Doctor extends User {
     @Override
     public String toString() {
         return "Doctor{" +
-                "name='" + name + '\'' +
+                "id=" + id +
+                ", name='" + name + '\'' +
                 ", surname='" + surname1 + '\'' +
-                ", id=" + id +
                 ", email='" + email + '\'' +
                 ", speciality='" + speciality + '\'' +
                 '}';

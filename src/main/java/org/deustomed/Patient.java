@@ -1,95 +1,31 @@
 package org.deustomed;
 
+import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
+
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Objects;
 
+@Getter
 public class Patient extends User {
-    private int age;
-    private String phoneNumer;
-    private String address;
-    private Date birthDate;
-    private String NSS;
-    private ArrayList<Appointment> medicalRecord;
+    private ArrayList<Appointment> medicalRecord = new ArrayList<>();
 
-    public Patient(String id, String name, String surname1, String surname2, String email, String dni, int age, String phoneNumer,
-                   String address, Date birthDate, String NSS) {
-        super(id, name, surname1, surname2, email, dni);
-        this.age = age;
-        this.phoneNumer = phoneNumer;
-        this.address = address;
-        this.birthDate = birthDate;
-        this.NSS = NSS;
+    public Patient(@NotNull String id, @NotNull String name, @NotNull String surname1, @NotNull String surname2,
+                   @NotNull LocalDate birthDate, @NotNull Sex sex, String dni, String email, String phoneNumber,
+                   String address, ArrayList<Appointment> medicalRecord) {
+        super(id, name, surname1, surname2, birthDate, sex, dni, email, phoneNumber, address);
+        this.medicalRecord = medicalRecord;
     }
 
-    public Patient(String id, String name, String surname1, String surname2, String email, String dni, int age, String phoneNumer,
-                   String address, Date birthDate) {
-        super(id, name, surname1, surname2, email, dni);
-        this.age = age;
-        this.phoneNumer = phoneNumer;
-        this.address = address;
-        this.birthDate = birthDate;
+
+    public Patient(@NotNull String id, @NotNull String name, @NotNull String surname1, @NotNull String surname2,
+                   @NotNull LocalDate birthDate, @NotNull Sex sex) {
+        super(id, name, surname1, surname2, birthDate, sex, null, null, null, null);
     }
 
-    public Patient(String id, String name, String surname1, String surname2, String email, String dni, Sex sex, int age,
-                   String phoneNumer, String address, Date birthDate) {
-        super(id, name, surname1, surname2, email, dni, sex);
-        this.age = age;
-        this.phoneNumer = phoneNumer;
-        this.address = address;
-        this.birthDate = birthDate;
-    }
-
-    public Patient(String id, String name, String surname1, String surname2, String email, int age) {
-        super(id, name, surname1, surname2, email, null);
-        this.age = age;
-    }
-
-    public Patient(){
-        super("-1", "", "", "", "", null);
-        this.age = 0;
-        this.phoneNumer = "";
-        this.address = "";
-        this.birthDate = new Date();
-    }
-    public String getNSS() {
-        return NSS;
-    }
-
-    public void setNSS(String NSS) {
-        this.NSS = NSS;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
-    public String getPhoneNumer() {
-        return phoneNumer;
-    }
-
-    public void setPhoneNumer(String phoneNumer) {
-        this.phoneNumer = phoneNumer;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public Date getBirthDate() {
-        return birthDate;
-    }
-
-    public void setBirthDate(Date birthDate) {
-        this.birthDate = birthDate;
+    public void setMedicalRecord(ArrayList<Appointment> medicalRecord) {
+        this.medicalRecord = medicalRecord;
     }
 
     @Override
@@ -97,12 +33,7 @@ public class Patient extends User {
         if (this == o) return true;
         if (!(o instanceof Patient patient)) return false;
         if (!super.equals(o)) return false;
-        return getAge() == patient.getAge() &&
-                Objects.equals(getPhoneNumer(), patient.getPhoneNumer()) &&
-                Objects.equals(getAddress(), patient.getAddress()) &&
-                Objects.equals(getBirthDate(), patient.getBirthDate()) &&
-                Objects.equals(getNSS(), patient.getNSS()) &&
-                Objects.equals(medicalRecord, patient.medicalRecord);
+        return Objects.equals(getMedicalRecord(), patient.getMedicalRecord());
     }
 
     @Override
@@ -113,8 +44,6 @@ public class Patient extends User {
                 ", surname2='" + surname2 + '\'' +
                 ", email='" + email + '\'' +
                 ", dni='" + dni + '\'' +
-                ", age=" + age +
-                ", phoneNumer='" + phoneNumer + '\'' +
                 ", address='" + address + '\'' +
                 ", birthDate=" + birthDate +
                 ", Sex='" + sex + '\'' +

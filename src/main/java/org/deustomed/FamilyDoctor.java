@@ -1,25 +1,21 @@
 package org.deustomed;
 
+import lombok.Getter;
+import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
+
+import java.time.LocalDate;
 import java.util.ArrayList;
 
+@Getter
 public class FamilyDoctor extends Doctor{
+    @Setter
     ArrayList<Patient> ownPatients;
 
-    public FamilyDoctor(String id, String name, String surname1, String surname2, String email, String dni, Sex sex,
-                        ArrayList<Appointment> appointments, ArrayList<Patient> ownPatients) {
-        super(id, name, surname1, surname2, email, dni, sex, "Medicina Familiar", appointments);
-        this.ownPatients = ownPatients;
-    }
-
-    public FamilyDoctor(ArrayList<Patient> ownPatients) {
-        this.ownPatients = ownPatients;
-    }
-
-    public ArrayList<Patient> getOwnPatients() {
-        return ownPatients;
-    }
-
-    public void setOwnPatients(ArrayList<Patient> ownPatients) {
+    public FamilyDoctor(@NotNull String id, @NotNull String name, @NotNull String surname1, @NotNull String surname2,
+                        @NotNull LocalDate birthDate, @NotNull Sex sex, String dni, String email, String phoneNumber,
+                        String address, ArrayList<Appointment> appointments, ArrayList<Patient> ownPatients) {
+        super(id, name, surname1, surname2, birthDate, sex, dni, email, phoneNumber, address, "Medicina Familiar", appointments);
         this.ownPatients = ownPatients;
     }
 }

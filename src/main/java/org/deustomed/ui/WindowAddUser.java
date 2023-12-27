@@ -9,6 +9,8 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -50,14 +52,16 @@ public class WindowAddUser extends JFrame {
     List<Doctor> doctors;
     JLabel lblSpeciality;
     JComboBox<String> cbSpeciality;
-    protected List<String> specialities = Arrays.asList("Alergología", "Anestesiología", "Angiología", "Cardiología", "Endocrinología", "Gastroenterología", "Geriatría", "Hematología", "Infectología", "Medicina interna", "Nefrología", "Neumología", "Neurología", "Obstetricia", "Oftalmología", "Oncología", "Pediatría", "Psiquiatría", "Reumatología", "Toxicología", "Urología");
+    protected List<String> specialities = Arrays.asList("Alergología", "Anestesiología", "Angiología", "Cardiología", "Endocrinología",
+            "Gastroenterología", "Geriatría", "Hematología", "Infectología", "Medicina interna", "Nefrología", "Neumología", "Neurología"
+            , "Obstetricia", "Oftalmología", "Oncología", "Pediatría", "Psiquiatría", "Reumatología", "Toxicología", "Urología");
 
 
     public WindowAddUser(List<User> users) {
-        if(users.get(0) instanceof Patient){
+        if (users.get(0) instanceof Patient) {
             patients = users.stream().map(user -> (Patient) user).collect(Collectors.toList());
             setTitle("New patient");
-        }else{
+        } else {
             doctors = users.stream().map(user -> (Doctor) user).collect(Collectors.toList());
             setTitle("New Doctor");
         }
@@ -98,7 +102,7 @@ public class WindowAddUser extends JFrame {
         tfDni = new JTextField();
         btnSave = new JButton("Save");
 
-        if(patients!=null) {
+        if (patients != null) {
             lblAge = new JLabel("Age:");
             lblPhone = new JLabel("Phone:");
             lblAddress = new JLabel("Address:");
@@ -117,17 +121,17 @@ public class WindowAddUser extends JFrame {
             });
 
 
-
             tfAge = new JTextField();
             tfAge.setEditable(false);
             tfAge.setText(String.valueOf(getAge(dateChooser.getDate())));
             tfPhone = new JTextField();
             tfPhone.setToolTipText("Phone should start with 6 or 9 and have 9 digits");
             tfAddress = new JTextField();
-            tfAddress.setToolTipText("Address should be in the format: Street, number, city, province, country\nExample: Sabino Arana, 15, 2A, Bilbao, Biscay, Spain");
+            tfAddress.setToolTipText("Address should be in the format: Street, number, city, province, country\nExample: Sabino Arana, " +
+                    "15, 2A, Bilbao, Biscay, Spain");
 
 
-        }else if (doctors!=null) {
+        } else if (doctors != null) {
             lblSpeciality = new JLabel("Speciality:");
             cbSpeciality = new JComboBox<>();
             cbSpeciality.setModel(new DefaultComboBoxModel<>(specialities.toArray(new String[0])));
@@ -160,7 +164,7 @@ public class WindowAddUser extends JFrame {
         pnlPrimary.add(tfEmail);
         pnlPrimary.add(lblDni);
         pnlPrimary.add(tfDni);
-        if(patients!=null) {
+        if (patients != null) {
             pnlPrimary.add(lblBirthDate);
             pnlPrimary.add(dateChooser);
             pnlPrimary.add(lblAge);
@@ -169,7 +173,7 @@ public class WindowAddUser extends JFrame {
             pnlPrimary.add(tfPhone);
             pnlPrimary.add(lblAddress);
             pnlPrimary.add(tfAddress);
-        }else if (doctors!=null) {
+        } else if (doctors != null) {
             pnlPrimary.add(lblSpeciality);
             pnlPrimary.add(cbSpeciality);
 
@@ -193,22 +197,21 @@ public class WindowAddUser extends JFrame {
                 String dni = tfDni.getText();
                 ButtonModel selectedSex = group.getSelection();
                 Sex sex;
-                if(selectedSex != null) {
+                if (selectedSex != null) {
                     if (selectedSex.equals(radMale)) {
                         sex = Sex.MALE;
-                    } else{
+                    } else {
                         sex = Sex.FEMALE;
                     }
 
                     if (patients != null) {
-                        Date birthDate = dateChooser.getDate();
-                        String age = tfAge.getText();
+                        LocalDate birthDate = LocalDate.ofInstant(dateChooser.getDate().toInstant(), ZoneId.systemDefault());
                         String phone = tfPhone.getText();
                         String address = tfAddress.getText();
                         if (validateData()) {
-                            String id = ""+(patients.size() + 1);
-                            Patient patient = new Patient(id, name, surname1, surname2, email, dni, sex, Integer.parseInt(age), phone,
-                                    address, birthDate);
+                            String id = "" + (patients.size() + 1);
+                            Patient patient = new Patient(id, name, surname1, surname2, birthDate, sex, dni, email, phone,
+                                    address, new ArrayList<>());
                             patients.add(patient);
                             JOptionPane.showMessageDialog(null, "Patient added successfully");
                             System.out.println("Nuevo paciente: " + patient);
@@ -218,19 +221,22 @@ public class WindowAddUser extends JFrame {
 
                     } else if (doctors != null) {
                         String speciality = ((String) cbSpeciality.getSelectedItem()).toString();
+                        LocalDate birthDate = LocalDate.ofInstant(dateChooser.getDate().toInstant(), ZoneId.systemDefault());
+                        String phone = tfPhone.getText();
+                        String address = tfAddress.getText();
                         if (validateData()) {
-                            String id = ""+doctors.size() + 1;
+                            String id = "" + doctors.size() + 1;
                             // TODO: 19/12/23 diferenciar entre médicos de familia y especialistas;
                             // TODO: 19/12/23 en este ejemplo es médico de familia, por los que la especialidad es predeterminada
-                            Doctor doctor = new FamilyDoctor(id, name, surname1, surname2, email, dni, sex, new ArrayList<>(),
-                                    new ArrayList<>());
+                            Doctor doctor = new FamilyDoctor(id, name, surname1, surname2, birthDate, sex,
+                                    dni, email, phone, address, new ArrayList<>(), new ArrayList<>());
                             doctors.add(doctor);
                             JOptionPane.showMessageDialog(null, "Doctor added successfully");
                             System.out.println("Nuevo doctor: " + doctor);
                             dispose();
                         }
                     }
-                }else{
+                } else {
                     lblError.setText("All fields are required");
                 }
 
@@ -256,7 +262,7 @@ public class WindowAddUser extends JFrame {
             lblError.setText("Invalid DNI");
             return false;
         }
-        if(patients!=null) {
+        if (patients != null) {
             if (tfEmail.getText().isEmpty() ||
                     tfAge.getText().isEmpty() ||
                     tfPhone.getText().isEmpty() ||
@@ -286,7 +292,7 @@ public class WindowAddUser extends JFrame {
                 lblError.setText("Invalid address");
                 return false;
             }
-        } else if (doctors!=null) {
+        } else if (doctors != null) {
             if (cbSpeciality.getSelectedItem().toString().isEmpty()) {
                 lblError.setText("All fields are required");
                 return false;
@@ -295,9 +301,11 @@ public class WindowAddUser extends JFrame {
         }
         return true;
     }
+
     /**
      * Copies a text of the id textfield to the clipboard
-     * @param id   The id to copy
+     *
+     * @param id The id to copy
      */
     private void copyToClipboard(String id) {
         StringSelection stringSelection = new StringSelection(id);
@@ -326,12 +334,14 @@ public class WindowAddUser extends JFrame {
         }
 
     }
+
     /**
      * Calculates the age of a user given the birthdate and the current date
+     *
      * @param birthday The birthday of the user
      * @return
      */
-    private int getAge(Date birthday){
+    private int getAge(Date birthday) {
         Calendar today = Calendar.getInstance();
         Calendar birthDate = Calendar.getInstance();
         birthDate.setTime(birthday);
@@ -346,18 +356,25 @@ public class WindowAddUser extends JFrame {
     }
 
     public static void main(String[] args) {
-        List<User> patients= new ArrayList<>();
-        patients.add(new Patient("1", "Pablo", "Garcia", "Iglesias", "email1", "dni1", 20, "Phone1", "Adress1", new Date()));
-        patients.add(new Patient("2", "Andoni", "Hernández", "Ruiz", "email2", "dni2", 17, "Phone2", "Adress2", new Date()));
+        List<User> patients = new ArrayList<>();
+        patients.add(new Patient("00AAA", "Pablo", "Garcia", "Iglesias",
+                LocalDate.of(1990, 8, 12), Sex.MALE, "dni1",
+                "email1", "phone1", "address1", null));
+        patients.add(new Patient("00AAB", "Andoni", "Hernández", "Ruiz",
+                LocalDate.of(1975, 3, 1), Sex.MALE, "email2", "dni2",
+                "phone2", "address2", null));
 
-        List<User> doctors= new ArrayList<>();
-        doctors.add(new Doctor("1", "Pablo", "Garcia", "Iglesias", "email1", "dni1", Sex.MALE, "speciality1", new ArrayList<>()));
-        doctors.add(new Doctor("2", "Andoni", "Hernández", "Ruiz", "email2", "dni2", Sex.MALE, "speciality2", new ArrayList<>()));
+        List<User> doctors = new ArrayList<>();
+        doctors.add(new Doctor("00AAA", "Pablo", "Garcia", "Iglesias",
+                LocalDate.of(1990, 8, 12), Sex.MALE, "dni1",
+                "email1", "phone1", "address1", null, null));
+        doctors.add(new Doctor("00AAB", "Andoni", "Hernández", "Ruiz",
+                LocalDate.of(1975, 3, 1), Sex.MALE, "email2", "dni2",
+                "phone2", "address2", null, null));
         SwingUtilities.invokeLater(() -> {
             new WindowAddUser(patients);
             new WindowAddUser(doctors);
         });
-
 
 
     }

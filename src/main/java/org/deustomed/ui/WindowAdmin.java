@@ -12,8 +12,8 @@ import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class WindowAdmin extends JFrame {
@@ -50,8 +50,12 @@ public class WindowAdmin extends JFrame {
 
         //pending data
         patients= new ArrayList<>();
-        patients.add(new Patient("1", "Pablo", "Garcia", "Iglesias", "email1", "dni1", Sex.MALE, 20, "Phone1", "Adress1", new Date()));
-        patients.add(new Patient("2", "Andoni", "Hernández", "Ruiz", "email2", "dni2", Sex.MALE, 17, "Phone2", "Adress2", new Date()));
+        patients.add(new Patient("00AAA", "Pablo", "Garcia", "Iglesias",
+                LocalDate.of(1990, 8, 12), Sex.MALE, "dni1",
+                "email1", "phone1", "address1", null));
+        patients.add(new Patient("00AAB", "Andoni", "Hernández", "Ruiz",
+                LocalDate.of(1975, 3, 1), Sex.MALE, "email2", "dni2",
+                "phone2", "address2", null));
         doctors= new ArrayList<>();
         //doctors.add(new Doctor(1,"Jaime","Eguskisa","Gascon","email1","4562","dni1", Sex.MALE, "Ophthalmologist", new ArrayList<>(), new ArrayList<>()));
         //doctors.add(new Doctor(2,"Irene","Garcia","Iglesias","email2","1234","dni2", Sex.FEMALE, "Ophthalmologist", new ArrayList<>(), new ArrayList<>()));
@@ -177,8 +181,8 @@ public class WindowAdmin extends JFrame {
                 row[3] = patient.getSex().toString();
                 row[4] = patient.getEmail();
                 row[5] = patient.getDni();
-                row[6] = String.valueOf(patient.getAge());
-                row[7] = patient.getPhoneNumer();
+                row[6] = String.valueOf(patient.getAgeInYears());
+                row[7] = patient.getPhoneNumber();
                 row[8] = patient.getAddress();
                 row[9] = patient.getBirthDate().toString();
                 model.addRow(row);
@@ -275,16 +279,18 @@ public class WindowAdmin extends JFrame {
 
                                     if (indexInListP != -1) {
                                         // Crea un nuevo objeto Patient con los valores editados
-                                        Patient editedPatient = new Patient();
-                                        editedPatient.setName(rowData[2].toString());
-                                        editedPatient.setSurname1(rowData[1].toString().split(" ")[0]);
-                                        editedPatient.setSurname2(rowData[1].toString().split(" ")[1]);
-                                        editedPatient.setEmail(rowData[3].toString());
-                                        editedPatient.setDni(rowData[4].toString());
-                                        editedPatient.setAge(Integer.parseInt(rowData[5].toString()));
-                                        editedPatient.setPhoneNumer(rowData[6].toString());
-                                        editedPatient.setAddress(rowData[7].toString());
-                                        editedPatient.setBirthDate((Date) rowData[8]);
+                                        Patient editedPatient = new Patient(
+                                                originalPatient.getId(),                    //id
+                                                rowData[2].toString(),                      //name
+                                                rowData[1].toString().split(" ")[0],  //surname1
+                                                rowData[1].toString().split(" ")[1],  //surname2
+                                                (LocalDate) rowData[8],                     //birthdate
+                                                originalPatient.getSex(),                   //sex
+                                                rowData[4].toString(),                      //dni
+                                                rowData[3].toString(),                      //email
+                                                rowData[6].toString(),                      //phone
+                                                rowData[7].toString(),                      //address
+                                                originalPatient.getMedicalRecord());        //medicalRecord
 
 
                                         // Actualiza el objeto en la lista
@@ -302,13 +308,19 @@ public class WindowAdmin extends JFrame {
                                     int indexInListD = doctors.indexOf(originalDoctor);
                                     if (indexInListD != -1) {
                                         // Crea un nuevo objeto Patient con los valores editados
-                                        Doctor editedDoctor = new Doctor();
-                                        editedDoctor.setName(rowData[2].toString());
-                                        editedDoctor.setSurname1(rowData[1].toString().split(" ")[0]);
-                                        editedDoctor.setSurname2(rowData[1].toString().split(" ")[1]);
-                                        editedDoctor.setEmail(rowData[3].toString());
-                                        editedDoctor.setDni(rowData[4].toString());
-                                        editedDoctor.setSpeciality(rowData[5].toString());
+                                        Doctor editedDoctor = new Doctor(
+                                                originalDoctor.getId(),                       //id
+                                                rowData[2].toString(),                        //name
+                                                rowData[1].toString().split(" ")[0],    //surname1
+                                                rowData[1].toString().split(" ")[1],    //surname2
+                                                originalDoctor.getBirthDate(),                //birthdate
+                                                originalDoctor.getSex(),                      //sex
+                                                rowData[4].toString(),                        //dni
+                                                rowData[3].toString(),                        //email
+                                                originalDoctor.getPhoneNumber(),              //phone
+                                                rowData[5].toString(),                        //address
+                                                originalDoctor.getSpeciality(),               //speciality
+                                                originalDoctor.getAppointments());
 
 
                                         // Actualiza el objeto en la lista

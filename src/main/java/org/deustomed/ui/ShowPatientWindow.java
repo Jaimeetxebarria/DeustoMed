@@ -14,9 +14,8 @@ import javax.swing.border.Border;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.logging.Logger;
 
 class ShowPatientWindow extends JFrame {
@@ -34,8 +33,9 @@ class ShowPatientWindow extends JFrame {
     private ArrayList<JTextField> jTextFields = new ArrayList<>();
 
     public static void main(String[] args) {
-        Patient patient = new Patient("00AKA", "Antonio", "Gonzalez", "Gonzalez", "mail@gmail.vpm", "12345678A", 50, "612345678", "Calle " +
-                "Dirección Inventada", new Date(), "NSS123456");
+        Patient patient = new Patient("00AKA", "Antonio", "Gonzalez", "Gonzalez", LocalDate.now(), Sex.MALE,
+                "12345678A", "mail@gmail.vpm", "Calle Dirección Inventada", "Speciality", null);
+
         ShowPatientWindow spw = new ShowPatientWindow(patient);
         spw.setVisible(true);
         spw.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -133,7 +133,7 @@ class ShowPatientWindow extends JFrame {
         JTextField tfAddress = new JTextField("Address");
 
         tfAge.setEditable(false);
-        tfAge.setText(classPatient.getAge()+"");
+        tfAge.setText(classPatient.getAgeInYears() + "");
         tfSex.setEditable(false);
         /*if(classPatient.getSex().equals(Sex.MALE)){
             tfSex.setText("Male");
@@ -143,14 +143,14 @@ class ShowPatientWindow extends JFrame {
         tfDNI.setEditable(false);
         tfDNI.setText(classPatient.getDni());
         tfBirthdate.setEditable(false);
-        Date date = classPatient.getBirthDate();
+        LocalDate date = classPatient.getBirthDate();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String dateString = sdf.format(date);
         tfBirthdate.setText(dateString);
         tfNSS.setEditable(false);
-        tfNSS.setText(classPatient.getNSS());
+        tfNSS.setText("NSS NO IMPLEMENTADO");
         tfPhone.setEditable(false);
-        tfPhone.setText(classPatient.getPhoneNumer());
+        tfPhone.setText(classPatient.getPhoneNumber());
         tfEmail.setEditable(false);
         tfEmail.setText(classPatient.getEmail());
         tfAddress.setEditable(false);

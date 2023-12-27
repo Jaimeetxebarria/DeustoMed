@@ -18,7 +18,6 @@ import javax.swing.event.CellEditorListener;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -251,7 +250,9 @@ public class WindowDoctor extends JFrame {
 }
 
     public static void main(String[] args) {
-        org.deustomed.Patient patient1 = new org.deustomed.Patient("1001", "Paciente1", "Surname1", "Surname2", "paciente1@gmail.com", 24);
+        org.deustomed.Patient patient1 = new org.deustomed.Patient("00AAA", "Paciente1", "Surname1", "Surname2",
+                LocalDate.now(), Sex.MALE, "12345678A", "paciente1@email.com", "019283712094",
+                "Calle de Ciudad", new ArrayList<>());
         ArrayList<Appointment> appoinments = new ArrayList<>();
         appoinments.add( new Appointment(patient1, doctor, LocalDateTime.of(2023, 12, 24, 12, 0), "Cita consulta", "Cita consulta con paciente"));
         appoinments.add( new Appointment(patient1, doctor, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
@@ -259,8 +260,8 @@ public class WindowDoctor extends JFrame {
         ArrayList<Patient> patients = new ArrayList<>();
         patients.add(patient1);
         // TODO: 19/12/23 ajustar instancia a constructor
-        Doctor doctor1 = new FamilyDoctor("1000", "Carlos", "Rodriguez", "Martinez", "carlosrodri@gmail.com", "", Sex.MALE, appoinments,
-                patients);
+        Doctor doctor1 = new FamilyDoctor("00AAB", "Carlos", "Rodriguez", "Martinez", LocalDate.now(), Sex.MALE,
+                "12345A", "carlosrodri@gmail.com", "293472349", "Calle Random", appoinments, patients);
         WindowDoctor win = new WindowDoctor(doctor1);
         win.setVisible(true);
     }
@@ -450,8 +451,10 @@ public class WindowDoctor extends JFrame {
             this.patients = new ArrayList<Patient>(data);
         }
 
-        String[] columns = {"Nombre", "1º Apellido", "2º Apellido", "DNI", "NSS", "Correo", "Día de Nacimiento", "Edad", "nº Teléfono", "Dirección", ""};
-        Class[] columnClass = {String.class, String.class, String.class, String.class, String.class, String.class, Date.class, Integer.class, String.class, String.class, Patient.class};
+        String[] columns = {"Nombre", "1º Apellido", "2º Apellido", "DNI", "Correo", "Día de Nacimiento", "Edad", "nº Teléfono", "Direcci" +
+                "ón", ""};
+        Class[] columnClass = {String.class, String.class, String.class, String.class, String.class, Date.class, Integer.class,
+                String.class, String.class, Patient.class};
         @Override
         public int getRowCount() {
             return this.patients.size();
@@ -459,7 +462,7 @@ public class WindowDoctor extends JFrame {
 
         @Override
         public int getColumnCount() {
-            return 11;
+            return 10;
         }
 
         @Override
@@ -474,7 +477,7 @@ public class WindowDoctor extends JFrame {
 
         @Override
         public boolean isCellEditable(int rowIndex, int columnIndex) {
-            if(columnIndex==10){
+            if (columnIndex == 9) {
                 return true;
             }
             return false;
@@ -500,18 +503,16 @@ public class WindowDoctor extends JFrame {
                 case 3:
                     return patient.getDni();
                 case 4:
-                    return patient.getNSS();
-                case 5:
                     return patient.getEmail();
-                case 6:
+                case 5:
                     return patient.getBirthDate();
+                case 6:
+                    return patient.getAgeInYears();
                 case 7:
-                    return patient.getAge();
+                    return patient.getPhoneNumber();
                 case 8:
-                    return patient.getPhoneNumer();
-                case 9:
                     return patient.getAddress();
-                case 10:
+                case 9:
                     return patient;
                 default:
                     return null;
@@ -535,21 +536,18 @@ public class WindowDoctor extends JFrame {
                     patient.setDni((String) aValue);
                     break;
                 case 4:
-                    patient.setNSS((String) aValue);
-                    break;
-                case 5:
                     patient.setEmail((String) aValue);
                     break;
+                case 5:
+                    patient.setBirthDate((LocalDate) aValue);
+                    break;
                 case 6:
-                    patient.setBirthDate((Date) aValue);
+                    //FIXME: Cannot edit age, only birthdate
                     break;
                 case 7:
-                    patient.setAge((int) aValue);
+                    patient.setPhoneNumber((String) aValue);
                     break;
                 case 8:
-                    patient.setPhoneNumer((String) aValue);
-                    break;
-                case 9:
                     patient.setAddress((String) aValue);
                     break;
             }
@@ -645,14 +643,13 @@ class CreateRoundButton extends JButton {
         }
 
         LocalDate date = LocalDate.parse(birthdate);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy");
-        String formatted = date.format(formatter);
 
         if (speciality.equals("Medicina Familiar")) {
             ArrayList<Patient> ownPatients = loadOwnPatients(id);
             ArrayList<Appointment> appointments = loadDoctorAppointments(id);
 
-            FamilyDoctor newFamilyDoctor = new FamilyDoctor(id, name, surname1, surname2, email, dni, sex, appointments, ownPatients);
+            FamilyDoctor newFamilyDoctor = new FamilyDoctor(id, name, surname1, surname2, date, sex, dni, email, phone, address,
+                    appointments, ownPatients);
         } else {
             // TODO: 26/12/23 Create new SpecialistDoctor: load patients Treated, OnTreatment and ToBeTreated 
             //SpecialistDoctor newSpecialistDoctor = new SpecialistDoctor();
@@ -696,12 +693,8 @@ class CreateRoundButton extends JButton {
             }
 
             LocalDate localDate = LocalDate.parse(birthdate);
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy");
-            String formatted = localDate.format(formatter);
-            Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-
-            Patient newPatient = new Patient(id, name, surname1, surname2, email, dni, sex, age, phone, address, date);
+            Patient newPatient = new Patient(id, name, surname1, surname2, localDate, sex, dni, email, phone, address, new ArrayList<>());
             resultArrayList.add(newPatient);
         }
 
@@ -741,7 +734,7 @@ class CreateRoundButton extends JButton {
     }
 
     public Patient getPatientWithThisID(String id){
-        return new Patient();
+        throw new UnsupportedOperationException("getPatientWithThisID not implemented yet");
     }
 
 }
