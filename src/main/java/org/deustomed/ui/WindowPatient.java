@@ -10,8 +10,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.toedter.calendar.JCalendar;
+import com.toedter.calendar.JDayChooser;
 import org.deustomed.ConfigLoader;
 import org.deustomed.DoctorMsgCode;
+import org.deustomed.GreenDateHighlighter;
 import org.deustomed.authentication.AnonymousAuthenticationService;
 import org.deustomed.chat.ChatUser;
 import org.deustomed.chat.MessageCheckerThread;
@@ -35,8 +37,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.logging.Logger;
 
@@ -70,6 +75,7 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
     private static PostgrestClient postgrestClient;
 
     private Logger logger;
+    private GreenDateHighlighter highlighter =  new GreenDateHighlighter();;
 
     public WindowPatient(String patientId) {
         this.patientId = patientId;
@@ -158,6 +164,14 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
         pedirCitaButton = new JButton("Pedir Cita");
         calendarPanel.add(pedirCitaButton, BorderLayout.SOUTH);
 
+        calendar.getDayChooser().addDateEvaluator(highlighter);
+
+        JDayChooser dayChooser = calendar.getDayChooser();
+        dayChooser.addPropertyChangeListener("day", evt -> {
+
+            calendar.setCalendar(calendar.getCalendar());
+        });
+
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
@@ -174,6 +188,7 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
             }
         });
 
+
         calendarButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -181,6 +196,7 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
                 getContentPane().add(calendarPanel, BorderLayout.CENTER);
                 selectedButton = "calendar";
                 revalidate();
+                calendar.setCalendar(calendar.getCalendar());
             }
         });
 
@@ -471,6 +487,8 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
         Gson gson = new Gson();
         JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
 
+        highlighter.clearDates();
+
         for (JsonElement jsonElement : jsonArray) {
             JsonObject appointmentObject = jsonElement.getAsJsonObject();
 
@@ -500,7 +518,13 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
             Object[] rowData = {formatted, reason, docname, fkDoctorId};
             calendarTableModel.addRow(rowData);
 
+            Date dateToHighlight = Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant());
+            highlighter.addDate(dateToHighlight);
         }
+
+        calendar.getDayChooser().invalidate();
+        calendar.getDayChooser().validate();
+        calendar.repaint();
     }
 
     private void sendMessage() throws BadLocationException {
@@ -817,6 +841,35 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
             JOptionPane.showMessageDialog(this, "Error al guardar el archivo: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             logger.severe("Error al guardar el chat: " + ex.getMessage() + "por el paciente: " + patientId);
         }
+    }
+
+    /**
+     * Adds a new highlighted date to the JCalendar
+     * @param date date to highlight
+     */
+    public void addHighlightedDate(Date date) {
+        highlighter.addDate(date);
+        calendar.setCalendar(calendar.getCalendar()); // Actualizar el calendario
+    }
+    /**
+     * Removes all the highlighed dates from JCalendar
+     */
+    public void clearHighlightedDates() {
+        highlighter.clearDates();
+        calendar.setCalendar(calendar.getCalendar()); // Actualizar el calendario
+    }
+
+    /**
+     * Creates a date (used for JCalendar highlighting)
+     * @param day
+     * @param month
+     * @param year
+     */
+    private static Date createDate(int year, int month, int day) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(year, month, day, 0, 0, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTime();
     }
 
     //MAIN(JUST TEST)------------------------------------------------------------------------------------------------------
