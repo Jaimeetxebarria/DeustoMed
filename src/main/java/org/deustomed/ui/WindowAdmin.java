@@ -171,38 +171,39 @@ public class WindowAdmin extends JFrame {
     public DefaultTableModel completeTable(String[] columNames, List<User> users) {
         DefaultTableModel model = new DefaultTableModel();
         model.setColumnIdentifiers(columNames);
-        if (users.get(0) instanceof Patient) {
-            for (User user : users) {
-                Patient patient = (Patient) user;
-                Object[] row = new String[columNames.length];
-                row[0] = String.valueOf(patient.getId());
-                row[1] = patient.getSurname1() + " " +  user.getSurname2();
-                row[2] = patient.getName();
-                row[3] = patient.getSex().toString();
-                row[4] = patient.getEmail();
-                row[5] = patient.getDni();
-                row[6] = String.valueOf(patient.getAgeInYears());
-                row[7] = patient.getPhoneNumber();
-                row[8] = patient.getAddress();
-                row[9] = patient.getBirthDate().toString();
-                model.addRow(row);
-            }
+        if(!users.isEmpty()) {
+            if (users.get(0) instanceof Patient) {
+                for (User user : users) {
+                    Patient patient = (Patient) user;
+                    Object[] row = new String[columNames.length];
+                    row[0] = String.valueOf(patient.getId());
+                    row[1] = patient.getSurname1() + " " + user.getSurname2();
+                    row[2] = patient.getName();
+                    row[3] = patient.getSex().toString();
+                    row[4] = patient.getEmail();
+                    row[5] = patient.getDni();
+                    row[6] = String.valueOf(patient.getAgeInYears());
+                    row[7] = patient.getPhoneNumber();
+                    row[8] = patient.getAddress();
+                    row[9] = patient.getBirthDate().toString();
+                    model.addRow(row);
+                }
 
-        } else if (users.get(0) instanceof Doctor) {
-            for (User user : users) {
-                Doctor doctor = (Doctor) user;
-                Object[] row = new String[columNames.length];
-                row[0] = String.valueOf(doctor.getId());
-                row[1] = doctor.getSurname1() + " " + user.getSurname2();
-                row[2] = doctor.getName();
-                row[3] = doctor.getSex().toString();
-                row[4] = doctor.getEmail();
-                row[5] = doctor.getDni();
-                row[6] = doctor.getSpeciality();
-                model.addRow(row);
+            } else if (users.get(0) instanceof Doctor) {
+                for (User user : users) {
+                    Doctor doctor = (Doctor) user;
+                    Object[] row = new String[columNames.length];
+                    row[0] = String.valueOf(doctor.getId());
+                    row[1] = doctor.getSurname1() + " " + user.getSurname2();
+                    row[2] = doctor.getName();
+                    row[3] = doctor.getSex().toString();
+                    row[4] = doctor.getEmail();
+                    row[5] = doctor.getDni();
+                    row[6] = doctor.getSpeciality();
+                    model.addRow(row);
+                }
             }
         }
-
         model.addColumn("Actions");
         return model;
     }

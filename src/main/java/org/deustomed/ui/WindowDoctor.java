@@ -49,6 +49,7 @@ public class WindowDoctor extends JFrame {
     private Date selectedDate = new Date();
     private static PostgrestClient postgrestClient;
     private Logger logger;
+
     public WindowDoctor(Doctor doctor){
         screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setBounds((int) screenSize.getWidth()/4, (int) screenSize.getHeight()/4, (int) screenSize.getWidth(), (int) screenSize.getHeight());

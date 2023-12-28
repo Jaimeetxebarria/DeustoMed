@@ -17,44 +17,27 @@ import java.util.stream.Collectors;
 
 public class WindowAddUser extends JFrame {
 
-    //General
-    JLabel lblId;
-    JLabel lblName;
-    JLabel lblSurname1;
-    JLabel lblSurname2;
-    JLabel lblSex;
-    JLabel lblEmail;
-    JLabel lblDni;
-    JTextField tfId;
-    JTextField tfName;
-    JTextField tfSurname1;
-    JTextField tfSurname2;
-    JRadioButton radMale;
-    JRadioButton radFemale;
-    JTextField tfEmail;
-    JTextField tfDni;
-    JLabel lblError;
+    // General
+    JLabel lblId, lblName, lblSurname1, lblSurname2, lblSex, lblEmail, lblDni, lblError;
+    JTextField tfId, tfName, tfSurname1, tfSurname2, tfEmail, tfDni;
+    JRadioButton radMale, radFemale;
     JButton btnSave;
 
-    //For patient
+    // For patient
     List<Patient> patients;
-    JLabel lblAge;
-    JLabel lblPhone;
-    JLabel lblAddress;
-    JLabel lblBirthDate;
-    JTextField tfAge;
-    JTextField tfPhone;
-    JTextField tfAddress;
+    JLabel lblAge, lblPhone, lblAddress, lblBirthDate;
+    JTextField tfAge, tfPhone, tfAddress;
     JDateChooser dateChooser;
-    private Date previousDate;
+    Date previousDate;
 
-    //For doctor
+    // For doctor
     List<Doctor> doctors;
     JLabel lblSpeciality;
     JComboBox<String> cbSpeciality;
-    protected List<String> specialities = Arrays.asList("Alergología", "Anestesiología", "Angiología", "Cardiología", "Endocrinología",
+    List<String> specialities = Arrays.asList("Alergología", "Anestesiología", "Angiología", "Cardiología", "Endocrinología",
             "Gastroenterología", "Geriatría", "Hematología", "Infectología", "Medicina interna", "Nefrología", "Neumología", "Neurología"
             , "Obstetricia", "Oftalmología", "Oncología", "Pediatría", "Psiquiatría", "Reumatología", "Toxicología", "Urología");
+
 
 
     public WindowAddUser(List<User> users) {
@@ -63,27 +46,28 @@ public class WindowAddUser extends JFrame {
             setTitle("New patient");
         } else {
             doctors = users.stream().map(user -> (Doctor) user).collect(Collectors.toList());
-            setTitle("New Doctor");
+            setTitle("Crear Doctor");
         }
 
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
-        setResizable(false);
+        //setResizable(false);
         setLocationRelativeTo(null);
-        setSize(300, 550);
+        setSize(450, 350);
 
-        lblId = new JLabel("ID:");
-        lblName = new JLabel("Name:");
-        lblSurname1 = new JLabel("Surname 1:");
-        lblSurname2 = new JLabel("Surname 2:");
-        lblSex = new JLabel("Sex:");
-        lblEmail = new JLabel("Email:");
-        lblDni = new JLabel("DNI:");
-        lblError = new JLabel("");
+        lblId = createCenteredLabel("ID:");
+        lblName = createCenteredLabel("Nombre:");
+        lblSurname1 = createCenteredLabel("Apellido 1:");
+        lblSurname2 = createCenteredLabel("Apellido 2:");
+        lblSex = createCenteredLabel("Sexo:");
+        lblEmail = createCenteredLabel("Email:");
+        lblDni = createCenteredLabel("DNI:");
+        lblError = createCenteredLabel("");
         lblError.setForeground(Color.RED);
 
+
         tfId = new JTextField("Id generado automáticamente");
-        JButton btnCopyId = new JButton("Copy");
+        JButton btnCopyId = new JButton("Copiar");
         btnCopyId.addActionListener(e -> copyToClipboard(tfId.getText()));
         tfId.setEditable(false);
         JPanel pnlId = new JPanel(new BorderLayout());
@@ -93,14 +77,14 @@ public class WindowAddUser extends JFrame {
         tfName = new JTextField();
         tfSurname1 = new JTextField();
         tfSurname2 = new JTextField();
-        radFemale = new JRadioButton("Female");
-        radMale = new JRadioButton("Male");
+        radFemale = new JRadioButton("Mujer");
+        radMale = new JRadioButton("Hombre");
         ButtonGroup group = new ButtonGroup();
         group.add(radFemale);
         group.add(radMale);
         tfEmail = new JTextField();
         tfDni = new JTextField();
-        btnSave = new JButton("Save");
+        btnSave = new JButton("Crear");
 
         if (patients != null) {
             lblAge = new JLabel("Age:");
@@ -132,7 +116,7 @@ public class WindowAddUser extends JFrame {
 
 
         } else if (doctors != null) {
-            lblSpeciality = new JLabel("Speciality:");
+            lblSpeciality = createCenteredLabel("Specialidad:");
             cbSpeciality = new JComboBox<>();
             cbSpeciality.setModel(new DefaultComboBoxModel<>(specialities.toArray(new String[0])));
 
@@ -181,8 +165,8 @@ public class WindowAddUser extends JFrame {
         pnlCenter.add(pnlPrimary, BorderLayout.CENTER);
         pnlCenter.add(lblError, BorderLayout.SOUTH);
 
-        JPanel pnlSouth = new JPanel(new BorderLayout());
-        pnlSouth.add(btnSave, BorderLayout.EAST);
+        JPanel pnlSouth = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        pnlSouth.add(btnSave);
 
         this.add(pnlCenter, BorderLayout.CENTER);
         this.add(pnlSouth, BorderLayout.SOUTH);
@@ -244,6 +228,16 @@ public class WindowAddUser extends JFrame {
         });
 
         setVisible(true);
+    }
+
+    /**
+     * Creates centered JLabels
+     * @param text JLabel string content
+     */
+    private JLabel createCenteredLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setHorizontalAlignment(JLabel.CENTER);
+        return label;
     }
 
     private boolean validateData() {
