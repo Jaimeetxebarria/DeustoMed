@@ -99,7 +99,7 @@ class ShowPatientWindow extends JFrame {
         pnlCenter.setBorder(emptyBorder);
         pnlCenter.setLayout(new BorderLayout());
 
-
+        
         JPanel pnlInfo = new JPanel();
         pnlInfo.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();

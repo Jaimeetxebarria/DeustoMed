@@ -34,27 +34,44 @@ import java.util.logging.Logger;
 
 public class WindowDoctor extends JFrame {
     private static Doctor doctor;
-    private JPanel pnlInfo;
+    private final JPanel pnlInfo;
     private JPanel pnlCentral;
-    private JPanel pnlAppointments;
+    private final JPanel pnlAppointments;
     private static Dimension screenSize;
-    private JPanel pnlDisplayAppoinments;
+    private final JPanel pnlDisplayAppoinments;
     private JTable tableOwnPatient;
     private JTable tableTreatedPatient;
     private JTable tableInTreatmentPatient;
     private JTable tableToTreatPatient;
-    private JTable tableMedication;
-    private JTabbedPane tabbedPaneCenter;
+    private final JTable tableMedication;
+    private final JTabbedPane tabbedPaneCenter;
     private ArrayList<Patient> ownPatients;
     private Date selectedDate = new Date();
     private static PostgrestClient postgrestClient;
-    private Logger logger;
+    private final Logger logger;
 
-    public WindowDoctor(Doctor doctor){
+    public static void main(String[] args) {
+        org.deustomed.Patient patient1 = new org.deustomed.Patient("00AAA", "Paciente1", "Surname1", "Surname2",
+                LocalDate.now(), Sex.MALE, "12345678A", "paciente1@email.com", "019283712094",
+                "Calle de Ciudad", new ArrayList<>());
+        ArrayList<Appointment> appoinments = new ArrayList<>();
+        appoinments.add(new Appointment(patient1, doctor, LocalDateTime.of(2023, 12, 24, 12, 0), "Cita consulta", "Cita consulta con paciente"));
+        appoinments.add(new Appointment(patient1, doctor, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
+        appoinments.add(new Appointment(patient1, doctor, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
+        ArrayList<Patient> patients = new ArrayList<>();
+        patients.add(patient1);
+        // TODO: 19/12/23 ajustar instancia a constructor
+        Doctor doctor1 = new FamilyDoctor("00AAB", "Carlos", "Rodriguez", "Martinez", LocalDate.now(), Sex.MALE,
+                "12345A", "carlosrodri@gmail.com", "293472349", "Calle Random", appoinments, patients);
+        WindowDoctor win = new WindowDoctor(doctor1);
+        win.setVisible(true);
+    }
+
+    public WindowDoctor(Doctor doctor) {
         screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setBounds((int) screenSize.getWidth()/4, (int) screenSize.getHeight()/4, (int) screenSize.getWidth(), (int) screenSize.getHeight());
+        setBounds((int) screenSize.getWidth() / 4, (int) screenSize.getHeight() / 4, (int) screenSize.getWidth(), (int) screenSize.getHeight());
         setLayout(new BorderLayout());
-        this.doctor=doctor;
+        WindowDoctor.doctor = doctor;
 
         ConfigLoader configLoader = new ConfigLoader();
         String hostname = configLoader.getHostname();
@@ -68,14 +85,14 @@ public class WindowDoctor extends JFrame {
 
         // ------------------ pnlInfo ------------------
         pnlInfo = new JPanel();
-        pnlInfo.setPreferredSize(new Dimension(300,300));
+        pnlInfo.setPreferredSize(new Dimension(300, 300));
         pnlInfo.setLayout(new BorderLayout());
         JButton btnPhoto = new JButton("");
         ImageIcon icon = new ImageIcon("src/main/java/ui/profileImg.png");
-        Image png = icon.getImage().getScaledInstance(200,200, DO_NOTHING_ON_CLOSE);
+        Image png = icon.getImage().getScaledInstance(200, 200, DO_NOTHING_ON_CLOSE);
         btnPhoto.setIcon(new ImageIcon(png));
         btnPhoto.setEnabled(false);
-        btnPhoto.setPreferredSize(new Dimension(250,250));
+        btnPhoto.setPreferredSize(new Dimension(250, 250));
         JPanel p = new JPanel();
         p.add(btnPhoto);
         pnlInfo.add(p, BorderLayout.NORTH);
@@ -84,19 +101,19 @@ public class WindowDoctor extends JFrame {
         fl.setHgap(30);
         JPanel pnlc = new JPanel(fl);
         JPanel panelButtons = new JPanel();
-        panelButtons.setLayout(new GridLayout(3,1));
+        panelButtons.setLayout(new GridLayout(3, 1));
 
         JButton info = new JButton("Infomación Personal");
-        info.setPreferredSize(new Dimension(200,30));
+        info.setPreferredSize(new Dimension(200, 30));
         info.setHorizontalAlignment(SwingConstants.CENTER);
 
         JButton info2 = new JButton("Visualizaciñon Calendario");
-        info2.setPreferredSize(new Dimension(200,30));
+        info2.setPreferredSize(new Dimension(200, 30));
 
         JButton info3 = new JButton("Servicio Técnico");
-        info3.setPreferredSize(new Dimension(200,30));
+        info3.setPreferredSize(new Dimension(200, 30));
 
-        JLabel name = new JLabel("Dr. "+doctor.getName());
+        JLabel name = new JLabel("Dr. " + doctor.getName());
         JLabel surname1 = new JLabel(doctor.getSurname1());
         JLabel surname2 = new JLabel(doctor.getSurname2());
 
@@ -107,7 +124,7 @@ public class WindowDoctor extends JFrame {
         pnlc.add(name);
         pnlc.add(surname1);
         pnlc.add(surname2);
-        pnlc.add(new JLabel("Doctor especialista en "+doctor.getSpeciality()));
+        pnlc.add(new JLabel("Doctor especialista en " + doctor.getSpeciality()));
         pnlc.add(Box.createVerticalStrut(200));
         panelButtons.add(info);
         panelButtons.add(info2);
@@ -137,12 +154,12 @@ public class WindowDoctor extends JFrame {
         add(tabbedPaneCenter, BorderLayout.CENTER);
 
         // Para Doctor de Medicina Familiar:
-        if(doctor instanceof FamilyDoctor){
+        if (doctor instanceof FamilyDoctor) {
             //System.out.println(((FamilyDoctor) doctor).getOwnPatients());
             ArrayList<Patient> pat = ((FamilyDoctor) doctor).getOwnPatients();
-            System.out.println("This are the patients: "+pat);
+            System.out.println("This are the patients: " + pat);
             ownPatients = pat;
-            if(pat != null){
+            if (pat != null) {
                 TableModelPatient tmp1 = new TableModelPatient(pat);
                 tableOwnPatient = new JTable(tmp1);
                 tableOwnPatient.setDefaultRenderer(Patient.class, new TablePatientRenderer());
@@ -180,18 +197,16 @@ public class WindowDoctor extends JFrame {
         pnlAppointments = new JPanel();
         add(pnlAppointments, BorderLayout.EAST);
         pnlAppointments.setLayout(new BorderLayout());
-        pnlAppointments.setPreferredSize(new Dimension((int) (screenSize.width/4.1),(int) (screenSize.height*0.75)));
+        pnlAppointments.setPreferredSize(new Dimension((int) (screenSize.width / 4.1), (int) (screenSize.height * 0.75)));
         TitledBorder bordeEast = BorderFactory.createTitledBorder("Citas");
         pnlAppointments.setBorder(bordeEast);
-        JMonthChooser monthChooser = new JMonthChooser();
         pnlDisplayAppoinments = new JPanel();
-        JYearChooser yearChooser = new JYearChooser();
 
         pnlAppointments.add(pnlDisplayAppoinments, BorderLayout.CENTER);
         JScrollPane sbarPedidos = new JScrollPane(pnlDisplayAppoinments);
         pnlAppointments.add(sbarPedidos, BorderLayout.CENTER);
 
-        JPanel pnlDateChooser =  new JPanel();
+        JPanel pnlDateChooser = new JPanel();
         pnlDateChooser.setLayout(new FlowLayout());
         pnlDateChooser.add(new JLabel("Select date: "));
         JDateChooser dateChooser = new JDateChooser();
@@ -203,68 +218,12 @@ public class WindowDoctor extends JFrame {
                 visualiseAppoinments(newDate);
             }
         });
-        dateChooser.setPreferredSize(new Dimension(200,25));
+        dateChooser.setPreferredSize(new Dimension(200, 25));
         pnlDateChooser.add(dateChooser);
         pnlAppointments.add(pnlDateChooser, BorderLayout.NORTH);
 
-
-        /*JPanel panelBotones = new JPanel();
-        panelBotones.setLayout(new GridLayout(2,2));
-
-        JButton visualizarPedido = new JButton("Visualizar Pedido");
-        panelBotones.add(visualizarPedido);*/
         visualiseAppoinments(new Date());
 
-        /*anadirPedido = new JButton("Añadir Pedido");
-        anadirPedido.setPreferredSize(new Dimension(80,50));
-        panelBotones.add(anadirPedido);
-        anadirPedido.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
-                try {
-                    ImageIcon icono= new ImageIcon("src/Proyecto/Imagenes/pedido.png");
-                    Image imagen = icono.getImage().getScaledInstance(50, 50, DO_NOTHING_ON_CLOSE);
-                    Pedido nuevoPedido = new Pedido(null,null, Integer.parseInt((String) JOptionPane.showInputDialog(null, "Introduce número de mesa: ", "Creando nuevo pedido...", 1, new ImageIcon(imagen), null, null)));
-                    pedidos.addItem(nuevoPedido);
-                    nuevoPedido.productos = new HashMap<String, Integer>();
-                    nuevoPedido.spinners = new ArrayList<JSpinner>();
-                }catch(Exception e1) {};}});
-
-
-        //---------------------------------------------
-        finalizarPedido = new JButton("Finalizar Pedido");
-        finalizarPedido.setPreferredSize(new Dimension(130,30));
-        panelBotones.add(finalizarPedido);
-        pnlAppoinments.add(panelBotones, BorderLayout.SOUTH);
-        finalizarPedido.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
-                FinalizarPedido finPed = new FinalizarPedido((Pedido) pedidos.getSelectedItem(), usuario, sesion);
-                finPed.setVisible(true);
-            }
-        });
-
-    }*/
-
-}
-
-    public static void main(String[] args) {
-        org.deustomed.Patient patient1 = new org.deustomed.Patient("00AAA", "Paciente1", "Surname1", "Surname2",
-                LocalDate.now(), Sex.MALE, "12345678A", "paciente1@email.com", "019283712094",
-                "Calle de Ciudad", new ArrayList<>());
-        ArrayList<Appointment> appoinments = new ArrayList<>();
-        appoinments.add( new Appointment(patient1, doctor, LocalDateTime.of(2023, 12, 24, 12, 0), "Cita consulta", "Cita consulta con paciente"));
-        appoinments.add( new Appointment(patient1, doctor, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
-        appoinments.add( new Appointment(patient1, doctor, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
-        ArrayList<Patient> patients = new ArrayList<>();
-        patients.add(patient1);
-        // TODO: 19/12/23 ajustar instancia a constructor
-        Doctor doctor1 = new FamilyDoctor("00AAB", "Carlos", "Rodriguez", "Martinez", LocalDate.now(), Sex.MALE,
-                "12345A", "carlosrodri@gmail.com", "293472349", "Calle Random", appoinments, patients);
-        WindowDoctor win = new WindowDoctor(doctor1);
-        win.setVisible(true);
     }
 
     public void visualiseAppoinments(Date date) {
@@ -272,78 +231,77 @@ public class WindowDoctor extends JFrame {
         pnlDisplayAppoinments.updateUI();
         JPanel pnlModApp = new JPanel();
         pnlDisplayAppoinments.add(pnlModApp, BorderLayout.CENTER);
-        pnlModApp.setLayout(new GridLayout(40,1));
-        for(Appointment appointment : doctor.getAppointments()) {
+        pnlModApp.setLayout(new GridLayout(40, 1));
+        for (Appointment appointment : doctor.getAppointments()) {
             LocalDateTime ldt = appointment.getDate();
             Date asDate = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
             //System.out.println(truncateTime(asDate));
             //System.out.println("Date: "+truncateTime(date));
 
 
-            if(compareDateParts(asDate, date)){
-                    TitledBorder border = new TitledBorder("");
-                    JPanel panel = new JPanel();
-                    panel.setLayout(new BorderLayout(3, 3));
-                    panel.setPreferredSize(new Dimension(300,200));
-                    JPanel nombre = new JPanel();
-                    //panel.setLayout(new GridLayout(2, 1));
-                    JPanel pnlButton = new JPanel();
-                    pnlButton.setLayout(new GridLayout(4,1));
+            if (compareDateParts(asDate, date)) {
+                TitledBorder border = new TitledBorder("");
+                JPanel panel = new JPanel();
+                panel.setLayout(new BorderLayout(3, 3));
+                panel.setPreferredSize(new Dimension(300, 200));
+                JPanel nombre = new JPanel();
+                //panel.setLayout(new GridLayout(2, 1));
+                JPanel pnlButton = new JPanel();
+                pnlButton.setLayout(new GridLayout(4, 1));
 
-                    panel.setBorder(border);
-                    org.deustomed.Patient pat = appointment.getPatient();
-                    nombre.setLayout(new BoxLayout(nombre, BoxLayout.Y_AXIS));
-                    JLabel appointmentDate = new JLabel("                            "+capitalizeFirstLetter(ldt.getDayOfWeek().toString())+", "+ldt.getDayOfMonth()+" "+capitalizeFirstLetter(ldt.getMonth().toString())+" "+ldt.toLocalTime());
-                    JLabel name = new JLabel(pat.getName()+" "+pat.getSurname1()+" "+pat.getSurname2());
-                    name.setHorizontalAlignment(SwingConstants.LEFT);
-                    name.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-                    nombre.add(appointmentDate);
-                    nombre.add(name);
+                panel.setBorder(border);
+                org.deustomed.Patient pat = appointment.getPatient();
+                nombre.setLayout(new BoxLayout(nombre, BoxLayout.Y_AXIS));
+                JLabel appointmentDate = new JLabel("                            " + capitalizeFirstLetter(ldt.getDayOfWeek().toString()) + ", " + ldt.getDayOfMonth() + " " + capitalizeFirstLetter(ldt.getMonth().toString()) + " " + ldt.toLocalTime());
+                JLabel name = new JLabel(pat.getName() + " " + pat.getSurname1() + " " + pat.getSurname2());
+                name.setHorizontalAlignment(SwingConstants.LEFT);
+                name.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+                nombre.add(appointmentDate);
+                nombre.add(name);
 
-                    JPanel pnTa = new JPanel();
+                JPanel pnTa = new JPanel();
+                pnTa.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 0));
+                JTextArea ta = new JTextArea(appointment.getShortDesciption());
+                ta.setEditable(false);
+                ta.setPreferredSize(new Dimension(200, 140));
+                ta.setBorder(BorderFactory.createTitledBorder(""));
+                pnTa.add(ta);
+                panel.add(pnTa, BorderLayout.CENTER);
 
-                    pnTa.setBorder(BorderFactory.createEmptyBorder(0,5,5,0));
-                    JTextArea ta = new JTextArea(appointment.getShortDesciption());
-                    ta.setEditable(false);
-                    ta.setPreferredSize(new Dimension(200,140));
-                    ta.setBorder(BorderFactory.createTitledBorder(""));
-                    pnTa.add(ta);
-                    panel.add(pnTa, BorderLayout.CENTER);
+                JButton btn = new JButton("Más Info");
+                btn.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        // TODO: 29/12/23 Offer more information about the appointment
+                    }
+                });
 
-                    JButton btn = new JButton("Más Info");
-                    btn.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
+                JButton btn2 = new JButton("Iniciar");
+                btn2.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        // TODO: 29/12/23 Inicialises the diagnosis window: Create new diagnosis for the paitient
+                    }
+                });
 
-                        }
-                    });
+                JButton btn3 = new JButton("Cancelar");
+                btn2.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        // TODO: 29/12/23 Cancel the appointment: Erase it from doctor's apporintments list
+                    }
+                });
 
-                    JButton btn2 = new JButton("Iniciar");
-                    btn2.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
+                pnlButton.add(btn);
+                pnlButton.add(btn2);
+                pnlButton.add(btn3);
 
-                        }
-                    });
-
-                    JButton btn3 = new JButton("Cancelar");
-                    btn2.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-
-                        }
-                    });
-
-                    pnlButton.add(btn);
-                    pnlButton.add(btn2);
-                    pnlButton.add(btn3);
-
-                    panel.add(nombre, BorderLayout.NORTH);
-                    panel.add(pnlButton, BorderLayout.EAST);
-                    pnlModApp.add(panel);
-                    pnlModApp.updateUI();
-                    pnlDisplayAppoinments.updateUI();
-                }
+                panel.add(nombre, BorderLayout.NORTH);
+                panel.add(pnlButton, BorderLayout.EAST);
+                pnlModApp.add(panel);
+                pnlModApp.updateUI();
+                pnlDisplayAppoinments.updateUI();
+            }
 
         }
     }
@@ -367,11 +325,11 @@ public class WindowDoctor extends JFrame {
 
         return calendar.getTime();
     }
+
     private static String capitalizeFirstLetter(String input) {
         if (input == null || input.isEmpty()) {
             return input;
         }
-
         return input.substring(0, 1).toUpperCase() + input.substring(1).toLowerCase();
     }
 
@@ -384,7 +342,8 @@ public class WindowDoctor extends JFrame {
         }
 
     }
-    class PatientShowButton extends JButton{
+
+    class PatientShowButton extends JButton {
         PatientShowButton(Patient patient) {
             super("Mostrar");
             this.setFont(new Font("Arial", 0, 12));
@@ -399,6 +358,7 @@ public class WindowDoctor extends JFrame {
             });
         }
     }
+
     class TablePatienteEditor extends DefaultCellEditor {
 
         public TablePatienteEditor(JTextField textField) {
@@ -445,10 +405,11 @@ public class WindowDoctor extends JFrame {
 
         }
     }
-    public class TableModelPatient extends AbstractTableModel {
-        private ArrayList<Patient> patients;
 
-        public TableModelPatient(ArrayList<Patient> data){
+    public class TableModelPatient extends AbstractTableModel {
+        private final ArrayList<Patient> patients;
+
+        public TableModelPatient(ArrayList<Patient> data) {
             this.patients = new ArrayList<Patient>(data);
         }
 
@@ -456,6 +417,7 @@ public class WindowDoctor extends JFrame {
                 "ón", ""};
         Class[] columnClass = {String.class, String.class, String.class, String.class, String.class, Date.class, Integer.class,
                 String.class, String.class, Patient.class};
+
         @Override
         public int getRowCount() {
             return this.patients.size();
@@ -478,10 +440,7 @@ public class WindowDoctor extends JFrame {
 
         @Override
         public boolean isCellEditable(int rowIndex, int columnIndex) {
-            if (columnIndex == 9) {
-                return true;
-            }
-            return false;
+            return columnIndex == 9;
         }
 
         @Override
@@ -537,54 +496,47 @@ public class WindowDoctor extends JFrame {
         }
     }
 
-class CreateRoundButton extends JButton {
-    Shape shape;
+    class CreateRoundButton extends JButton {
+        Shape shape;
 
-    public CreateRoundButton(String label) {
-        super(label);
-        Dimension size = getPreferredSize();
-        size.width = size.height = Math.max(size.width,size.height);
-        setPreferredSize(size);
+        public CreateRoundButton(String label) {
+            super(label);
+            Dimension size = getPreferredSize();
+            size.width = size.height = Math.max(size.width, size.height);
+            setPreferredSize(size);
 
-        setContentAreaFilled(false);
-    }
-
-    protected void paintComponent(Graphics g) {
-        if (getModel().isArmed()) {
-            g.setColor(Color.lightGray);
-        } else {
-            g.setColor(getBackground());
+            setContentAreaFilled(false);
         }
-        g.fillOval(0, 0, getSize().width-1,getSize().height-1);
 
-        super.paintComponent(g);
-    }
+        protected void paintComponent(Graphics g) {
+            if (getModel().isArmed()) {
+                g.setColor(Color.lightGray);
+            } else {
+                g.setColor(getBackground());
+            }
+            g.fillOval(0, 0, getSize().width - 1, getSize().height - 1);
 
-    protected void paintBorder(Graphics g) {
-        g.setColor(getForeground());
-        g.drawOval(0, 0, getSize().width-1,     getSize().height-1);
-    }
-
-    public boolean contains(int x, int y) {
-        if (shape == null ||
-                !shape.getBounds().equals(getBounds())) {
-            shape = new Ellipse2D.Float(0, 0, getWidth(), getHeight());
+            super.paintComponent(g);
         }
-        return shape.contains(x, y);
+
+        protected void paintBorder(Graphics g) {
+            g.setColor(getForeground());
+            g.drawOval(0, 0, getSize().width - 1, getSize().height - 1);
+        }
+
+        public boolean contains(int x, int y) {
+            if (shape == null ||
+                    !shape.getBounds().equals(getBounds())) {
+                shape = new Ellipse2D.Float(0, 0, getWidth(), getHeight());
+            }
+            return shape.contains(x, y);
+        }
+
     }
 
-    /*public static void main(String[] args) {
-        JButton button = new CreateRoundButton("Click");
-        button.setBackground(Color.gray);
-
-        JFrame frame = new JFrame();
-        frame.getContentPane().add(button);
-        frame.getContentPane().setLayout(new FlowLayout());
-        frame.setSize(150, 150);
-        frame.setVisible(true);
-    }*/
-}
-
+    /*
+    Used to load all the doctors from the database and fill the static ArrayList<Doctor> from Doctor.java
+     */
     public void loadDoctors() {
 
         PostgrestQuery query = postgrestClient
@@ -658,12 +610,7 @@ class CreateRoundButton extends JButton {
             String address = jsonObject.get("address").getAsString();
             String sexString = jsonObject.get("sex").getAsString();
             int age = Integer.parseInt(jsonObject.get("age").getAsString());
-            Sex sex;
-            if (sexString.equals("MALE")) {
-                sex = Sex.MALE;
-            } else {
-                sex = Sex.FEMALE;
-            }
+            Sex sex = (sexString.equals("MALE")) ? Sex.MALE : Sex.FEMALE;
 
             LocalDate localDate = LocalDate.parse(birthdate);
 
@@ -697,17 +644,13 @@ class CreateRoundButton extends JButton {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             LocalDateTime localDateTime = LocalDateTime.parse(dateString, formatter);
 
-
             Appointment newAppointment = new Appointment(appointmentPatient, null, localDateTime, reason, "");
             resultArrayList.add(newAppointment);
         }
-
-
         return resultArrayList;
     }
 
-    public Patient getPatientWithThisID(String id){
+    public Patient getPatientWithThisID(String id) {
         throw new UnsupportedOperationException("getPatientWithThisID not implemented yet");
     }
-
 }
