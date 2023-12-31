@@ -284,7 +284,7 @@ public class WindowAddUser extends JFrame {
 
             // Validate phone number
             String phoneNumber = tfPhone.getText();
-            if (!phoneNumber.matches("\\+[0-9]{9}")) {
+            if (!phoneNumber.matches("\\+[0-9]{11}")) {
                 lblError.setText("Invalid phone number");
                 return false;
             }
@@ -363,7 +363,7 @@ public class WindowAddUser extends JFrame {
                 LocalDate.of(1975, 3, 1), Sex.MALE, "email2", "dni2",
                 "phone2", "address2", null, null));
         SwingUtilities.invokeLater(() -> {
-            new WindowAddUser(patients);
+            //new WindowAddUser(patients);
             new WindowAddUser(doctors);
         });
 

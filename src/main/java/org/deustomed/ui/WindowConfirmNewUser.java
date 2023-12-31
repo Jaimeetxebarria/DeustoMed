@@ -23,14 +23,16 @@ public class WindowConfirmNewUser extends JFrame {
     public WindowConfirmNewUser(List<User> users){
         if(users.get(0) instanceof Patient){
             setTitle("Paciente creado con éxito");
+            setSize(350, 120);
         }else{
             setTitle("Doctor creado con éxito");
+            setSize(350, 150);
         }
 
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);
-        setSize(350, 150);
+
 
         lblId = new JLabel("Id:");
         tfId = new JTextField();
@@ -60,6 +62,16 @@ public class WindowConfirmNewUser extends JFrame {
             pnlMain.add(lblChatCode);
             pnlMain.add(tfChatCode);
         }
+
+
+
+
+
+
+
+
+
+
 
         add(pnlMain, BorderLayout.CENTER);
         add(btOk, BorderLayout.SOUTH);
