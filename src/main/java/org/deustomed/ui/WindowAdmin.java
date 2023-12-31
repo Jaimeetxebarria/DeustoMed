@@ -62,17 +62,8 @@ public class WindowAdmin extends JFrame {
         this.setLayout(new BorderLayout());
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        //pending data
         patients= new ArrayList<>();
-        patients.add(new Patient("00AAA", "Pablo", "Garcia", "Iglesias",
-                LocalDate.of(1990, 8, 12), Sex.MALE, "dni1",
-                "email1", "phone1", "address1", null));
-        patients.add(new Patient("00AAB", "Andoni", "Hernández", "Ruiz",
-                LocalDate.of(1975, 3, 1), Sex.MALE, "email2", "dni2",
-                "phone2", "address2", null));
         doctors= new ArrayList<>();
-        //doctors.add(new Doctor(1,"Jaime","Eguskisa","Gascon","email1","4562","dni1", Sex.MALE, "Ophthalmologist", new ArrayList<>(), new ArrayList<>()));
-        //doctors.add(new Doctor(2,"Irene","Garcia","Iglesias","email2","1234","dni2", Sex.FEMALE, "Ophthalmologist", new ArrayList<>(), new ArrayList<>()));
 
         tabAdmin = new JTabbedPane();
 
@@ -206,7 +197,6 @@ public class WindowAdmin extends JFrame {
     public void obtainDoctors(JsonArray jsonDoctorIDs){
         for (JsonElement jsonElement : jsonDoctorIDs) {
             JsonObject jsonObject = jsonElement.getAsJsonObject();
-
             String id = jsonObject.get("id").getAsString();
             String name = jsonObject.get("name").getAsString();
             String surname1 = jsonObject.get("surname1").getAsString();
@@ -271,7 +261,6 @@ public class WindowAdmin extends JFrame {
         table.getColumnModel().getColumn(table.getColumnCount() - 1).setCellEditor(buttonEditor);
         table.getColumnModel().getColumn(table.getColumnCount() - 1).setCellRenderer(buttonRenderer);
     }
-
 
 
     class ButtonRenderer implements TableCellRenderer {
@@ -359,19 +348,19 @@ public class WindowAdmin extends JFrame {
                                                 originalDoctor.getAppointments());
 
 
-                                        // Actualiza el objeto en la lista
-                                        doctors.set(indexInListD, editedDoctor);
+                                    // Actualiza el objeto en la lista
+                                    doctors.set(indexInListD, editedDoctor);
 
-                                        // Actualiza la fila en la tabla
-                                        for (int i = 1; i < rowData.length; i++) {
-                                            table.getModel().setValueAt(rowData[i], modelRow, i);
-                                        }
+                                    // Actualiza la fila en la tabla
+                                    for (int i = 1; i < rowData.length; i++) {
+                                        table.getModel().setValueAt(rowData[i], modelRow, i);
                                     }
-                                    System.out.println(doctors);
-                                    break;
-                                case OTHER:
-                                    break;
-                            }
+                                }
+                                System.out.println(doctors);
+                                break;
+                            case OTHER:
+                                break;
+                        }
 
 
                     }
@@ -382,27 +371,41 @@ public class WindowAdmin extends JFrame {
                 // Obtain Table
                 JTable table = (JTable) SwingUtilities.getAncestorOfClass(JTable.class, btnDelete);
 
-                    if (table != null) {
-                        TableType tableType = getTableType(table, btnDelete);
-                        int selectedRow = table.getSelectedRow();
-                        if (selectedRow != -1) {
-                            int modelRow = table.convertRowIndexToModel(selectedRow);
-
-                            switch (tableType) {
-                                case PATIENTS:
-                                    patients.remove(modelRow);
-                                    break;
-                                case DOCTORS:
-                                    doctors.remove(modelRow);
-                                    break;
-                                case OTHER:
-                                    break;
-                            }
-
-                            // Remueve la fila de la tabla
-                            ((DefaultTableModel) table.getModel()).removeRow(modelRow);
+                if (table != null) {
+                    TableType tableType = getTableType(table, btnDelete);
+                    int selectedRow = table.getSelectedRow();
+                    if (selectedRow != -1) {
+                        int modelRow = table.convertRowIndexToModel(selectedRow);
+                        String id = table.getModel().getValueAt(modelRow, 5).toString();
+                        switch (tableType) {
+                            case PATIENTS:
+                                patients.remove(modelRow);
+                                PostgrestQuery deletePatient = postgrestClient
+                                        .from("person")
+                                        .delete()
+                                        .eq("dni", id)
+                                        .getQuery();
+                                postgrestClient.sendQuery(deletePatient);
+                                System.out.println("Paciente eliminado");
+                                break;
+                            case DOCTORS:
+                                doctors.remove(modelRow);
+                                PostgrestQuery deleteDoctor = postgrestClient
+                                        .from("person")
+                                        .delete()
+                                        .eq("dni", "87654321B")
+                                        .getQuery();
+                                postgrestClient.sendQuery(deleteDoctor);
+                                System.out.println("Doctor eliminado");
+                                break;
+                            case OTHER:
+                                break;
                         }
+
+                        // Remueve la fila de la tabla
+                        ((DefaultTableModel) table.getModel()).removeRow(modelRow);
                     }
+                }
             });
         }
 

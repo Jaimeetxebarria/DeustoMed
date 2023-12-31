@@ -68,7 +68,7 @@ create table
 drop table if exists doctor cascade;
 create table
   doctor (
-    id char(5) primary key references person,
+    id char(5) primary key references person on delete cascade,
     fk_speciality_id int references speciality
   );
 
@@ -88,7 +88,7 @@ create table doctor_schedule (
 drop table if exists patient cascade;
 create table
   patient (
-    id char(5) primary key references person,
+    id char(5) primary key references person on delete cascade,
     fk_doctor_id char(5) references doctor
   );
 

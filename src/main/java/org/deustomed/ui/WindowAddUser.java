@@ -11,6 +11,8 @@ import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
@@ -20,6 +22,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class WindowAddUser extends JFrame {
