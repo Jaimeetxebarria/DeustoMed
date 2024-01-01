@@ -140,6 +140,7 @@ public class WindowLogin extends JFrame {
                     lblError.setText("<html>Error del sistema. Por favor, inténtelo más<br/>tarde o póngase en contacto con " +
                             "soporte</html>");
                 } catch (Exception exception) {
+                    exception.printStackTrace();
                     lblError.setText("¡Enhorabuena! Ha descubierto un bug");
                 }
             }
