@@ -1,92 +1,142 @@
 package org.deustomed.ui;
 
 
+import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.fonts.inter.FlatInterFont;
+import org.deustomed.ConfigLoader;
+import org.deustomed.Doctor;
+import org.deustomed.UserType;
+import org.deustomed.authentication.BypassTrustManager;
+import org.deustomed.authentication.UserAuthenticationService;
+import org.deustomed.postgrest.PostgrestClient;
+import org.deustomed.postgrest.authentication.exceptions.AuthenticationServerInternalErrorException;
+import org.deustomed.postgrest.authentication.exceptions.AuthenticationServerUnavailableException;
+import org.deustomed.postgrest.authentication.exceptions.InexistentUserException;
+import org.deustomed.postgrest.authentication.exceptions.InvalidCredentialsException;
+
 import javax.swing.*;
 import java.util.Arrays;
 
 public class WindowLogin extends JFrame {
     JLabel lblLogin;
-    JLabel lblEmail;
+    JLabel lblId;
     JLabel lblPassword;
     JLabel lblError;
-    JTextField txtEmail;
+    JTextField txtId;
     JPasswordField txtPassword;
+    JRadioButton rdbtnPatient;
+    JRadioButton rdbtnDoctor;
+    JRadioButton rdbtnAdmin;
     JButton btnLogin;
 
-    public WindowLogin(){
-        lblLogin = new JLabel("Login");
-        lblEmail = new JLabel("Email:");
-        lblPassword = new JLabel("Clave:");
-        txtEmail = new JTextField();
-        txtPassword = new JPasswordField();
-        btnLogin = new JButton("Login");
-        lblError = new JLabel("");
-
-        lblLogin.setFont(lblLogin.getFont().deriveFont(20f));
-        lblError.setForeground(java.awt.Color.RED);
-
-        lblLogin.setBounds(115, 20, 100, 30);
-        lblEmail.setBounds(45, 70, 100, 30);
-        lblPassword.setBounds(45, 130, 100, 30);
-        txtEmail.setBounds(45, 100, 200, 30);
-        txtPassword.setBounds(45, 160, 200, 30);
-        btnLogin.setBounds(95, 220, 100, 30);
-        lblError.setBounds(15, 270, 250, 30);
-
+    public WindowLogin() {
+        //Login label
+        lblLogin = new JLabel("Iniciar Sesión");
+        lblLogin.setFont(lblLogin.getFont().deriveFont(23f).deriveFont(java.awt.Font.BOLD));
+        lblLogin.setBounds(45, 30, 300, 30);
         add(lblLogin);
-        add(lblEmail);
+
+        //ID label and text field
+        lblId = new JLabel("ID:");
+        lblId.setBounds(45, 70, 100, 30);
+        add(lblId);
+
+        txtId = new JTextField();
+        txtId.setBounds(45, 100, 200, 30);
+        add(txtId);
+
+        //Password label and text field
+        lblPassword = new JLabel("Contraseña:");
+        lblPassword.setFont(lblPassword.getFont().deriveFont(13f));
+        lblPassword.setBounds(45, 140, 100, 30);
         add(lblPassword);
-        add(txtEmail);
+
+        txtPassword = new JPasswordField();
+        txtPassword.setBounds(45, 170, 200, 30);
         add(txtPassword);
+
+        //Radio buttons
+        ButtonGroup buttonGroup = new ButtonGroup();
+        rdbtnPatient = new JRadioButton("Paciente");
+        rdbtnDoctor = new JRadioButton("Doctor");
+        rdbtnAdmin = new JRadioButton("Administrador");
+
+        rdbtnPatient.setMnemonic('P');
+        rdbtnDoctor.setMnemonic('D');
+        rdbtnAdmin.setMnemonic('A');
+
+        rdbtnPatient.setBounds(45, 210, 200, 25);
+        rdbtnDoctor.setBounds(45, 230, 200, 25);
+        rdbtnAdmin.setBounds(45, 250, 200, 25);
+
+        buttonGroup.add(rdbtnPatient);
+        buttonGroup.add(rdbtnDoctor);
+        buttonGroup.add(rdbtnAdmin);
+
+        rdbtnPatient.setSelected(true);
+
+        add(rdbtnPatient);
+        add(rdbtnDoctor);
+        add(rdbtnAdmin);
+
+        //Login button and error label
+        btnLogin = new JButton("Iniciar Sesión");
+        btnLogin.setBounds(45, 300, 200, 30);
         add(btnLogin);
+
+        lblError = new JLabel("");
+        lblError.setHorizontalAlignment(SwingConstants.CENTER);
+        lblError.setVerticalAlignment(SwingConstants.TOP);
+        lblError.setForeground(java.awt.Color.RED);
+        lblError.setBounds(25, 340, 240, 50);
         add(lblError);
 
         setLayout(null);
-        this.setResizable(false);
-        this.setTitle("DeustoMed");
-        this.setLocationRelativeTo(null);
+        setResizable(false);
+        setTitle("DeustoMed");
+        setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(300,350);
+        setSize(300, 425);
         setVisible(true);
 
-
         btnLogin.addActionListener(e -> {
-            String email = txtEmail.getText();
+            String id = txtId.getText().trim();
             char[] passwordChars = txtPassword.getPassword();
-            String password = new String(passwordChars);
+            String password = new String(passwordChars).trim();
             Arrays.fill(passwordChars, ' '); //Borrar la contraseña de la memoria
-            if (loginChecker(email,password)) {
-                //TODO: COMPROBAR LOGIN EN LA BASE DE DATOS Y ABRIR LA VENTANA PRINCIPAL
+
+            if (loginChecker(id, password)) {
             }
 
         });
     }
 
     /**
-     * Checks that the email and password are valid (not necessarily correct) and updates the error label.
-     * @param email,password
-     * @return boolean (true if the email and password are valid, false otherwise
+     * Checks that the id and password are valid (not necessarily correct) and updates the error label.
+     *
+     * @param id, password
+     * @return True if the id and password are valid, false otherwise.
      */
-    public boolean loginChecker(String email, String password){
-        if(email.isEmpty()){
-            lblError.setText("Error: El email no puede estar vacio");
+    public boolean loginChecker(String id, String password) {
+        if (id.isEmpty()) {
+            lblError.setText("El ID no puede estar vacío");
             return false;
-        } else if(email.length() < 5){
-            lblError.setText("Error: El email debe tener al menos 5 caracteres");
+        } else if (!id.matches("^\\d{2}[a-zA-Z]{3}$")) {
+            lblError.setText("El ID no está en el formato correcto");
             return false;
-        } else if(!email.contains("@")){
-            lblError.setText("Error: El email debe contener un @");
-            return false;
-        } else if (password.isEmpty()){
-            lblError.setText("Error: La contraseña no puede estar vacia");
-            return false;
-        } else if (password.length() < 8){
-            lblError.setText("Error: La contraseña debe tener al menos 8 caracteres");
+        } else if (password.isEmpty()) {
+            lblError.setText("La contraseña no puede estar vacía");
             return false;
         } else {
             lblError.setText("");
             return true;
         }
+    }
+
+    public static void main(String[] args) {
+        FlatLightLaf.setup();
+        FlatInterFont.install();
+        new WindowLogin();
     }
 
 }
