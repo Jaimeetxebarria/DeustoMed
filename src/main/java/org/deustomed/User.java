@@ -121,7 +121,19 @@ public class User implements Serializable {
                 && Objects.equals(getAddress(), user.getAddress());
     }
 
-    public static void main(String[] args) {
-        User user = new User("00AAA", "Jaime", "Etxebarria", "Ugarte", LocalDate.now(), Sex.MALE, "12345678A", "a", "123", "asd");
+    @Override
+    public String toString() {
+        return "User{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", surname1='" + surname1 + '\'' +
+                ", surname2='" + surname2 + '\'' +
+                ", birthDate=" + birthDate +
+                ", sex=" + sex +
+                ", dni='" + dni + '\'' +
+                ", email='" + email + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", address='" + address + '\'' +
+                '}';
     }
 }

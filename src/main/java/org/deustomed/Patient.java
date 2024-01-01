@@ -67,14 +67,7 @@ public class Patient extends User {
     @Override
     public String toString() {
         return "Patient{" +
-                "name='" + name + '\'' +
-                ", surname1='" + surname1 + '\'' +
-                ", surname2='" + surname2 + '\'' +
-                ", email='" + email + '\'' +
-                ", dni='" + dni + '\'' +
-                ", address='" + address + '\'' +
-                ", birthDate=" + birthDate +
-                ", Sex='" + sex + '\'' +
+                super.toString() + '\'' +
                 '}';
     }
 }

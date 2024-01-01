@@ -80,10 +80,7 @@ public class Doctor extends User {
     @Override
     public String toString() {
         return "Doctor{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", surname='" + surname1 + '\'' +
-                ", email='" + email + '\'' +
+                super.toString() + '\'' +
                 ", speciality='" + speciality + '\'' +
                 '}';
     }
