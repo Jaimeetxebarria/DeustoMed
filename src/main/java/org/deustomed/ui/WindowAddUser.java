@@ -9,25 +9,18 @@ import org.deustomed.*;
 import org.deustomed.authentication.AnonymousAuthenticationService;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
-import org.deustomed.postgrest.PostgrestTransformBuilder;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.*;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class WindowAddUser extends JFrame {
-
     // General
     JLabel lblName, lblSurname1, lblSurname2, lblSex, lblEmail, lblDni, lblError, lblAge, lblPhone, lblAddress, lblBirthDate, lblSpeciality;
     JTextField tfName, tfSurname1, tfSurname2, tfEmail, tfDni, tfAge, tfPhone, tfAddress;
@@ -51,10 +44,10 @@ public class WindowAddUser extends JFrame {
         String anonymousToken = configLoader.getAnonymousToken();
         postgrestClient = new PostgrestClient(hostname, endpoint, new AnonymousAuthenticationService(anonymousToken));
 
-        if(users.get(0) instanceof Patient){
+        if (users.get(0) instanceof Patient) {
             patients = users.stream().map(user -> (Patient) user).collect(Collectors.toList());
             setTitle("New patient");
-        }else{
+        } else {
             doctors = users.stream().map(user -> (Doctor) user).collect(Collectors.toList());
             setTitle("New Doctor");
         }
@@ -109,8 +102,8 @@ public class WindowAddUser extends JFrame {
         tfPhone = new JTextField();
         tfPhone.setToolTipText("El teléfono debe tener el siguiente formato: +123456789");
         tfAddress = new JTextField();
-        tfAddress.setToolTipText("La dirección debe tener el siguiente formato: Calle número(3 digitos), ciudad\nEjemplo: Circle 678, Town");
-
+        tfAddress.setToolTipText("La dirección debe tener el siguiente formato: Calle número(3 digitos), ciudad\nEjemplo: Circle 678, " +
+                "Town");
 
         if (doctors != null) {
             lblSpeciality = createCenteredLabel("Especialidad:");
@@ -121,12 +114,11 @@ public class WindowAddUser extends JFrame {
                     .getQuery();
             String jsonResponse = String.valueOf(postgrestClient.sendQuery(specialityQuery));
             jsonSpeciality = gson.fromJson(jsonResponse, JsonArray.class);
-            for(JsonElement speciality:jsonSpeciality){
+            for (JsonElement speciality : jsonSpeciality) {
                 JsonObject specialityObj = speciality.getAsJsonObject();
                 specialities.add(specialityObj.getAsString());
             }
             cbSpeciality.setModel(new DefaultComboBoxModel<>(specialities.toArray(new String[0])));
-
         }
 
         //Add components to the window
@@ -138,6 +130,7 @@ public class WindowAddUser extends JFrame {
         } else if (doctors != null) {
             pnlPrimary.setLayout(new GridLayout(11, 2));
         }
+
         pnlPrimary.add(lblName);
         pnlPrimary.add(tfName);
         pnlPrimary.add(lblSurname1);
@@ -161,11 +154,12 @@ public class WindowAddUser extends JFrame {
         pnlPrimary.add(tfPhone);
         pnlPrimary.add(lblAddress);
         pnlPrimary.add(tfAddress);
+
         if (doctors != null) {
             pnlPrimary.add(lblSpeciality);
             pnlPrimary.add(cbSpeciality);
-
         }
+
         pnlCenter.add(pnlPrimary, BorderLayout.CENTER);
         pnlCenter.add(lblError, BorderLayout.SOUTH);
 
@@ -189,11 +183,13 @@ public class WindowAddUser extends JFrame {
                 String phone = obtainValueOrNull(tfPhone.getText());
                 String address = obtainValueOrNull(tfAddress.getText());
                 Sex sex;
+
                 if (selectedSex.equals(radMale)) {
                     sex = Sex.MALE;
                 } else {
                     sex = Sex.FEMALE;
                 }
+
                 if (validateData()) {
                     //Add user to person table (añadir id generado)
                     JsonObject person = new JsonObject();
@@ -210,7 +206,7 @@ public class WindowAddUser extends JFrame {
                     //PostgrestTransformBuilder qb1 = getBlankPostgrestQueryBuilder().insert(person);
                     //assertPathnameEquals("/table", qb1.getQuery());
 
-                    if(patients!=null) {
+                    if (patients != null) {
                         //Add user to patient table DB
 
                         //Add to the patient arraylist
@@ -230,11 +226,12 @@ public class WindowAddUser extends JFrame {
                         // TODO: 19/12/23 diferenciar entre médicos de familia y especialistas;
                         // TODO: 19/12/23 en este ejemplo es médico de familia, por los que la especialidad es predeterminada
                         Doctor doctor;
-                        if(speciality.equals("Medicina Familiar")){
+                        if (speciality.equals("Medicina Familiar")) {
                             doctor = new FamilyDoctor(id, name, surname1, surname2, birthDate, sex,
                                     dni, email, phone, address, new ArrayList<>(), new ArrayList<>());
-                        }else{
-                            doctor = new SpecialistDoctor(id, name, surname1, surname2, birthDate, sex, dni, email, phone, address, new ArrayList<>(), speciality, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+                        } else {
+                            doctor = new SpecialistDoctor(id, name, surname1, surname2, birthDate, sex, dni, email, phone, address,
+                                    new ArrayList<>(), speciality, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
                         }
                         doctors.add(doctor);
                         new WindowConfirmNewUser(doctors);
@@ -242,7 +239,6 @@ public class WindowAddUser extends JFrame {
                         dispose();
                     }
                 }
-
 
 
             }
@@ -253,19 +249,21 @@ public class WindowAddUser extends JFrame {
 
     /**
      * If the gap is empty, returns null, else returns the value
+     *
      * @param value
      * @return null if the value is empty, else the value
      */
-    private String obtainValueOrNull(String value){
-        if(value.isEmpty()){
+    private String obtainValueOrNull(String value) {
+        if (value.isEmpty()) {
             return null;
-        }else{
+        } else {
             return value;
         }
     }
 
     /**
      * Creates centered JLabels
+     *
      * @param text JLabel string content
      */
     private JLabel createCenteredLabel(String text) {
@@ -276,6 +274,7 @@ public class WindowAddUser extends JFrame {
 
     /**
      * Validates the data introduced by the user
+     *
      * @return boolean indicating if the data is valid or not
      */
     private boolean validateData() {
@@ -288,7 +287,7 @@ public class WindowAddUser extends JFrame {
         }
         // Validate dni
         String dni = tfDni.getText();
-        if(!dni.isEmpty()){
+        if (!dni.isEmpty()) {
             if (!dni.matches("\\d{8}[A-Z]")) {
                 lblError.setText("DNI inválido");
                 return false;
@@ -297,7 +296,7 @@ public class WindowAddUser extends JFrame {
 
         // Validate email
         String email = tfEmail.getText();
-        if(!email.isEmpty()) {
+        if (!email.isEmpty()) {
             if (!email.matches(".+@gmail\\.com")) {
                 lblError.setText("Email inválido");
                 return false;
@@ -306,7 +305,7 @@ public class WindowAddUser extends JFrame {
 
         // Validate phone number
         String phoneNumber = tfPhone.getText();
-        if(!phoneNumber.isEmpty()) {
+        if (!phoneNumber.isEmpty()) {
             if (!phoneNumber.matches("\\+[0-9]{11}")) {
                 lblError.setText("Numero de teléfono inválido");
                 return false;
@@ -315,7 +314,7 @@ public class WindowAddUser extends JFrame {
 
         // Validate address
         String address = tfAddress.getText();
-        if(!address.isEmpty()) {
+        if (!address.isEmpty()) {
             if (!address.matches(".+ \\d{3}, .+")) {
                 lblError.setText("Dirección inválida");
                 return false;
@@ -335,7 +334,6 @@ public class WindowAddUser extends JFrame {
      * Updates the age textfield with the age calculated from the birthdate textfield
      */
     private void updateAge() {
-
         Date birthday = dateChooser.getDate();
 
         int age = getAge(birthday);
@@ -347,9 +345,7 @@ public class WindowAddUser extends JFrame {
             SwingUtilities.invokeLater(() -> {
                 dateChooser.setDate(previousDate);
             });
-
         }
-
     }
 
     /**
@@ -388,11 +384,10 @@ public class WindowAddUser extends JFrame {
         doctors.add(new Doctor("00AAB", "Andoni", "Hernández", "Ruiz",
                 LocalDate.of(1975, 3, 1), Sex.MALE, "email2", "dni2",
                 "phone2", "address2", null, null));
+
         SwingUtilities.invokeLater(() -> {
             //new WindowAddUser(patients);
             new WindowAddUser(doctors);
         });
-
-
     }
 }
