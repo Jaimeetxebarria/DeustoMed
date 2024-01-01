@@ -564,13 +564,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         String phone = jsonObject.get("phone").getAsString();
         String address = jsonObject.get("address").getAsString();
         String speciality = jsonObject.get("speciality").getAsString();
-        String sexString = jsonObject.get("sex").getAsString();
-        Sex sex;
-        if (sexString.equals("MALE")) {
-            sex = Sex.MALE;
-        } else {
-            sex = Sex.FEMALE;
-        }
+        Sex sex = Sex.valueOf(jsonObject.get("sex").getAsString().toUpperCase());
 
         LocalDate date = LocalDate.parse(birthdate);
 
