@@ -15,12 +15,14 @@ import org.deustomed.ConfigLoader;
 import org.deustomed.DoctorMsgCode;
 import org.deustomed.GreenDateHighlighter;
 import org.deustomed.authentication.AnonymousAuthenticationService;
+import org.deustomed.authentication.UserAuthenticationService;
 import org.deustomed.chat.ChatUser;
 import org.deustomed.chat.MessageCheckerThread;
 import org.deustomed.logs.LoggerMaker;
 import org.deustomed.postgrest.Entry;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
+import org.deustomed.postgrest.authentication.PostgrestAuthenticationService;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -47,7 +49,7 @@ import java.util.logging.Logger;
 
 import static org.deustomed.postgrest.PostgrestClient.gson;
 
-public class WindowPatient extends JFrame implements MessageCheckerThread {
+public class WindowPatient extends UserAuthenticatedWindow implements MessageCheckerThread {
     protected String selectedButton = ""; //info, calendar, medicines, chat
     protected String prevDirect, prevTfn, prevEmail;
 
@@ -77,14 +79,14 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
     private Logger logger;
     private GreenDateHighlighter highlighter =  new GreenDateHighlighter();;
 
-    public WindowPatient(String patientId) {
+    public WindowPatient(String patientId, PostgrestAuthenticationService authenticationService) {
+        super(authenticationService instanceof UserAuthenticationService ? (UserAuthenticationService) authenticationService : null);
         this.patientId = patientId;
 
         ConfigLoader configLoader = new ConfigLoader();
         String hostname = configLoader.getHostname();
         String endpoint = configLoader.getEndpoint();
-        String anonymousToken = configLoader.getAnonymousToken();
-        postgrestClient = new PostgrestClient(hostname, endpoint, new AnonymousAuthenticationService(anonymousToken));
+        postgrestClient = new PostgrestClient(hostname, endpoint, authenticationService);
 
         LoggerMaker.setlogFilePath("src/main/java/org/deustomed/logs/WindowPatient.log");
         logger = LoggerMaker.getLogger();
@@ -875,7 +877,8 @@ public class WindowPatient extends JFrame implements MessageCheckerThread {
     //MAIN(JUST TEST)------------------------------------------------------------------------------------------------------
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            new WindowPatient("00AAK");
+            ConfigLoader configLoader = new ConfigLoader();
+            new WindowPatient("00AAK", new AnonymousAuthenticationService(configLoader.getAnonymousToken()));
         });
     }
 }

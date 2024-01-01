@@ -106,6 +106,42 @@ public class WindowLogin extends JFrame {
             Arrays.fill(passwordChars, ' '); //Borrar la contraseña de la memoria
 
             if (loginChecker(id, password)) {
+                ConfigLoader configLoader = new ConfigLoader();
+                UserAuthenticationService userAuthenticationService = new UserAuthenticationService("https://localhost:8443",
+                        new BypassTrustManager(),
+                        configLoader.getAnonymousToken());
+
+                PostgrestClient postgrestClient = new PostgrestClient(configLoader.getHostname(), configLoader.getEndpoint(),
+                        userAuthenticationService);
+
+                try {
+                    switch (buttonGroup.getSelection().getMnemonic()) {
+                        case 'P':
+                            userAuthenticationService.login(id, password, UserType.PATIENT);
+                            new WindowPatient(id, userAuthenticationService);
+                            dispose();
+                            break;
+                        case 'D':
+                            userAuthenticationService.login(id, password, UserType.DOCTOR);
+                            new WindowDoctor(new Doctor(id, postgrestClient), userAuthenticationService);
+                            dispose();
+                            break;
+                        case 'A':
+                            userAuthenticationService.login(id, password, UserType.ADMIN);
+                            new WindowAdmin(userAuthenticationService);
+                            dispose();
+                            break;
+                    }
+                } catch (InvalidCredentialsException exception) {
+                    lblError.setText("El ID o la contraseña son incorrectos");
+                } catch (InexistentUserException exception) {
+                    lblError.setText("El usuario no existe");
+                } catch (AuthenticationServerUnavailableException | AuthenticationServerInternalErrorException exception) {
+                    lblError.setText("<html>Error del sistema. Por favor, inténtelo más<br/>tarde o póngase en contacto con " +
+                            "soporte</html>");
+                } catch (Exception exception) {
+                    lblError.setText("¡Enhorabuena! Ha descubierto un bug");
+                }
             }
 
         });

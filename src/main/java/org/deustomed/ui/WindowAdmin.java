@@ -6,8 +6,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.deustomed.*;
 import org.deustomed.authentication.AnonymousAuthenticationService;
+import org.deustomed.authentication.UserAuthenticationService;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
+import org.deustomed.postgrest.authentication.PostgrestAuthenticationService;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -18,7 +20,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WindowAdmin extends JFrame {
+public class WindowAdmin extends UserAuthenticatedWindow {
 
     protected List<User> patients, doctors;
     protected JsonArray jsonPatientData, jsonDoctorData;
@@ -38,12 +40,13 @@ public class WindowAdmin extends JFrame {
     private static PostgrestClient postgrestClient;
     static final Gson gson = new Gson();
 
-    public WindowAdmin(){
+    public WindowAdmin(PostgrestAuthenticationService authenticationService) {
+        super(authenticationService instanceof UserAuthenticationService ? (UserAuthenticationService) authenticationService : null);
+
         ConfigLoader configLoader = new ConfigLoader();
         String hostname = configLoader.getHostname();
         String endpoint = configLoader.getEndpoint();
-        String anonymousToken = configLoader.getAnonymousToken();
-        postgrestClient = new PostgrestClient(hostname, endpoint, new AnonymousAuthenticationService(anonymousToken));
+        postgrestClient = new PostgrestClient(hostname, endpoint, authenticationService);
 
         this.setTitle("DeustoMed");
         this.setSize(950, 600);
@@ -191,7 +194,8 @@ public class WindowAdmin extends JFrame {
         }
     }
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(WindowAdmin::new);
+        ConfigLoader configLoader = new ConfigLoader();
+        SwingUtilities.invokeLater(() -> new WindowAdmin(new AnonymousAuthenticationService(configLoader.getAnonymousToken())));
     }
 
     public DefaultTableModel completeTable(String[] columNames, List<User> users) {

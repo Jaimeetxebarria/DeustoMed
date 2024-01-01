@@ -4,13 +4,13 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.toedter.calendar.JDateChooser;
-import com.toedter.calendar.JMonthChooser;
-import com.toedter.calendar.JYearChooser;
 import org.deustomed.*;
 import org.deustomed.authentication.AnonymousAuthenticationService;
+import org.deustomed.authentication.UserAuthenticationService;
 import org.deustomed.logs.LoggerMaker;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
+import org.deustomed.postgrest.authentication.PostgrestAuthenticationService;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -32,7 +32,7 @@ import java.util.Date;
 import java.util.EventObject;
 import java.util.logging.Logger;
 
-public class WindowDoctor extends JFrame {
+public class WindowDoctor extends UserAuthenticatedWindow {
     private static Doctor doctor;
     private final JPanel pnlInfo;
     private JPanel pnlCentral;
@@ -66,21 +66,23 @@ public class WindowDoctor extends JFrame {
         // TODO: 19/12/23 ajustar instancia a constructor
         Doctor doctor1 = new FamilyDoctor("00AAB", "Carlos", "Rodriguez", "Martinez", LocalDate.now(), Sex.MALE,
                 "12345A", "carlosrodri@gmail.com", "293472349", "Calle Random", appoinments, patients);
-        WindowDoctor win = new WindowDoctor(doctor1);
+
+        ConfigLoader configLoader = new ConfigLoader();
+        WindowDoctor win = new WindowDoctor(doctor1, new AnonymousAuthenticationService(configLoader.getAnonymousToken()));
         win.setVisible(true);
     }
 
-    public WindowDoctor(Doctor doctor) {
+    public WindowDoctor(Doctor doctor, PostgrestAuthenticationService authenticationService) {
+        super(authenticationService instanceof UserAuthenticationService ? (UserAuthenticationService) authenticationService : null);
+
+        ConfigLoader configLoader = new ConfigLoader();
+        postgrestClient = new PostgrestClient(configLoader.getHostname(), configLoader.getEndpoint(), authenticationService);
+        WindowDoctor.doctor = doctor;
+
         screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setBounds((int) screenSize.getWidth() / 4, (int) screenSize.getHeight() / 4, (int) screenSize.getWidth(), (int) screenSize.getHeight());
         setLayout(new BorderLayout());
-        WindowDoctor.doctor = doctor;
 
-        ConfigLoader configLoader = new ConfigLoader();
-        String hostname = configLoader.getHostname();
-        String endpoint = configLoader.getEndpoint();
-        String anonymousToken = configLoader.getAnonymousToken();
-        postgrestClient = new PostgrestClient(hostname, endpoint, new AnonymousAuthenticationService(anonymousToken));
 
         LoggerMaker.setlogFilePath("src/main/java/org/deustomed/logs/WindowPatient.log");
         logger = LoggerMaker.getLogger();
