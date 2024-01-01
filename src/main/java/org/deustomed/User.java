@@ -1,7 +1,10 @@
 package org.deustomed;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
+import org.deustomed.postgrest.PostgrestClient;
+import org.deustomed.postgrest.PostgrestQuery;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serial;
@@ -58,6 +61,27 @@ public class User implements Serializable {
         this(id, name, surname1, surname2, birthDate, sex, null, null, null, null);
     }
 
+    /**
+     * Used to obtain the object from the database.
+     *
+     * @param postgrestClient
+     * @param id              The user id.
+     */
+    public User(@NotNull String id, @NotNull PostgrestClient postgrestClient) {
+        PostgrestQuery query = postgrestClient.from("person").select().eq("id", id).getQuery();
+        JsonObject responseJson = postgrestClient.sendQuery(query).getAsJsonArray().get(0).getAsJsonObject();
+        this.id = responseJson.get("id").getAsString();
+        this.name = responseJson.get("name").getAsString();
+        this.surname1 = responseJson.get("surname1").getAsString();
+        this.surname2 = responseJson.get("surname2").getAsString();
+        this.birthDate = LocalDate.parse(responseJson.get("birthdate").getAsString());
+        this.sex = Sex.valueOf(responseJson.get("sex").getAsString().toUpperCase());
+        this.email = responseJson.get("email").getAsString();
+        this.dni = responseJson.get("dni").getAsString();
+        this.phoneNumber = responseJson.get("phone").getAsString();
+        this.address = responseJson.get("address").getAsString();
+    }
+
     public int getAgeInYears() {
         return Period.between(birthDate, LocalDate.now()).getYears();
     }
@@ -100,5 +124,4 @@ public class User implements Serializable {
     public static void main(String[] args) {
         User user = new User("00AAA", "Jaime", "Etxebarria", "Ugarte", LocalDate.now(), Sex.MALE, "12345678A", "a", "123", "asd");
     }
-
 }

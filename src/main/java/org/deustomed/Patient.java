@@ -1,11 +1,15 @@
 package org.deustomed;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import lombok.Getter;
+import org.deustomed.postgrest.PostgrestClient;
+import org.deustomed.postgrest.PostgrestQuery;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Objects;
 
 @Getter
@@ -23,6 +27,29 @@ public class Patient extends User {
     public Patient(@NotNull String id, @NotNull String name, @NotNull String surname1, @NotNull String surname2,
                    @NotNull LocalDate birthDate, @NotNull Sex sex) {
         super(id, name, surname1, surname2, birthDate, sex, null, null, null, null);
+    }
+
+    public Patient(@NotNull String id, @NotNull PostgrestClient postgrestClient) {
+        super(id, postgrestClient);
+
+        //Get medical record (appointments)
+        PostgrestQuery query = postgrestClient.from("appointment_with_type").select().eq("fk_patient_id", id).getQuery();
+        JsonElement responseJson = postgrestClient.sendQuery(query);
+        if (!responseJson.isJsonArray()) throw new RuntimeException("Doctor not found"); //TODO: Use Postgrest custom exception
+
+        ArrayList<Appointment> appointments = new ArrayList<>();
+
+        for (JsonElement jsonElement : responseJson.getAsJsonArray()) {
+            JsonObject appointmentJson = jsonElement.getAsJsonObject();
+            appointments.add(new Appointment(
+                    appointmentJson.get("fk_patient_id").getAsString(),
+                    appointmentJson.get("fk_doctor_id").getAsString(),
+                    LocalDateTime.parse(appointmentJson.get("date").getAsString()),
+                    appointmentJson.get("reason").getAsString(),
+                    appointmentJson.get("appointment_type").getAsString()));
+        }
+
+        setMedicalRecord(appointments);
     }
 
     public void setMedicalRecord(ArrayList<Appointment> medicalRecord) {

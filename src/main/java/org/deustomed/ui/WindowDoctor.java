@@ -55,9 +55,12 @@ public class WindowDoctor extends JFrame {
                 LocalDate.now(), Sex.MALE, "12345678A", "paciente1@email.com", "019283712094",
                 "Calle de Ciudad", new ArrayList<>());
         ArrayList<Appointment> appoinments = new ArrayList<>();
-        appoinments.add(new Appointment(patient1, doctor, LocalDateTime.of(2023, 12, 24, 12, 0), "Cita consulta", "Cita consulta con paciente"));
-        appoinments.add(new Appointment(patient1, doctor, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
-        appoinments.add(new Appointment(patient1, doctor, LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita consulta con paciente"));
+        appoinments.add(new Appointment(patient1.getId(), doctor.getId(), LocalDateTime.of(2023, 12, 24, 12, 0), "Cita consulta", "Cita " +
+                "consulta con paciente"));
+        appoinments.add(new Appointment(patient1.getId(), doctor.getId(), LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita " +
+                "consulta con paciente"));
+        appoinments.add(new Appointment(patient1.getId(), doctor.getId(), LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita " +
+                "consulta con paciente"));
         ArrayList<Patient> patients = new ArrayList<>();
         patients.add(patient1);
         // TODO: 19/12/23 ajustar instancia a constructor
@@ -261,7 +264,7 @@ public class WindowDoctor extends JFrame {
 
                 JPanel pnTa = new JPanel();
                 pnTa.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 0));
-                JTextArea ta = new JTextArea(appointment.getShortDesciption());
+                JTextArea ta = new JTextArea(appointment.getShortDescription());
                 ta.setEditable(false);
                 ta.setPreferredSize(new Dimension(200, 140));
                 ta.setBorder(BorderFactory.createTitledBorder(""));
@@ -644,7 +647,7 @@ public class WindowDoctor extends JFrame {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             LocalDateTime localDateTime = LocalDateTime.parse(dateString, formatter);
 
-            Appointment newAppointment = new Appointment(appointmentPatient, null, localDateTime, reason, "");
+            Appointment newAppointment = new Appointment(appointmentPatient.getId(), null, localDateTime, reason, "");
             resultArrayList.add(newAppointment);
         }
         return resultArrayList;

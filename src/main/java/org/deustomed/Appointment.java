@@ -1,69 +1,27 @@
 package org.deustomed;
 
+import lombok.Getter;
+import org.deustomed.postgrest.PostgrestClient;
+import org.jetbrains.annotations.NotNull;
+
 import java.time.LocalDateTime;
 import java.util.Date;
 
+@Getter
 public class Appointment implements Comparable<Appointment> {
-    private String id;
+    private String patientId;
+    private String doctorId;
     private Patient patient;
     private Doctor doctor;
     private LocalDateTime date;
-    private String shortDesciption;
+    private String shortDescription;
     private String longDescription;
 
-    public Appointment(Patient patient, Doctor doctor, LocalDateTime date, String shortDesciption, String longDescription) {
-        this.patient = patient;
-        this.doctor = doctor;
+    public Appointment(String patientId, String doctorId, LocalDateTime date, String shortDescription, String longDescription) {
+        this.patientId = patientId;
+        this.doctorId = doctorId;
         this.date = date;
-        this.shortDesciption = shortDesciption;
-        this.longDescription = longDescription;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public Doctor getDoctor() {
-        return doctor;
-    }
-
-    public void setDoctor(Doctor doctor) {
-        this.doctor = doctor;
-    }
-
-    public Patient getPatient() {
-        return patient;
-    }
-
-    public void setPatient(Patient patient) {
-        this.patient = patient;
-    }
-
-    public LocalDateTime getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDateTime date) {
-        this.date = date;
-    }
-
-    public String getShortDesciption() {
-        return shortDesciption;
-    }
-
-    public void setShortDesciption(String shortDesciption) {
-        this.shortDesciption = shortDesciption;
-    }
-
-    public String getLongDescription() {
-        return longDescription;
-    }
-
-    public void setLongDescription(String longDescription) {
+        this.shortDescription = shortDescription;
         this.longDescription = longDescription;
     }
 
@@ -72,17 +30,34 @@ public class Appointment implements Comparable<Appointment> {
         return (this.date).compareTo(o.date);
     }
 
+    // Important to get them from the database and not from the constructor
+    // because the personal data may change while the program is running
+    public Patient getPatient(@NotNull PostgrestClient postgrestClient) {
+        if (patient == null) {
+            patient = new Patient(patientId, postgrestClient);
+        }
+        return patient;
+    }
+
+    public Doctor getDoctor(@NotNull PostgrestClient postgrestClient) {
+        if (doctor == null) {
+            doctor = new Doctor(doctorId, postgrestClient);
+        }
+        return doctor;
+    }
+
+    public Date getDateAsDate() {
+        return java.sql.Timestamp.valueOf(this.date);
+    }
+
     @Override
     public String toString() {
-        return "Appoinment{" +
-                "patient=" + patient +
-                ", doctor=" + doctor +
+        return "Appointment{" +
+                "patient=" + patientId +
+                ", doctor=" + doctorId +
                 ", date=" + date +
-                ", shortDesciption='" + shortDesciption + '\'' +
+                ", shortDescription='" + shortDescription + '\'' +
                 ", longDescription='" + longDescription + '\'' +
                 '}';
-    }
-    public Date getDateAsDate(){
-        return java.sql.Timestamp.valueOf(this.date);
     }
 }
