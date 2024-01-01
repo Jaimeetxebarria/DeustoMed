@@ -20,29 +20,18 @@ import java.util.List;
 
 public class WindowAdmin extends JFrame {
 
-    protected List<User> patients;
-    protected List<User> doctors;
-    protected JsonArray jsonPatientIDs;
-
-    protected JsonArray jsonDoctorData;
+    protected List<User> patients, doctors;
+    protected JsonArray jsonPatientData, jsonDoctorData;
 
     protected JTabbedPane tabAdmin;
 
-    protected JPanel pnlPatient;
-    protected JTable tblPatient;
-    protected DefaultTableModel mdlPatient;
-    protected JScrollPane scrPatient;
-    protected JTextField tfFindPatient;
-    protected JButton btnPatient;
-    protected JButton btnLogoutPatient;
-
-    protected JPanel pnlDoctor;
-    protected JTable tblDoctor;
-    protected DefaultTableModel mdlDoctor;
-    protected JScrollPane scrDoctor;
-    protected JTextField tfFindDoctor;
-    protected JButton btnDoctor;
-    protected JButton btnLogoutDoctor;
+    protected JPanel pnlPatient, pnlDoctor;
+    protected JTable tblPatient, tblDoctor;
+    protected DefaultTableModel mdlPatient, mdlDoctor;
+    protected JScrollPane scrPatient, scrDoctor;
+    protected JTextField tfFindPatient, tfFindDoctor;
+    protected JButton btnPatient, btnDoctor;
+    protected JButton btnLogoutPatient, btnLogoutDoctor;
 
     protected JPanel pnlLogs;
 
@@ -69,17 +58,17 @@ public class WindowAdmin extends JFrame {
 
         //Patient
         PostgrestQuery queryPatient = postgrestClient
-                .from("patient")
-                .select("id")
+                .from("patient_with_personal_data")
+                .select("*")
                 .getQuery();
         String jsonResponseP = String.valueOf(postgrestClient.sendQuery(queryPatient));
-        jsonPatientIDs = gson.fromJson(jsonResponseP, JsonArray.class);
-        obtainPatients(jsonPatientIDs);
+        jsonPatientData = gson.fromJson(jsonResponseP, JsonArray.class);
+        obtainPatients(jsonPatientData);
         System.out.println(patients);
 
         pnlPatient = new JPanel(new BorderLayout());
 
-        String[] columNamesPatients = {"ID", "Surnames", "Name", "Sex", "Email", "DNI", "Age", "Phone", "Address", "Birthdate"};
+        String[] columNamesPatients = {"ID", "Apellidos", "Nombre", "Sexo", "Email", "DNI", "Edad", "Teléfono", "Dirección", "Fecha de nacimiento"};
         mdlPatient = completeTable(columNamesPatients, patients);
         tblPatient = new JTable(mdlPatient);
         tblPatient.getColumnModel().getColumn(0).setPreferredWidth(25);
@@ -106,7 +95,7 @@ public class WindowAdmin extends JFrame {
         pnlBotton.add(btnPatient, BorderLayout.EAST);
         pnlPatient.add(pnlBotton, BorderLayout.SOUTH);
 
-        tabAdmin.addTab("Users", pnlPatient);
+        tabAdmin.addTab("Usuarios", pnlPatient);
 
         btnPatient.addActionListener(e -> new WindowAddUser(patients));
 
@@ -123,7 +112,7 @@ public class WindowAdmin extends JFrame {
         System.out.println(doctors);
 
         pnlDoctor = new JPanel(new BorderLayout());
-        String[] columNamesDoctor = {"ID", "Surname", "Name", "Sex", "Email", "DNI", "Speciality"};
+        String[] columNamesDoctor = {"ID", "Apellidos", "Nombre", "Sexo", "Email", "DNI", "Edad", "Teléfono", "Dirección", "Fecha de nacimiento", "Especialidad"};
         mdlDoctor = completeTable(columNamesDoctor, doctors);
         tblDoctor = new JTable(mdlDoctor);
         tblDoctor.getColumnModel().getColumn(0).setPreferredWidth(25);
@@ -136,8 +125,8 @@ public class WindowAdmin extends JFrame {
         scrDoctor = new JScrollPane(tblDoctor);
         tfFindDoctor = new JTextField();
         tfFindDoctor.setPreferredSize(new Dimension(200, 25));
-        btnDoctor = new JButton("Add");
-        btnLogoutDoctor = new JButton("Logout");
+        btnDoctor = new JButton("Añadir");
+        btnLogoutDoctor = new JButton("Cerrar sesión");
 
         JPanel pnlUpperDoctor = new JPanel(new BorderLayout());
         pnlUpperDoctor.add(tfFindDoctor, BorderLayout.WEST);
@@ -150,7 +139,7 @@ public class WindowAdmin extends JFrame {
         pnlBottonDoctor.add(btnDoctor, BorderLayout.EAST);
         pnlDoctor.add(pnlBottonDoctor, BorderLayout.SOUTH);
 
-        tabAdmin.addTab("Doctors", pnlDoctor);
+        tabAdmin.addTab("Doctores", pnlDoctor);
 
         btnDoctor.addActionListener(e -> new WindowAddUser(doctors));
 
@@ -166,31 +155,20 @@ public class WindowAdmin extends JFrame {
         this.setVisible(true);
     }
 
-    public void obtainPatients(JsonArray jsonPatientID){
-        for (JsonElement jsonElement : jsonPatientID) {
-            String jsonObjId = jsonElement.getAsString();
-            PostgrestQuery queryPatient = postgrestClient
-                    .from("person")
-                    .select("*")
-                    .eq("id", jsonObjId)
-                    .getQuery();
-            String jsonResponseP = String.valueOf(postgrestClient.sendQuery(queryPatient));
-            JsonArray jsonPatient = gson.fromJson(jsonResponseP, JsonArray.class);
-            for(JsonElement jsonPatientElement : jsonPatient){
-                JsonObject jsonObject = jsonPatientElement.getAsJsonObject();
-                String id = jsonObject.get("id").getAsString();
-                String name = jsonObject.get("name").getAsString();
-                String surname1 = jsonObject.get("surname1").getAsString();
-                String surname2 = jsonObject.get("surname2").getAsString();
-                String email = jsonObject.get("email").getAsString();
-                String dni = jsonObject.get("dni").getAsString();
-                String phoneNumber = jsonObject.get("phone").getAsString();
-                String address = jsonObject.get("address").getAsString();
-                Sex sex = Sex.valueOf(jsonObject.get("sex").getAsString().toUpperCase());
-                LocalDate birthDate = LocalDate.parse(jsonObject.get("birthdate").getAsString());
-                patients.add(new Patient(id, name, surname1, surname2, birthDate, sex, dni, email, phoneNumber, address, new ArrayList<>()));
-            }
-
+    public void obtainPatients(JsonArray jsonPatientData){
+        for (JsonElement jsonElement : jsonPatientData) {
+            JsonObject jsonObject = jsonElement.getAsJsonObject();
+            String id = jsonObject.get("id").getAsString();
+            String name = jsonObject.get("name").getAsString();
+            String surname1 = jsonObject.get("surname1").getAsString();
+            String surname2 = jsonObject.get("surname2").getAsString();
+            String email = jsonObject.get("email").getAsString();
+            String dni = jsonObject.get("dni").getAsString();
+            String phoneNumber = jsonObject.get("phone").getAsString();
+            String address = jsonObject.get("address").getAsString();
+            Sex sex = Sex.valueOf(jsonObject.get("sex").getAsString().toUpperCase());
+            LocalDate birthDate = LocalDate.parse(jsonObject.get("birthdate").getAsString());
+            patients.add(new Patient(id, name, surname1, surname2, birthDate, sex, dni, email, phoneNumber, address, new ArrayList<>()));
         }
     }
 
@@ -220,40 +198,27 @@ public class WindowAdmin extends JFrame {
         DefaultTableModel model = new DefaultTableModel();
         model.setColumnIdentifiers(columNames);
         if(!users.isEmpty()) {
-            if (users.get(0) instanceof Patient) {
-                for (User user : users) {
-                    Patient patient = (Patient) user;
-                    Object[] row = new String[columNames.length];
-                    row[0] = String.valueOf(patient.getId());
-                    row[1] = patient.getSurname1() + " " + user.getSurname2();
-                    row[2] = patient.getName();
-                    row[3] = patient.getSex().toString();
-                    row[4] = patient.getEmail();
-                    row[5] = patient.getDni();
-                    row[6] = String.valueOf(patient.getAgeInYears());
-                    row[7] = patient.getPhoneNumber();
-                    row[8] = patient.getAddress();
-                    row[9] = patient.getBirthDate().toString();
-                    model.addRow(row);
-                }
-
-            } else if (users.get(0) instanceof Doctor) {
-                for (User user : users) {
+            for (User user : users) {
+                Object[] row = new String[columNames.length];
+                row[0] = String.valueOf(user.getId());
+                row[1] = user.getSurname1() + " " + user.getSurname2();
+                row[2] = user.getName();
+                row[3] = user.getSex().toString();
+                row[4] = user.getEmail();
+                row[5] = user.getDni();
+                row[6] = String.valueOf(user.getAgeInYears());
+                row[7] = user.getPhoneNumber();
+                row[8] = user.getAddress();
+                row[9] = user.getBirthDate().toString();
+                if (users.get(0) instanceof Doctor){
                     Doctor doctor = (Doctor) user;
-                    Object[] row = new String[columNames.length];
-                    row[0] = String.valueOf(doctor.getId());
-                    row[1] = doctor.getSurname1() + " " + user.getSurname2();
-                    row[2] = doctor.getName();
-                    row[3] = doctor.getSex().toString();
-                    row[4] = doctor.getEmail();
-                    row[5] = doctor.getDni();
-                    row[6] = doctor.getSpeciality();
-                    model.addRow(row);
+                    row[10] = doctor.getSpeciality();
                 }
+                model.addRow(row);
             }
         }
 
-        model.addColumn("Actions");
+        model.addColumn("Acciones");
         return model;
     }
 
@@ -270,8 +235,8 @@ public class WindowAdmin extends JFrame {
 
         public ButtonRenderer() {
             panel = new JPanel(new FlowLayout());
-            btnEdit = new JButton("Edit");
-            btnDelete = new JButton("Delete");
+            btnEdit = new JButton("Editar");
+            btnDelete = new JButton("Eliminar");
 
             JPanel pnlButtons = new JPanel(new GridLayout(1, 2));
             pnlButtons.add(btnEdit);

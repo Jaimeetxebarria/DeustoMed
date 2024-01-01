@@ -36,8 +36,8 @@ public class WindowConfirmNewUser extends JFrame {
 
         lblId = new JLabel("Id:");
         tfId = new JTextField();
-        btCopyId = new JButton("Copy code");
-        btOk = new JButton("Confirm");
+        btCopyId = new JButton("Copiar código");
+        btOk = new JButton("Confirmar");
 
         if(users.get(0) instanceof Doctor){
             lblChatCode = new JLabel("Código chat:");
@@ -62,17 +62,6 @@ public class WindowConfirmNewUser extends JFrame {
             pnlMain.add(lblChatCode);
             pnlMain.add(tfChatCode);
         }
-
-
-
-
-
-
-
-
-
-
-
         add(pnlMain, BorderLayout.CENTER);
         add(btOk, BorderLayout.SOUTH);
 

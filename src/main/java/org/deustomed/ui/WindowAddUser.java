@@ -9,6 +9,7 @@ import org.deustomed.*;
 import org.deustomed.authentication.AnonymousAuthenticationService;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
+import org.deustomed.postgrest.PostgrestTransformBuilder;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -28,21 +29,14 @@ import java.util.stream.Collectors;
 public class WindowAddUser extends JFrame {
 
     // General
-    JLabel lblName, lblSurname1, lblSurname2, lblSex, lblEmail, lblDni, lblError;
-    JTextField tfName, tfSurname1, tfSurname2, tfEmail, tfDni;
+    JLabel lblName, lblSurname1, lblSurname2, lblSex, lblEmail, lblDni, lblError, lblAge, lblPhone, lblAddress, lblBirthDate, lblSpeciality;
+    JTextField tfName, tfSurname1, tfSurname2, tfEmail, tfDni, tfAge, tfPhone, tfAddress;
+    ButtonGroup group;
     JRadioButton radMale, radFemale;
     JButton btnSave;
-
-    //For patient
-    List<User> patients;
-    JLabel lblAge, lblPhone, lblAddress, lblBirthDate;
-    JTextField tfAge, tfPhone, tfAddress;
+    List<User> patients, doctors;
     JDateChooser dateChooser;
     Date previousDate;
-
-    //For doctor
-    List<User> doctors;
-    JLabel lblSpeciality;
     JComboBox<String> cbSpeciality;
     protected JsonArray jsonSpeciality;
     protected List<String> specialities = new ArrayList<>();
@@ -71,10 +65,10 @@ public class WindowAddUser extends JFrame {
         setLocationRelativeTo(null);
         setSize(300, 550);
 
-        lblName = createCenteredLabel("Nombre:");
-        lblSurname1 = createCenteredLabel("Apellido 1:");
-        lblSurname2 = createCenteredLabel("Apellido 2:");
-        lblSex = createCenteredLabel("Sexo:");
+        lblName = createCenteredLabel("*Nombre:");
+        lblSurname1 = createCenteredLabel("*Apellido 1:");
+        lblSurname2 = createCenteredLabel("*Apellido 2:");
+        lblSex = createCenteredLabel("*Sexo:");
         lblEmail = createCenteredLabel("Email:");
         lblDni = createCenteredLabel("DNI:");
         lblError = createCenteredLabel("");
@@ -85,43 +79,41 @@ public class WindowAddUser extends JFrame {
         tfSurname2 = new JTextField();
         radFemale = new JRadioButton("Mujer");
         radMale = new JRadioButton("Hombre");
-        ButtonGroup group = new ButtonGroup();
+        group = new ButtonGroup();
         group.add(radFemale);
         group.add(radMale);
         tfEmail = new JTextField();
         tfDni = new JTextField();
         btnSave = new JButton("Crear");
+        lblAge = new JLabel("Edad:");
+        lblPhone = new JLabel("Teléfono:");
+        lblAddress = new JLabel("Dirección:");
+        lblBirthDate = new JLabel("*Fecha de nacimiento:");
 
-        if (patients != null) {
-            lblAge = new JLabel("Age:");
-            lblPhone = new JLabel("Phone:");
-            lblAddress = new JLabel("Address:");
-            lblBirthDate = new JLabel("Birthdate:");
-
-            //JDateChooser
-            Date currentDate = new Date();
-            dateChooser = new JDateChooser();
-            dateChooser.setDateFormatString("dd MMMM yyyy");
-            dateChooser.setDate(currentDate);
-            dateChooser.setMaxSelectableDate(currentDate);
-            dateChooser.setMinSelectableDate(new GregorianCalendar(1900, Calendar.JANUARY, 1).getTime());
-            dateChooser.setToolTipText("Select birthdate");
-            dateChooser.getDateEditor().addPropertyChangeListener(e -> {
-                if ("date".equals(e.getPropertyName())) updateAge();
-            });
+        //JDateChooser
+        Date currentDate = new Date();
+        dateChooser = new JDateChooser();
+        dateChooser.setDateFormatString("yyyy MMMM dd");
+        dateChooser.setDate(currentDate);
+        dateChooser.setMaxSelectableDate(currentDate);
+        dateChooser.setMinSelectableDate(new GregorianCalendar(1900, Calendar.JANUARY, 1).getTime());
+        dateChooser.setToolTipText("Seleciona una fecha de nacimiento");
+        dateChooser.getDateEditor().addPropertyChangeListener(e -> {
+            if ("date".equals(e.getPropertyName())) updateAge();
+        });
 
 
-            tfAge = new JTextField();
-            tfAge.setEditable(false);
-            tfAge.setText(String.valueOf(getAge(dateChooser.getDate())));
-            tfPhone = new JTextField();
-            tfPhone.setToolTipText("Phone number should have 9 digits");
-            tfAddress = new JTextField();
-            tfAddress.setToolTipText("Address should be in the format: Street, number, city, province, country\nExample: Sabino Arana, 15, 2A, Bilbao, Biscay, Spain");
+        tfAge = new JTextField();
+        tfAge.setEditable(false);
+        tfAge.setText(String.valueOf(getAge(dateChooser.getDate())));
+        tfPhone = new JTextField();
+        tfPhone.setToolTipText("El teléfono debe tener el siguiente formato: +123456789");
+        tfAddress = new JTextField();
+        tfAddress.setToolTipText("La dirección debe tener el siguiente formato: Calle número(3 digitos), ciudad\nEjemplo: Circle 678, Town");
 
 
-        } else if (doctors != null) {
-            lblSpeciality = createCenteredLabel("Specialidad:");
+        if (doctors != null) {
+            lblSpeciality = createCenteredLabel("Especialidad:");
             cbSpeciality = new JComboBox<>();
             PostgrestQuery specialityQuery = postgrestClient
                     .from("speciality")
@@ -144,7 +136,7 @@ public class WindowAddUser extends JFrame {
         if (patients != null) {
             pnlPrimary.setLayout(new GridLayout(10, 2));
         } else if (doctors != null) {
-            pnlPrimary.setLayout(new GridLayout(9, 2));
+            pnlPrimary.setLayout(new GridLayout(11, 2));
         }
         pnlPrimary.add(lblName);
         pnlPrimary.add(tfName);
@@ -161,16 +153,15 @@ public class WindowAddUser extends JFrame {
         pnlPrimary.add(tfEmail);
         pnlPrimary.add(lblDni);
         pnlPrimary.add(tfDni);
-        if (patients != null) {
-            pnlPrimary.add(lblBirthDate);
-            pnlPrimary.add(dateChooser);
-            pnlPrimary.add(lblAge);
-            pnlPrimary.add(tfAge);
-            pnlPrimary.add(lblPhone);
-            pnlPrimary.add(tfPhone);
-            pnlPrimary.add(lblAddress);
-            pnlPrimary.add(tfAddress);
-        } else if (doctors != null) {
+        pnlPrimary.add(lblBirthDate);
+        pnlPrimary.add(dateChooser);
+        pnlPrimary.add(lblAge);
+        pnlPrimary.add(tfAge);
+        pnlPrimary.add(lblPhone);
+        pnlPrimary.add(tfPhone);
+        pnlPrimary.add(lblAddress);
+        pnlPrimary.add(tfAddress);
+        if (doctors != null) {
             pnlPrimary.add(lblSpeciality);
             pnlPrimary.add(cbSpeciality);
 
@@ -190,57 +181,87 @@ public class WindowAddUser extends JFrame {
                 String name = tfName.getText();
                 String surname1 = tfSurname1.getText();
                 String surname2 = tfSurname2.getText();
-                String email = tfEmail.getText();
-                String dni = tfDni.getText();
+                String email = obtainValueOrNull(tfEmail.getText());
+                String dni = obtainValueOrNull(tfDni.getText());
                 ButtonModel selectedSex = group.getSelection();
+                LocalDate birthDate = LocalDate.ofInstant(dateChooser.getDate().toInstant(), ZoneId.systemDefault());
+                birthDate.format(java.time.format.DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+                String phone = obtainValueOrNull(tfPhone.getText());
+                String address = obtainValueOrNull(tfAddress.getText());
                 Sex sex;
-                if (selectedSex != null) {
-                    if (selectedSex.equals(radMale)) {
-                        sex = Sex.MALE;
-                    } else {
-                        sex = Sex.FEMALE;
-                    }
-
-                    if (patients != null) {
-                        LocalDate birthDate = LocalDate.ofInstant(dateChooser.getDate().toInstant(), ZoneId.systemDefault());
-                        String phone = tfPhone.getText();
-                        String address = tfAddress.getText();
-                        if (validateData()) {
-                            String id = "" + (patients.size() + 1);
-                            Patient patient = new Patient(id, name, surname1, surname2, birthDate, sex, dni, email, phone,
-                                    address, new ArrayList<>());
-                            patients.add(patient);
-                            new WindowConfirmNewUser(patients);
-                            System.out.println("Nuevo paciente: " + patient);
-                            dispose();
-                        }
-
-
-                    } else if (doctors != null) {
-                        String speciality = ((String) cbSpeciality.getSelectedItem()).toString();
-                        LocalDate birthDate = LocalDate.ofInstant(dateChooser.getDate().toInstant(), ZoneId.systemDefault());
-                        String phone = tfPhone.getText();
-                        String address = tfAddress.getText();
-                        if (validateData()) {
-                            String id = "" + doctors.size() + 1;
-                            // TODO: 19/12/23 diferenciar entre médicos de familia y especialistas;
-                            // TODO: 19/12/23 en este ejemplo es médico de familia, por los que la especialidad es predeterminada
-                            Doctor doctor = new FamilyDoctor(id, name, surname1, surname2, birthDate, sex,
-                                    dni, email, phone, address, new ArrayList<>(), new ArrayList<>());
-                            doctors.add(doctor);
-                            new WindowConfirmNewUser(doctors);
-                            System.out.println("Nuevo doctor: " + doctor);
-                            dispose();
-                        }
-                    }
+                if (selectedSex.equals(radMale)) {
+                    sex = Sex.MALE;
                 } else {
-                    lblError.setText("All fields are required");
+                    sex = Sex.FEMALE;
                 }
+                if (validateData()) {
+                    //Add user to person table (añadir id generado)
+                    JsonObject person = new JsonObject();
+                    person.addProperty("name", name);
+                    person.addProperty("surname1", surname1);
+                    person.addProperty("surname2", surname2);
+                    person.addProperty("dni", dni);
+                    person.addProperty("birthdate", String.valueOf(birthDate));
+                    person.addProperty("email", email);
+                    person.addProperty("phone", phone);
+                    person.addProperty("address", address);
+                    person.addProperty("sex", String.valueOf(sex));
+                    person.addProperty("age", getAge(dateChooser.getDate()));
+                    //PostgrestTransformBuilder qb1 = getBlankPostgrestQueryBuilder().insert(person);
+                    //assertPathnameEquals("/table", qb1.getQuery());
+
+                    if(patients!=null) {
+                        //Add user to patient table DB
+
+                        //Add to the patient arraylist
+                        String id = "" + (patients.size() + 1);
+                        Patient patient = new Patient(id, name, surname1, surname2, birthDate, sex, dni, email, phone,
+                                address, new ArrayList<>());
+                        patients.add(patient);
+                        new WindowConfirmNewUser(patients);
+                        System.out.println("Nuevo paciente: " + patient);
+                        dispose();
+                    } else if (doctors != null) {
+                        //Add user to doctor table DB
+
+                        //Add to the doctor arraylist
+                        String speciality = ((String) cbSpeciality.getSelectedItem()).toString();
+                        String id = "" + doctors.size() + 1;
+                        // TODO: 19/12/23 diferenciar entre médicos de familia y especialistas;
+                        // TODO: 19/12/23 en este ejemplo es médico de familia, por los que la especialidad es predeterminada
+                        Doctor doctor;
+                        if(speciality.equals("Medicina Familiar")){
+                            doctor = new FamilyDoctor(id, name, surname1, surname2, birthDate, sex,
+                                    dni, email, phone, address, new ArrayList<>(), new ArrayList<>());
+                        }else{
+                            doctor = new SpecialistDoctor(id, name, surname1, surname2, birthDate, sex, dni, email, phone, address, new ArrayList<>(), speciality, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+                        }
+                        doctors.add(doctor);
+                        new WindowConfirmNewUser(doctors);
+                        System.out.println("Nuevo doctor: " + doctor);
+                        dispose();
+                    }
+                }
+
+
 
             }
         });
 
         setVisible(true);
+    }
+
+    /**
+     * If the gap is empty, returns null, else returns the value
+     * @param value
+     * @return null if the value is empty, else the value
+     */
+    private String obtainValueOrNull(String value){
+        if(value.isEmpty()){
+            return null;
+        }else{
+            return value;
+        }
     }
 
     /**
@@ -253,57 +274,59 @@ public class WindowAddUser extends JFrame {
         return label;
     }
 
+    /**
+     * Validates the data introduced by the user
+     * @return boolean indicating if the data is valid or not
+     */
     private boolean validateData() {
-        // Verificar que ningún campo esté vacío
         if (tfName.getText().isEmpty() ||
                 tfSurname1.getText().isEmpty() ||
                 tfSurname2.getText().isEmpty() ||
-                tfDni.getText().isEmpty()) {
-            lblError.setText("All fields are required");
+                group.getSelection() == null) {
+            lblError.setText("Hay campos obligatorios sin rellenar. Recuerde que los que tienen un '*' son obligatorios");
             return false;
         }
         // Validate dni
         String dni = tfDni.getText();
-        if (!dni.matches("\\d{8}[A-Z]")) {
-            lblError.setText("Invalid DNI");
-            return false;
+        if(!dni.isEmpty()){
+            if (!dni.matches("\\d{8}[A-Z]")) {
+                lblError.setText("DNI inválido");
+                return false;
+            }
         }
-        if (patients != null) {
-            if (tfEmail.getText().isEmpty() ||
-                    tfAge.getText().isEmpty() ||
-                    tfPhone.getText().isEmpty() ||
-                    tfAddress.getText().isEmpty()) {
-                lblError.setText("All fields are required");
-                return false;
-            }
 
-
-            // Validate email
-            String email = tfEmail.getText();
+        // Validate email
+        String email = tfEmail.getText();
+        if(!email.isEmpty()) {
             if (!email.matches(".+@gmail\\.com")) {
-                lblError.setText("Invalid email");
+                lblError.setText("Email inválido");
                 return false;
             }
+        }
 
-            // Validate phone number
-            String phoneNumber = tfPhone.getText();
+        // Validate phone number
+        String phoneNumber = tfPhone.getText();
+        if(!phoneNumber.isEmpty()) {
             if (!phoneNumber.matches("\\+[0-9]{11}")) {
-                lblError.setText("Invalid phone number");
+                lblError.setText("Numero de teléfono inválido");
                 return false;
             }
+        }
 
-            // Validate address
-            String address = tfAddress.getText();
+        // Validate address
+        String address = tfAddress.getText();
+        if(!address.isEmpty()) {
             if (!address.matches(".+ \\d{3}, .+")) {
-                lblError.setText("Invalid address");
+                lblError.setText("Dirección inválida");
                 return false;
             }
-        } else if (doctors != null) {
-            if (cbSpeciality.getSelectedItem().toString().isEmpty()) {
-                lblError.setText("All fields are required");
-                return false;
-            }
+        }
 
+        if (doctors != null) {
+            if (cbSpeciality.getSelectedItem().toString().isEmpty()) {
+                lblError.setText("Se requiere definir una especialidad");
+                return false;
+            }
         }
         return true;
     }
@@ -320,7 +343,7 @@ public class WindowAddUser extends JFrame {
             tfAge.setText(String.valueOf(age));
             previousDate = birthday;
         } else {
-            JOptionPane.showMessageDialog(null, "Invalid age");
+            JOptionPane.showMessageDialog(null, "Fecha de nacimiento inválida");
             SwingUtilities.invokeLater(() -> {
                 dateChooser.setDate(previousDate);
             });
