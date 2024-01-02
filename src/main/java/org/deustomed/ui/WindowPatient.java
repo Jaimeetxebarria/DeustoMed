@@ -205,7 +205,7 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
         pedirCitaButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                WindowAppointment windowAppointment = new WindowAppointment(calendar.getDate());
+                WindowAppointment windowAppointment = new WindowAppointment(calendar.getDate(),patientId);
             }
         });
 
@@ -853,6 +853,7 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
         highlighter.addDate(date);
         calendar.setCalendar(calendar.getCalendar()); // Actualizar el calendario
     }
+
     /**
      * Removes all the highlighed dates from JCalendar
      */

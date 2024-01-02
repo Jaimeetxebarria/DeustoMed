@@ -1,10 +1,21 @@
 package org.deustomed.ui;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.toedter.calendar.JDateChooser;
+import org.deustomed.Appointment;
+import org.deustomed.ConfigLoader;
+import org.deustomed.authentication.AnonymousAuthenticationService;
+import org.deustomed.postgrest.PostgrestClient;
+import org.deustomed.postgrest.PostgrestQuery;
+import org.deustomed.postgrest.authentication.PostgrestAuthenticationService;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.*;
 import java.text.SimpleDateFormat;
 
@@ -16,10 +27,19 @@ public class WindowAppointment extends JFrame {
     private JLabel nameLabel;
     private JLabel reasonLabel;
     private JDateChooser dateChooser;
+    private String patientId;
+    private static PostgrestClient postgrestClient;
 
 
-    public WindowAppointment(Date date) {
-        System.out.println(date);
+    public WindowAppointment(Date date, String patientID) {
+
+        ConfigLoader configLoader = new ConfigLoader();
+        String hostname = configLoader.getHostname();
+        String endpoint = configLoader.getEndpoint();
+        PostgrestAuthenticationService authenticationService =  new AnonymousAuthenticationService(configLoader.getAnonymousToken());
+        postgrestClient = new PostgrestClient(hostname, endpoint, authenticationService);
+
+        patientId = patientID;
 
         setTitle("Solicitud de Cita Médica");
         setSize(400, 300);
@@ -33,8 +53,7 @@ public class WindowAppointment extends JFrame {
         dateChooser.setMinSelectableDate(new Date());
         dateChooser.setDate(date);
 
-        //TODO: OBTENER EL NOMBRE DEL PACIENTE
-        patientNameField = new JTextField("Nombre");
+        patientNameField = new JTextField(getPatientName(patientID));
         patientNameField.setEditable(false);
 
         reasonCombo = new JComboBox();
@@ -64,21 +83,23 @@ public class WindowAppointment extends JFrame {
                             "Error", JOptionPane.ERROR_MESSAGE);
                 }else{
                     //TODO: Algoritmo que genere HashSet de citas libres (ordenadas por fecha)
+
+
                     //TEST DATA
-                    /*TreeSet citas = new TreeSet();
-                    Doctor doctor1 = new Doctor(1,"Carlos","Garcia","Gomez","carlos@gmail.com","aa","123456", Sex.MALE,"General",new ArrayList<>());
-                    Doctor doctor2 = new Doctor(2,"Roberto","Perez","Sanchez","rsanchez@gmail.com","aa","564656",Sex.MALE,"Cardiologo",new ArrayList<>());
+                    TreeSet citas = new TreeSet();
                     LocalDateTime fecha1 = LocalDateTime.of(2023, Month.DECEMBER, 17, 6, 0);
                     LocalDateTime fecha2 = LocalDateTime.of(2023, Month.DECEMBER, 23, 14, 15);
                     LocalDateTime fecha3 = LocalDateTime.of(2023, Month.DECEMBER, 31, 19, 45);
-                    Appoinment ap1 = new Appoinment(null,doctor1,fecha1,null,null);
-                    Appoinment ap2 = new Appoinment(null,doctor2,fecha2,null,null);
-                    Appoinment ap3 = new Appoinment(null,doctor1,fecha3,null,null);
+
+                    Appointment ap1 = new Appointment(null, "00AAA", fecha1, null, null);
+                    Appointment ap2 = new Appointment(null, "00AAB", fecha2, null, null);
+                    Appointment ap3 = new Appointment(null, "00AAA", fecha3, null, null);
+
                     citas.add(ap1);
                     citas.add(ap2);
                     citas.add(ap3);
                     System.out.println(citas);
-                    new WindowAppointmentSelection(citas);*/
+                    new WindowAppointmentSelection(citas);
                     dispose();
                 }
 
@@ -123,8 +144,27 @@ public class WindowAppointment extends JFrame {
         setVisible(true);
     }
 
+    public String getPatientName(String patientId) {
+        PostgrestQuery query = postgrestClient
+                .from("person")
+                .select("name", "surname1", "surname2")
+                .eq("id", patientId)
+                .getQuery();
+
+        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
+        Gson gson = new Gson();
+        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+        JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
+
+        String name = jsonObject.get("name").getAsString();
+        String surname1 = jsonObject.get("surname1").getAsString();
+        String surname2 = jsonObject.get("surname2").getAsString();
+
+        return (name + " " + surname1 + " " + surname2);
+    }
+
     public static void main(String[] args) {
-        new WindowAppointment(new Date());
+        new WindowAppointment(new Date(),"00AAK");
 
     }
 }

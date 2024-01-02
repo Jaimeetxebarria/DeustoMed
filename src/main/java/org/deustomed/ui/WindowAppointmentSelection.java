@@ -1,6 +1,10 @@
 package org.deustomed.ui;
 
 import org.deustomed.Appointment;
+import org.deustomed.ConfigLoader;
+import org.deustomed.authentication.AnonymousAuthenticationService;
+import org.deustomed.postgrest.PostgrestClient;
+import org.deustomed.postgrest.authentication.PostgrestAuthenticationService;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -11,14 +15,21 @@ import java.text.SimpleDateFormat;
 import java.util.TreeSet;
 
 public class WindowAppointmentSelection extends JFrame {
-    JComboBox<String> comboBox;
-    JTable table;
-    JButton cancelButton;
-    JButton confirmButton;
+    protected JComboBox<String> comboBox;
+    protected JTable table;
+    protected JButton cancelButton;
+    protected JButton confirmButton;
+    private static PostgrestClient postgrestClient;
 
     public WindowAppointmentSelection(TreeSet<Appointment> appointments) {
-        setLayout(new BorderLayout());
 
+        ConfigLoader configLoader = new ConfigLoader();
+        String hostname = configLoader.getHostname();
+        String endpoint = configLoader.getEndpoint();
+        PostgrestAuthenticationService authenticationService =  new AnonymousAuthenticationService(configLoader.getAnonymousToken());
+        postgrestClient = new PostgrestClient(hostname, endpoint, authenticationService);
+
+        setLayout(new BorderLayout());
 
         comboBox = new JComboBox<>();
         add(comboBox, BorderLayout.NORTH);
@@ -42,12 +53,14 @@ public class WindowAppointmentSelection extends JFrame {
 
         cancelButton = new JButton("Cancelar");
         confirmButton = new JButton("Confirmar");
+
         cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 dispose();
             }
         });
+
         confirmButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
