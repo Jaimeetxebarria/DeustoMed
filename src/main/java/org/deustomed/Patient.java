@@ -15,6 +15,7 @@ import java.util.Objects;
 @Getter
 public class Patient extends User {
     private ArrayList<Appointment> medicalRecord = new ArrayList<>();
+    protected String assignedDoctorId;
 
     public Patient(@NotNull String id, @NotNull String name, @NotNull String surname1, @NotNull String surname2,
                    @NotNull LocalDate birthDate, @NotNull Sex sex, String dni, String email, String phoneNumber,
@@ -55,6 +56,8 @@ public class Patient extends User {
     public void setMedicalRecord(ArrayList<Appointment> medicalRecord) {
         this.medicalRecord = medicalRecord;
     }
+
+    public void setAssignedDoctorId(String assignedDoctorId) {this.assignedDoctorId = assignedDoctorId;}
 
     @Override
     public boolean equals(Object o) {
