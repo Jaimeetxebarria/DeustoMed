@@ -118,7 +118,7 @@ public class WindowAddUser extends JFrame {
             jsonSpeciality = gson.fromJson(jsonResponse, JsonArray.class);
             for (JsonElement speciality : jsonSpeciality) {
                 JsonObject specialityObj = speciality.getAsJsonObject();
-                specialities.add(specialityObj.getAsString());
+                specialities.add(specialityObj.get("name").getAsString());
             }
             cbSpeciality.setModel(new DefaultComboBoxModel<>(specialities.toArray(new String[0])));
         }
