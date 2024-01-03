@@ -286,38 +286,32 @@ public class WindowAddUser extends JFrame {
             return false;
         }
         // Validate dni
-        String dni = tfDni.getText();
-        if (!dni.isEmpty()) {
-            if (!dni.matches("\\d{8}[A-Z]")) {
-                lblError.setText("DNI inválido");
-                return false;
-            }
+        String dni = tfDni.getText().trim();
+        if (!dni.isEmpty() && !dni.matches("\\d{8}[a-zA-Z]")) {
+            lblError.setText("DNI inválido");
+            return false;
         }
 
         // Validate email
-        String email = tfEmail.getText();
-        if (!email.isEmpty()) {
-            if (!email.matches(".+@gmail\\.com")) {
-                lblError.setText("Email inválido");
-                return false;
-            }
+        String email = tfEmail.getText().trim();
+        if (!email.isEmpty() &&
+                !email.matches("(?!\\.)(?!.*\\.\\.)([\\w+-\\.]*)[\\w+-]@([a-zA-Z0-9][a-zA-Z0-9\\-]*\\.)+[a-zA-Z]{2,}")) {
+            lblError.setText("Email inválido");
+            return false;
         }
 
-        // Validate phone number
-        String phoneNumber = tfPhone.getText();
-        if (!phoneNumber.isEmpty()) {
-            if (!phoneNumber.matches("\\+[0-9]{11}")) {
-                lblError.setText("Numero de teléfono inválido");
-                return false;
-            }
+        // Validate phone number (only spanish numbers)
+        String phoneNumber = tfPhone.getText().trim();
+        if (!phoneNumber.isEmpty() && !phoneNumber.matches("(\\+34)?\\s?[6-9][0-9]{8}")) {
+            lblError.setText("Numero de teléfono inválido");
+            return false;
         }
 
-        if (doctors != null) {
-            if (cbSpeciality.getSelectedItem().toString().isEmpty()) {
-                lblError.setText("Se requiere definir una especialidad");
-                return false;
-            }
+        if (doctors != null && cbSpeciality.getSelectedItem().toString().isEmpty()) {
+            lblError.setText("Se requiere definir una especialidad");
+            return false;
         }
+
         return true;
     }
 
