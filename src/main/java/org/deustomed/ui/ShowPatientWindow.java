@@ -1,7 +1,5 @@
 package org.deustomed.ui;
 
-import com.formdev.flatlaf.FlatLightLaf;
-import com.formdev.flatlaf.fonts.inter.FlatInterFont;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -15,6 +13,7 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.logging.Logger;
@@ -34,9 +33,6 @@ class ShowPatientWindow extends JFrame {
     private ArrayList<JTextField> jTextFields = new ArrayList<>();
 
     public static void main(String[] args) {
-        FlatLightLaf.setup();
-        FlatInterFont.install();
-
         Patient patient = new Patient("00AKA", "Antonio", "Gonzalez", "Gonzalez", LocalDate.now(), Sex.MALE,
                 "12345678A", "mail@gmail.vpm", "Calle Dirección Inventada", "Speciality", null);
 
@@ -148,7 +144,9 @@ class ShowPatientWindow extends JFrame {
         tfDNI.setText(classPatient.getDni());
         tfBirthdate.setEditable(false);
         LocalDate date = classPatient.getBirthDate();
-        tfBirthdate.setText(date.toString());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String dateString = sdf.format(date);
+        tfBirthdate.setText(dateString);
         tfNSS.setEditable(false);
         tfNSS.setText("NSS NO IMPLEMENTADO");
         tfPhone.setEditable(false);
