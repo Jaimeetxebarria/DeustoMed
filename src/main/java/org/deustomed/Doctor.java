@@ -1,8 +1,11 @@
 package org.deustomed;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.Getter;
+import lombok.Setter;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
 import org.jetbrains.annotations.NotNull;
@@ -13,10 +16,11 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 //TODO make doctor abstract
-@Getter
+@Getter @Setter
 public class Doctor extends User {
     private String speciality;
     private ArrayList<Appointment> appointments = new ArrayList<>();
+    private ArrayList<Patient> registryOfPatients = new ArrayList<>();
 
     public Doctor(@NotNull String id, @NotNull String name, @NotNull String surname1, @NotNull String surname2,
                   @NotNull LocalDate birthDate, @NotNull Sex sex, String dni, String email, String phoneNumber,
@@ -44,7 +48,8 @@ public class Doctor extends User {
         //Get appointments
         query = postgrestClient.from("appointment_with_type").select().eq("fk_doctor_id", id).getQuery();
         responseJson = postgrestClient.sendQuery(query);
-        if (!responseJson.isJsonArray()) throw new RuntimeException("Doctor not found"); //TODO: Use Postgrest custom exception
+        if (!responseJson.isJsonArray())
+            throw new RuntimeException("Doctor not found"); //TODO: Use Postgrest custom exception
 
         ArrayList<Appointment> appointments = new ArrayList<>();
 
@@ -83,5 +88,49 @@ public class Doctor extends User {
                 super.toString() + '\'' +
                 ", speciality='" + speciality + '\'' +
                 '}';
+    }
+    public static ArrayList<Patient> loadPatients(String doctorID, PostgrestClient postgrestClient, boolean fullResgistry) {
+
+        ArrayList<Patient> resultArrayList = new ArrayList<>();
+        PostgrestQuery query;
+        if(fullResgistry) {
+            query = postgrestClient
+                    .from("patient_with_personal_data")
+                    .select("*")
+                    .getQuery();
+        } else {
+            query = postgrestClient
+                    .from("patient_with_personal_data")
+                    .select("*")
+                    .eq("doctor_id", doctorID)
+                    .getQuery();
+        }
+
+        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
+        Gson gson = new Gson();
+        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
+
+            String id = jsonObject.get("id").getAsString();
+            String name = jsonObject.get("name").getAsString();
+            String surname1 = jsonObject.get("surname1").getAsString();
+            String surname2 = jsonObject.get("surname2").getAsString();
+            String dni = jsonObject.get("dni").getAsString();
+            String birthdate = jsonObject.get("birthdate").getAsString();
+            String email = jsonObject.get("email").getAsString();
+            String phone = jsonObject.get("phone").getAsString();
+            String address = jsonObject.get("address").getAsString();
+            String sexString = jsonObject.get("sex").getAsString();
+            Sex sex = (sexString.equals("MALE")) ? Sex.MALE : Sex.FEMALE;
+
+            LocalDate localDate = LocalDate.parse(birthdate);
+
+            Patient newPatient = new Patient(id, name, surname1, surname2, localDate, sex, dni, email, phone, address, new ArrayList<>());
+            resultArrayList.add(newPatient);
+        }
+
+        return resultArrayList;
     }
 }

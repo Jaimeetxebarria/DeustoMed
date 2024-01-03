@@ -45,6 +45,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
     private JTable tableTreatedPatient;
     private JTable tableInTreatmentPatient;
     private JTable tableToTreatPatient;
+    private JTable patientRegistry;
     private final JTable tableMedication;
     private final JTabbedPane tabbedPaneCenter;
     private ArrayList<Patient> ownPatients;
@@ -60,11 +61,11 @@ public class WindowDoctor extends UserAuthenticatedWindow {
                 LocalDate.now(), Sex.MALE, "12345678A", "paciente1@email.com", "019283712094",
                 "Calle de Ciudad", new ArrayList<>());
         ArrayList<Appointment> appoinments = new ArrayList<>();
-        appoinments.add(new Appointment(patient1.getId(), doctor.getId(), LocalDateTime.of(2023, 12, 24, 12, 0), "Cita consulta", "Cita " +
+        appoinments.add(new Appointment(patient1.getId(), "doctor.getId()", LocalDateTime.of(2023, 12, 24, 12, 0), "Cita consulta", "Cita " +
                 "consulta con paciente"));
-        appoinments.add(new Appointment(patient1.getId(), doctor.getId(), LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita " +
+        appoinments.add(new Appointment(patient1.getId(), "doctor.getId()", LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita " +
                 "consulta con paciente"));
-        appoinments.add(new Appointment(patient1.getId(), doctor.getId(), LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita " +
+        appoinments.add(new Appointment(patient1.getId(), "doctor.getId()", LocalDateTime.of(2024, 1, 1, 12, 0), "Cita consulta", "Cita " +
                 "consulta con paciente"));
         ArrayList<Patient> patients = new ArrayList<>();
         patients.add(patient1);
@@ -117,7 +118,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         info.setPreferredSize(new Dimension(200, 30));
         info.setHorizontalAlignment(SwingConstants.CENTER);
 
-        JButton info2 = new JButton("Visualizaciñon Calendario");
+        JButton info2 = new JButton("Visualización Calendario");
         info2.setPreferredSize(new Dimension(200, 30));
 
         JButton info3 = new JButton("Servicio Técnico");
@@ -157,20 +158,28 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         Icon iconPatients = new ImageIcon("src/main/java/ui/patient.png");
         Icon iconMedication = new ImageIcon("src/main/java/ui/medication.png");
 
-        tabbedPaneCenter.addTab("Registro Completo Pacientes", null, spTablePatient);
-        tabbedPaneCenter.addTab("Table Medicamentos", null, tableMedication);
-        tabbedPaneCenter.addTab("Calendario", null, null);
-        tabbedPaneCenter.addTab("Chats en Curso", null, null);
+        ArrayList<Patient> fullRegistry = Doctor.loadPatients(doctor.getId(), postgrestClient, true);
+        doctor.setRegistryOfPatients(fullRegistry);
+        TableModelPatient tmp0 = new TableModelPatient(fullRegistry);
+        tableTreatedPatient = new JTable(tmp0);
+        tableTreatedPatient.setDefaultRenderer(Patient.class, new TablePatientRenderer());
+        tableTreatedPatient.setDefaultEditor(Patient.class, new TablePatienteEditor(new JTextField()));
+        JScrollPane spTableFullRegistry = new JScrollPane(tableTreatedPatient);
+        tabbedPaneCenter.addTab("Registro Completo Pacientes", null, spTableFullRegistry);
+
+        //tabbedPaneCenter.addTab("Table Medicamentos", null, tableMedication);
+        //tabbedPaneCenter.addTab("Calendario", null, null);
+        //tabbedPaneCenter.addTab("Chats en Curso", null, null);
         add(tabbedPaneCenter, BorderLayout.CENTER);
 
         // Para Doctor de Medicina Familiar:
         if (doctor instanceof FamilyDoctor) {
             //System.out.println(((FamilyDoctor) doctor).getOwnPatients());
-            ArrayList<Patient> pat = ((FamilyDoctor) doctor).getOwnPatients();
-            System.out.println("This are the patients: " + pat);
-            ownPatients = pat;
-            if (pat != null) {
-                TableModelPatient tmp1 = new TableModelPatient(pat);
+            ownPatients = FamilyDoctor.loadPatients(doctor.getId(), postgrestClient, false);
+            System.out.println("These are the patients: "+ownPatients);
+            ((FamilyDoctor) doctor).setOwnPatients(ownPatients);
+            if (ownPatients != null) {
+                TableModelPatient tmp1 = new TableModelPatient(ownPatients);
                 tableOwnPatient = new JTable(tmp1);
                 tableOwnPatient.setDefaultRenderer(Patient.class, new TablePatientRenderer());
                 tableOwnPatient.setDefaultEditor(Patient.class, new TablePatienteEditor(new JTextField()));
@@ -180,19 +189,25 @@ public class WindowDoctor extends UserAuthenticatedWindow {
             }
 
         } else {
-            TableModelPatient tmp2 = new TableModelPatient(((SpecialistDoctor) doctor).getTreatedPatients());
+            ArrayList<Patient> treatedPatients = SpecialistDoctor.loadSpecialistPatients(doctor.getId(), postgrestClient, "treated_patients");
+            ((SpecialistDoctor) doctor).setTreatedPatients(treatedPatients);
+            TableModelPatient tmp2 = new TableModelPatient(treatedPatients);
             tableTreatedPatient = new JTable(tmp2);
             tableTreatedPatient.setDefaultRenderer(Patient.class, new TablePatientRenderer());
             tableTreatedPatient.setDefaultEditor(Patient.class, new TablePatienteEditor(new JTextField()));
             JScrollPane spTableTreatedPatients = new JScrollPane(tableTreatedPatient);
 
-            TableModelPatient tmp3 = new TableModelPatient(((SpecialistDoctor) doctor).getInTreatmentPatients());
+            ArrayList<Patient> inTreatmentPatients = SpecialistDoctor.loadSpecialistPatients(doctor.getId(), postgrestClient, "in_treatment_patients");
+            ((SpecialistDoctor) doctor).setInTreatmentPatients(inTreatmentPatients);
+            TableModelPatient tmp3 = new TableModelPatient(inTreatmentPatients);
             tableInTreatmentPatient = new JTable(tmp3);
             tableInTreatmentPatient.setDefaultRenderer(Patient.class, new TablePatientRenderer());
             tableInTreatmentPatient.setDefaultEditor(Patient.class, new TablePatienteEditor(new JTextField()));
             JScrollPane spTableInTreatmentPatients = new JScrollPane(tableInTreatmentPatient);
 
-            TableModelPatient tmp4 = new TableModelPatient(((SpecialistDoctor) doctor).getToTreatPatients());
+            ArrayList<Patient> toBeTreatedPatients = SpecialistDoctor.loadSpecialistPatients(doctor.getId(), postgrestClient, "to_be_treated_patients");
+            ((SpecialistDoctor) doctor).setTreatedPatients(toBeTreatedPatients);
+            TableModelPatient tmp4 = new TableModelPatient(toBeTreatedPatients);
             tableToTreatPatient = new JTable(tmp4);
             tableToTreatPatient.setDefaultRenderer(Patient.class, new TablePatientRenderer());
             tableToTreatPatient.setDefaultEditor(Patient.class, new TablePatienteEditor(new JTextField()));
@@ -260,7 +275,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
                 pnlButton.setLayout(new GridLayout(4, 1));
 
                 panel.setBorder(border);
-                org.deustomed.Patient pat = appointment.getPatient();
+                Patient pat = appointment.getPatient(postgrestClient);
                 nombre.setLayout(new BoxLayout(nombre, BoxLayout.Y_AXIS));
                 JLabel appointmentDate = new JLabel("                            " + capitalizeFirstLetter(ldt.getDayOfWeek().toString()) + ", " + ldt.getDayOfMonth() + " " + capitalizeFirstLetter(ldt.getMonth().toString()) + " " + ldt.toLocalTime());
                 JLabel name = new JLabel(pat.getName() + " " + pat.getSurname1() + " " + pat.getSurname2());
@@ -363,7 +378,6 @@ public class WindowDoctor extends UserAuthenticatedWindow {
                 public void actionPerformed(ActionEvent e) {
                     ShowPatientWindow spw = new ShowPatientWindow(patient);
                     spw.setVisible(true);
-                    spw.setDefaultCloseOperation(EXIT_ON_CLOSE);
                 }
             });
         }
@@ -469,7 +483,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
                 case 2 -> patient.getSurname2();
                 case 3 -> patient.getDni();
                 case 4 -> patient.getEmail();
-                case 5 -> patient.getBirthDate();
+                //case 5 -> patient.getBirthDate().toString();
                 case 6 -> patient.getAgeInYears();
                 case 7 -> patient.getPhoneNumber();
                 case 8 -> patient.getAddress();
@@ -487,9 +501,8 @@ public class WindowDoctor extends UserAuthenticatedWindow {
                 case 2 -> patient.setSurname2((String) aValue);
                 case 3 -> patient.setDni((String) aValue);
                 case 4 -> patient.setEmail((String) aValue);
-                case 5 -> patient.setBirthDate((LocalDate) aValue);
-                case 6 -> {//FIXME: Cannot edit age, only birthdate
-                }
+                //case 5 -> patient.setBirthDate((LocalDate) aValue);
+                //case 6 -> {//FIXME: Cannot edit age, only birthdate}
                 case 7 -> patient.setPhoneNumber((String) aValue);
                 case 8 -> patient.setAddress((String) aValue);
             }
@@ -574,7 +587,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         LocalDate date = LocalDate.parse(birthdate);
 
         if (speciality.equals("Medicina Familiar")) {
-            ArrayList<Patient> ownPatients = loadOwnPatients(id);
+            ArrayList<Patient> ownPatients = FamilyDoctor.loadPatients(id, postgrestClient, false);
             ArrayList<Appointment> appointments = loadDoctorAppointments(id);
 
             FamilyDoctor newFamilyDoctor = new FamilyDoctor(id, name, surname1, surname2, date, sex, dni, email, phone, address,
@@ -586,44 +599,6 @@ public class WindowDoctor extends UserAuthenticatedWindow {
 
     }
 
-    public ArrayList<Patient> loadOwnPatients(String doctorID) {
-
-        ArrayList<Patient> resultArrayList = new ArrayList<>();
-
-        PostgrestQuery query = postgrestClient
-                .from("patient_with_personal_data")
-                .select("*")
-                .eq("doctor_id", doctorID)
-                .getQuery();
-
-        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
-        Gson gson = new Gson();
-        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
-
-        for (int i = 0; i < jsonArray.size(); i++) {
-            JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
-
-            String id = jsonObject.get("id").getAsString();
-            String name = jsonObject.get("name").getAsString();
-            String surname1 = jsonObject.get("surname1").getAsString();
-            String surname2 = jsonObject.get("surname2").getAsString();
-            String dni = jsonObject.get("dni").getAsString();
-            String birthdate = jsonObject.get("birthdate").getAsString();
-            String email = jsonObject.get("email").getAsString();
-            String phone = jsonObject.get("phone").getAsString();
-            String address = jsonObject.get("address").getAsString();
-            String sexString = jsonObject.get("sex").getAsString();
-            int age = Integer.parseInt(jsonObject.get("age").getAsString());
-            Sex sex = (sexString.equals("MALE")) ? Sex.MALE : Sex.FEMALE;
-
-            LocalDate localDate = LocalDate.parse(birthdate);
-
-            Patient newPatient = new Patient(id, name, surname1, surname2, localDate, sex, dni, email, phone, address, new ArrayList<>());
-            resultArrayList.add(newPatient);
-        }
-
-        return resultArrayList;
-    }
 
     public ArrayList<Appointment> loadDoctorAppointments(String doctorID) {
         ArrayList<Appointment> resultArrayList = new ArrayList<>();
