@@ -14,6 +14,7 @@ import java.time.Period;
 import java.util.Objects;
 
 @Getter
+@Setter
 public class User implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -32,13 +33,9 @@ public class User implements Serializable {
     protected Sex sex;
 
     //Optional fields
-    @Setter
     protected String dni;
-    @Setter
     protected String email;
-    @Setter
     protected String phoneNumber;
-    @Setter
     protected String address;
 
     public User(@NotNull String id, @NotNull String name, @NotNull String surname1, @NotNull String surname2,
@@ -84,26 +81,6 @@ public class User implements Serializable {
 
     public int getAgeInYears() {
         return Period.between(birthDate, LocalDate.now()).getYears();
-    }
-
-    public void setName(@NotNull String name) {
-        this.name = name;
-    }
-
-    public void setSurname1(@NotNull String surname1) {
-        this.surname1 = surname1;
-    }
-
-    public void setSurname2(@NotNull String surname2) {
-        this.surname2 = surname2;
-    }
-
-    public void setBirthDate(@NotNull LocalDate birthDate) {
-        this.birthDate = birthDate;
-    }
-
-    public void setSex(@NotNull Sex sex) {
-        this.sex = sex;
     }
 
     @Override
