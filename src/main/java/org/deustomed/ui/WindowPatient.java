@@ -73,13 +73,11 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
     protected String lastMessage = "";
     protected String patientId;
     final String[] docCode = {""};
-
     protected Thread msgThread;
-
     private static PostgrestClient postgrestClient;
-
     private Logger logger;
-    private GreenDateHighlighter highlighter =  new GreenDateHighlighter();;
+    private GreenDateHighlighter highlighter =  new GreenDateHighlighter();
+    protected DoctorMsgCode doctorMsgCode = new DoctorMsgCode();
 
     public WindowPatient(String patientId, PostgrestAuthenticationService authenticationService) {
         super(authenticationService instanceof UserAuthenticationService ? (UserAuthenticationService) authenticationService : null);
@@ -157,7 +155,7 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
         calendarPanel.add(calendar, BorderLayout.WEST);
 
         calendarTableModel = new DefaultTableModel();
-        String[] calendarColumns = {"Fecha", "Motivo cita", "Médico", "Codigo Médico"};
+        String[] calendarColumns = {"Fecha", "Motivo cita", "Médico", "Código Chat"};
         calendarTableModel.setColumnIdentifiers(calendarColumns);
         updateCalendarTable();
         calendarTable = new JTable(calendarTableModel);
@@ -499,6 +497,7 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
             String datetime = appointmentObject.get("date").getAsString();
             String reason = appointmentObject.get("reason").getAsString();
             String fkDoctorId = appointmentObject.get("fk_doctor_id").getAsString();
+            String chatCode = doctorMsgCode.idToMsgCode(fkDoctorId);
 
             LocalDateTime dateTime = LocalDateTime.parse(datetime);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy hh:mm a");
@@ -519,7 +518,8 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
             String surname2 = jsonObject.get("surname2").getAsString();
             String docname = String.format("%s %s %s", name, surname1, surname2);
 
-            Object[] rowData = {formatted, reason, docname, fkDoctorId};
+
+            Object[] rowData = {formatted, reason, docname, chatCode};
             calendarTableModel.addRow(rowData);
 
             Date dateToHighlight = Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant());

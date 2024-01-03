@@ -2,18 +2,28 @@ package org.deustomed.ui;
 
 import com.formdev.flatlaf.FlatLightLaf;
 import com.formdev.flatlaf.fonts.inter.FlatInterFont;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import org.deustomed.Appointment;
 import org.deustomed.ConfigLoader;
+import org.deustomed.DoctorMsgCode;
 import org.deustomed.authentication.AnonymousAuthenticationService;
 import org.deustomed.postgrest.PostgrestClient;
+import org.deustomed.postgrest.PostgrestQuery;
 import org.deustomed.postgrest.authentication.PostgrestAuthenticationService;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.TreeSet;
 
 public class WindowAppointmentSelection extends JFrame {
@@ -22,6 +32,7 @@ public class WindowAppointmentSelection extends JFrame {
     protected JButton cancelButton;
     protected JButton confirmButton;
     private static PostgrestClient postgrestClient;
+    protected DoctorMsgCode doctorMsgCode = new DoctorMsgCode();
 
     public WindowAppointmentSelection(TreeSet<Appointment> appointments) {
 
@@ -36,18 +47,35 @@ public class WindowAppointmentSelection extends JFrame {
         comboBox = new JComboBox<>();
         add(comboBox, BorderLayout.NORTH);
 
-        String[] columnNames = {"Médico", "Código", "Fecha"};
+        String[] columnNames = {"Fecha","Médico", "Código Chat"};
         DefaultTableModel model = new DefaultTableModel(null, columnNames);
         table = new JTable(model);
+
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setCellRenderer(new DefaultTableCellRenderer() {
+                @Override
+                public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                    Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                    setHorizontalAlignment(JLabel.CENTER);
+                    return c;
+                }
+            });
+        }
+
         JScrollPane scrollPane = new JScrollPane(table);
         add(scrollPane, BorderLayout.CENTER);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy hh:mm a");
 
-        for(Appointment ap:appointments){
-            String[] row = {ap.getDoctor().getName() +" "+ ap.getDoctor().getSurname1()+" "+ap.getDoctor().getSurname2(), String.valueOf(ap.getDoctor().getId()), dateFormat.format(ap.getDateAsDate())};
+        for (Appointment ap : appointments) {
+            LocalDateTime localDateTime = ap.getDate();
+            Date date = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+
+            String chatCode = doctorMsgCode.idToMsgCode(ap.getDoctorId());
+
+            String[] row = { dateFormat.format(date),getDoctorName(ap.getDoctorId()), chatCode};
             model.addRow(row);
-            comboBox.addItem(ap.getDoctor().getName() +" "+ ap.getDoctor().getSurname1()+" "+ap.getDoctor().getSurname2()+" - "+dateFormat.format(ap.getDateAsDate()));
+            comboBox.addItem(getDoctorName(ap.getDoctorId()) + " - " + dateFormat.format(date));
         }
 
         JPanel buttonPanel = new JPanel();
@@ -97,6 +125,45 @@ public class WindowAppointmentSelection extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
+    }
+
+    public String getPatientName(String patientId) {
+        PostgrestQuery query = postgrestClient
+                .from("person")
+                .select("name", "surname1", "surname2")
+                .eq("id", patientId)
+                .getQuery();
+
+        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
+        Gson gson = new Gson();
+        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+        JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
+
+        String name = jsonObject.get("name").getAsString();
+        String surname1 = jsonObject.get("surname1").getAsString();
+        String surname2 = jsonObject.get("surname2").getAsString();
+
+        return (name + " " + surname1 + " " + surname2);
+    }
+
+    public String getDoctorName(String doctorId) {
+        PostgrestQuery query = postgrestClient
+                .from("person")
+                .select("name", "surname1", "surname2")
+                .eq("id", doctorId)
+                .getQuery();
+
+        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
+        Gson gson = new Gson();
+        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+        JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
+
+        String name = jsonObject.get("name").getAsString();
+        String surname1 = jsonObject.get("surname1").getAsString();
+        String surname2 = jsonObject.get("surname2").getAsString();
+
+        String fullName = (name + " " + surname1 + " " + surname2);
+        return fullName;
     }
 
     public static void main(String[] args) {
