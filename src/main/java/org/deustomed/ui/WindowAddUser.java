@@ -312,15 +312,6 @@ public class WindowAddUser extends JFrame {
             }
         }
 
-        // Validate address
-        String address = tfAddress.getText();
-        if (!address.isEmpty()) {
-            if (!address.matches(".+ \\d{3}, .+")) {
-                lblError.setText("Dirección inválida");
-                return false;
-            }
-        }
-
         if (doctors != null) {
             if (cbSpeciality.getSelectedItem().toString().isEmpty()) {
                 lblError.setText("Se requiere definir una especialidad");
