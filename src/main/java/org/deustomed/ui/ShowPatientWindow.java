@@ -13,7 +13,6 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.logging.Logger;
@@ -144,9 +143,7 @@ class ShowPatientWindow extends JFrame {
         tfDNI.setText(classPatient.getDni());
         tfBirthdate.setEditable(false);
         LocalDate date = classPatient.getBirthDate();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String dateString = sdf.format(date);
-        tfBirthdate.setText(dateString);
+        tfBirthdate.setText(date.toString());
         tfNSS.setEditable(false);
         tfNSS.setText("NSS NO IMPLEMENTADO");
         tfPhone.setEditable(false);
