@@ -1,5 +1,7 @@
 package org.deustomed.ui;
 
+import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.fonts.inter.FlatInterFont;
 import org.deustomed.Appointment;
 import org.deustomed.ConfigLoader;
 import org.deustomed.authentication.AnonymousAuthenticationService;
@@ -98,6 +100,9 @@ public class WindowAppointmentSelection extends JFrame {
     }
 
     public static void main(String[] args) {
+        FlatLightLaf.setup();
+        FlatInterFont.install();
+
         new WindowAppointmentSelection(new TreeSet());
     }
 }

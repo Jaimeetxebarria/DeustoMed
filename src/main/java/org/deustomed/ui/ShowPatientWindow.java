@@ -1,5 +1,7 @@
 package org.deustomed.ui;
 
+import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.fonts.inter.FlatInterFont;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -32,6 +34,9 @@ class ShowPatientWindow extends JFrame {
     private ArrayList<JTextField> jTextFields = new ArrayList<>();
 
     public static void main(String[] args) {
+        FlatLightLaf.setup();
+        FlatInterFont.install();
+
         Patient patient = new Patient("00AKA", "Antonio", "Gonzalez", "Gonzalez", LocalDate.now(), Sex.MALE,
                 "12345678A", "mail@gmail.vpm", "Calle Dirección Inventada", "Speciality", null);
 

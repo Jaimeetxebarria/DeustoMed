@@ -1,5 +1,7 @@
 package org.deustomed.ui;
 
+import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.fonts.inter.FlatInterFont;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -369,6 +371,9 @@ public class WindowAddUser extends JFrame {
         doctors.add(new Doctor("00AAB", "Andoni", "Hernández", "Ruiz",
                 LocalDate.of(1975, 3, 1), Sex.MALE, "email2", "dni2",
                 "phone2", "address2", null, null));
+
+        FlatLightLaf.setup();
+        FlatInterFont.install();
 
         SwingUtilities.invokeLater(() -> {
             //new WindowAddUser(patients);

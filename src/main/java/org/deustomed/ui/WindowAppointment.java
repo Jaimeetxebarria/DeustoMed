@@ -1,5 +1,7 @@
 package org.deustomed.ui;
 
+import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.fonts.inter.FlatInterFont;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -14,10 +16,12 @@ import org.deustomed.postgrest.authentication.PostgrestAuthenticationService;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.*;
-import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TreeSet;
 
 public class WindowAppointment extends JFrame {
 
@@ -164,6 +168,9 @@ public class WindowAppointment extends JFrame {
     }
 
     public static void main(String[] args) {
+        FlatLightLaf.setup();
+        FlatInterFont.install();
+
         new WindowAppointment(new Date(),"00AAK");
 
     }

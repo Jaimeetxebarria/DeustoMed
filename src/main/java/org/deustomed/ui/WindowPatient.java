@@ -5,6 +5,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;*/
 
+import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.fonts.inter.FlatInterFont;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -877,6 +879,9 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
 
     //MAIN(JUST TEST)------------------------------------------------------------------------------------------------------
     public static void main(String[] args) {
+        FlatLightLaf.setup();
+        FlatInterFont.install();
+
         SwingUtilities.invokeLater(() -> {
             ConfigLoader configLoader = new ConfigLoader();
             new WindowPatient("00AAK", new AnonymousAuthenticationService(configLoader.getAnonymousToken()));

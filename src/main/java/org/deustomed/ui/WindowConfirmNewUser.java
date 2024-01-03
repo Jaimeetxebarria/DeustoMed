@@ -1,5 +1,7 @@
 package org.deustomed.ui;
 
+import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.fonts.inter.FlatInterFont;
 import org.deustomed.Doctor;
 import org.deustomed.Patient;
 import org.deustomed.User;
@@ -12,7 +14,6 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.List;
 
 public class WindowConfirmNewUser extends JFrame {
@@ -20,11 +21,11 @@ public class WindowConfirmNewUser extends JFrame {
     public JTextField tfId, tfChatCode;
     public JButton btCopyId, btOk;
 
-    public WindowConfirmNewUser(List<User> users){
-        if(users.get(0) instanceof Patient){
+    public WindowConfirmNewUser(List<User> users) {
+        if (users.get(0) instanceof Patient) {
             setTitle("Paciente creado con éxito");
             setSize(350, 120);
-        }else{
+        } else {
             setTitle("Doctor creado con éxito");
             setSize(350, 150);
         }
@@ -39,7 +40,7 @@ public class WindowConfirmNewUser extends JFrame {
         btCopyId = new JButton("Copiar código");
         btOk = new JButton("Confirmar");
 
-        if(users.get(0) instanceof Doctor){
+        if (users.get(0) instanceof Doctor) {
             lblChatCode = new JLabel("Código chat:");
             tfChatCode = new JTextField();
         }
@@ -51,11 +52,11 @@ public class WindowConfirmNewUser extends JFrame {
 
         JPanel pnlMain = new JPanel();
         pnlMain.setBorder(border);
-        if(users.get(0) instanceof Patient){
+        if (users.get(0) instanceof Patient) {
             pnlMain.setLayout(new GridLayout(1, 2));
             pnlMain.add(lblId);
             pnlMain.add(pnlId);
-        }else{
+        } else {
             pnlMain.setLayout(new GridLayout(2, 2));
             pnlMain.add(lblId);
             pnlMain.add(pnlId);
@@ -84,7 +85,8 @@ public class WindowConfirmNewUser extends JFrame {
 
     /**
      * Copies a text of the id textfield to the clipboard
-     * @param id   The id to copy
+     *
+     * @param id The id to copy
      */
     private void copyToClipboard(String id) {
         StringSelection stringSelection = new StringSelection(id);
@@ -94,6 +96,9 @@ public class WindowConfirmNewUser extends JFrame {
     }
 
     public static void main(String[] args) {
+        FlatLightLaf.setup();
+        FlatInterFont.install();
+
         /*
         List<User> patients = new ArrayList<>();
         patients.add(new Patient());

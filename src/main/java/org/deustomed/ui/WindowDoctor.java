@@ -1,5 +1,7 @@
 package org.deustomed.ui;
 
+import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.fonts.inter.FlatInterFont;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -51,6 +53,9 @@ public class WindowDoctor extends UserAuthenticatedWindow {
     private final Logger logger;
 
     public static void main(String[] args) {
+        FlatLightLaf.setup();
+        FlatInterFont.install();
+
         org.deustomed.Patient patient1 = new org.deustomed.Patient("00AAA", "Paciente1", "Surname1", "Surname2",
                 LocalDate.now(), Sex.MALE, "12345678A", "paciente1@email.com", "019283712094",
                 "Calle de Ciudad", new ArrayList<>());

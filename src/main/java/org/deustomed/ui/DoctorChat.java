@@ -1,5 +1,7 @@
 package org.deustomed.ui;
 
+import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.fonts.inter.FlatInterFont;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -411,6 +413,9 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
     }
 
     public static void main(String[] args) {
+        FlatLightLaf.setup();
+        FlatInterFont.install();
+
         SwingUtilities.invokeLater(() -> new DoctorChat("00AAA").setVisible(true));
     }
 }
