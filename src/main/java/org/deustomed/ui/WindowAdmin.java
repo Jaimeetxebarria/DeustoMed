@@ -14,9 +14,9 @@ import org.deustomed.postgrest.PostgrestQuery;
 import org.deustomed.postgrest.authentication.PostgrestAuthenticationService;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class WindowAdmin extends UserAuthenticatedWindow {
     protected DefaultTableModel mdlPatient, mdlDoctor;
     protected JScrollPane scrPatient, scrDoctor;
     protected JTextField tfFindPatient, tfFindDoctor;
-    protected JButton btnPatient, btnDoctor;
+    protected JButton btnPatient, btnDoctor, btnEditPatient, btnEditDoctor, btnDeletePatient, btnDeleteDoctor;
     protected JButton btnLogoutPatient, btnLogoutDoctor;
 
     protected JPanel pnlLogs;
@@ -72,6 +72,8 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         System.out.println(patients);
 
         pnlPatient = new JPanel(new BorderLayout());
+        Border border = new TitledBorder("Tabla de pacientes:");
+        pnlPatient.setBorder(border);
 
         String[] columNamesPatients = {"ID", "Apellidos", "Nombre", "Sexo", "Email", "DNI", "Edad", "Teléfono", "Dirección", "Fecha de nacimiento"};
         mdlPatient = completeTable(columNamesPatients, patients);
@@ -79,15 +81,14 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         tblPatient.getColumnModel().getColumn(0).setPreferredWidth(25);
         tblPatient.getColumnModel().getColumn(3).setPreferredWidth(25);
         tblPatient.getColumnModel().getColumn(6).setPreferredWidth(25);
-        tblPatient.getColumnModel().getColumn(10).setPreferredWidth(150);
         tblPatient.setRowHeight(25);
-
-        configureTable(tblPatient, new ButtonEditor(patients), new ButtonRenderer());
 
         scrPatient = new JScrollPane(tblPatient);
         tfFindPatient = new JTextField();
         tfFindPatient.setPreferredSize(new Dimension(200, 25));
         btnPatient = new JButton("Add");
+        btnEditPatient = new JButton("Edit");
+        btnDeletePatient = new JButton("Delete");
         btnLogoutPatient = new JButton("Logout");
 
         JPanel pnlUpper = new JPanel(new BorderLayout());
@@ -97,12 +98,98 @@ public class WindowAdmin extends UserAuthenticatedWindow {
 
         JPanel pnlBotton = new JPanel(new BorderLayout());
         pnlBotton.add(btnLogoutPatient, BorderLayout.WEST);
-        pnlBotton.add(btnPatient, BorderLayout.EAST);
+        JPanel pnlButtons = new JPanel(new GridLayout(1, 3));
+        pnlButtons.add(btnPatient);
+        pnlButtons.add(btnEditPatient);
+        pnlButtons.add(btnDeletePatient);
+        pnlBotton.add(pnlButtons, BorderLayout.EAST);
         pnlPatient.add(pnlBotton, BorderLayout.SOUTH);
 
         tabAdmin.addTab("Usuarios", pnlPatient);
 
         btnPatient.addActionListener(e -> new WindowAddUser(patients));
+
+        btnEditPatient.addActionListener(e -> { //Error con el valor birthdate
+            int selectedRow = tblPatient.getSelectedRow();
+            if (selectedRow != -1) {
+                int modelRow = tblPatient.convertRowIndexToModel(selectedRow);
+
+                // Obtén los datos asociados a la fila
+                Object[] rowData = new Object[tblPatient.getColumnCount()];
+                for (int i = 0; i < tblPatient.getColumnCount(); i++) {
+                    rowData[i] = tblPatient.getModel().getValueAt(modelRow, i);
+                }
+                Patient originalPatient = null;
+                for (User patient : patients) {
+                    if (patient.getId().equals(rowData[0].toString())) {
+                        originalPatient = (Patient) patient;
+                    }
+                }
+                int indexInListP = patients.indexOf(originalPatient);
+
+                if (indexInListP != -1) {
+                    // Crea un nuevo objeto Patient con los valores editados
+                    Patient editedPatient = new Patient(
+                            originalPatient.getId(),                    //id
+                            rowData[2].toString(),                      //name
+                            rowData[1].toString().split(" ")[0],  //surname1
+                            rowData[1].toString().split(" ")[1],  //surname2
+                            (LocalDate) rowData[9],                     //birthdate
+                            originalPatient.getSex(),                   //sex
+                            rowData[5].toString(),                      //dni
+                            rowData[4].toString(),                      //email
+                            rowData[7].toString(),                      //phone
+                            rowData[8].toString(),                      //address
+                            originalPatient.getMedicalRecord());        //medicalRecord
+
+
+                    // Actualiza el objeto en la lista
+                    patients.set(indexInListP, editedPatient);
+
+                    // Actualiza la fila en la tabla
+                    for (int i = 1; i < rowData.length; i++) {
+                        tblPatient.getModel().setValueAt(rowData[i], modelRow, i);
+                    }
+
+                    //Actualizar los valores del paciente en la base de datos
+                    JsonObject jsonObjEditPatient = new JsonObject();
+                    jsonObjEditPatient.addProperty("name", editedPatient.getName());
+                    jsonObjEditPatient.addProperty("surname1", editedPatient.getSurname1());
+                    jsonObjEditPatient.addProperty("surname2", editedPatient.getSurname2());
+                    jsonObjEditPatient.addProperty("birthdate", editedPatient.getBirthDate().toString());
+                    jsonObjEditPatient.addProperty("dni", editedPatient.getDni());
+                    jsonObjEditPatient.addProperty("email", editedPatient.getEmail());
+                    jsonObjEditPatient.addProperty("phone", editedPatient.getPhoneNumber());
+                    jsonObjEditPatient.addProperty("address", editedPatient.getAddress());
+
+                    PostgrestQuery queryEditPatient = postgrestClient
+                            .from("person")
+                            .update(jsonObjEditPatient)
+                            .eq("dni", editedPatient.getDni())
+                            .getQuery();
+                    postgrestClient.sendQuery(queryEditPatient);
+
+                    System.out.println("Paciente con id " + originalPatient.getId() + " editado");
+                }
+            }
+        });
+
+        btnDeletePatient.addActionListener(e -> {
+            int selectedRow = tblPatient.getSelectedRow();
+            if (selectedRow != -1) {
+                int modelRow = tblPatient.convertRowIndexToModel(selectedRow);
+                String id = tblPatient.getModel().getValueAt(modelRow, 0).toString();
+                patients.remove(modelRow);
+                PostgrestQuery deletePatient = postgrestClient
+                        .from("person")
+                        .delete()
+                        .eq("id", id)
+                        .getQuery();
+                postgrestClient.sendQuery(deletePatient);
+                System.out.println("Paciente eliminado");
+                ((DefaultTableModel) tblPatient.getModel()).removeRow(modelRow);
+            }
+        });
 
         btnLogoutPatient.addActionListener(e -> dispose());
 
@@ -117,20 +204,22 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         System.out.println(doctors);
 
         pnlDoctor = new JPanel(new BorderLayout());
+        border = new TitledBorder("Tabla de doctores:");
+        pnlDoctor.setBorder(border);
+
         String[] columNamesDoctor = {"ID", "Apellidos", "Nombre", "Sexo", "Email", "DNI", "Edad", "Teléfono", "Dirección", "Fecha de nacimiento", "Especialidad"};
         mdlDoctor = completeTable(columNamesDoctor, doctors);
         tblDoctor = new JTable(mdlDoctor);
         tblDoctor.getColumnModel().getColumn(0).setPreferredWidth(25);
         tblDoctor.getColumnModel().getColumn(3).setPreferredWidth(25);
-        tblDoctor.getColumnModel().getColumn(7).setPreferredWidth(150);
         tblDoctor.setRowHeight(25);
-
-        configureTable(tblDoctor, new ButtonEditor(doctors), new ButtonRenderer());
 
         scrDoctor = new JScrollPane(tblDoctor);
         tfFindDoctor = new JTextField();
         tfFindDoctor.setPreferredSize(new Dimension(200, 25));
         btnDoctor = new JButton("Añadir");
+        btnEditDoctor = new JButton("Editar");
+        btnDeleteDoctor = new JButton("Eliminar");
         btnLogoutDoctor = new JButton("Cerrar sesión");
 
         JPanel pnlUpperDoctor = new JPanel(new BorderLayout());
@@ -141,12 +230,101 @@ public class WindowAdmin extends UserAuthenticatedWindow {
 
         JPanel pnlBottonDoctor = new JPanel(new BorderLayout());
         pnlBottonDoctor.add(btnLogoutDoctor, BorderLayout.WEST);
-        pnlBottonDoctor.add(btnDoctor, BorderLayout.EAST);
+        JPanel pnlButtonsDoctor = new JPanel(new GridLayout(1, 3));
+        pnlButtonsDoctor.add(btnDoctor);
+        pnlButtonsDoctor.add(btnEditDoctor);
+        pnlButtonsDoctor.add(btnDeleteDoctor);
+        pnlBottonDoctor.add(pnlButtonsDoctor, BorderLayout.EAST);
         pnlDoctor.add(pnlBottonDoctor, BorderLayout.SOUTH);
 
         tabAdmin.addTab("Doctores", pnlDoctor);
 
         btnDoctor.addActionListener(e -> new WindowAddUser(doctors));
+
+        btnEditDoctor.addActionListener(e -> { //Arreglar detecta linea erronea
+            int selectedRow = tblDoctor.getSelectedRow();
+            if (selectedRow != -1) {
+                System.out.println(selectedRow);
+                int modelRow = tblDoctor.convertRowIndexToModel(selectedRow );
+                // Obtén los datos asociados a la fila
+                Object[] rowData = new Object[tblPatient.getColumnCount()];
+                for (int i = 0; i < tblPatient.getColumnCount(); i++) {
+                    rowData[i] = tblPatient.getModel().getValueAt(selectedRow, i);
+                }
+                Doctor originalDoctor = null;
+                for (User doctor : doctors) {
+                    if (doctor.getId().equals(rowData[0].toString())) {
+                        originalDoctor = (Doctor) doctor;
+                        break;
+                    }
+                }
+                System.out.println(rowData[0]);
+                System.out.println(originalDoctor);
+                int indexInListD = doctors.indexOf(originalDoctor);
+                if (indexInListD != -1) {
+                    // Crea un nuevo objeto Patient con los valores editados
+                    Doctor editedDoctor = new Doctor(
+                            originalDoctor.getId(),                       //id
+                            rowData[2].toString(),                        //name
+                            rowData[1].toString().split(" ")[0],    //surname1
+                            rowData[1].toString().split(" ")[1],    //surname2
+                            originalDoctor.getBirthDate(),                //birthdate
+                            originalDoctor.getSex(),                      //sex
+                            rowData[5].toString(),                        //dni
+                            rowData[6].toString(),                        //email
+                            originalDoctor.getPhoneNumber(),              //phone
+                            rowData[8].toString(),                        //address
+                            originalDoctor.getSpeciality(),               //speciality
+                            originalDoctor.getAppointments());
+
+
+                    // Actualiza el objeto en la lista
+                    doctors.set(indexInListD, editedDoctor);
+
+                    // Actualiza la fila en la tabla
+                    for (int i = 1; i < rowData.length; i++) {
+                        tblDoctor.getModel().setValueAt(rowData[i], modelRow, i);
+                    }
+
+                    //Actualizar los valores del doctor en la base de datos
+                    JsonObject jsonObjEditDoctor = new JsonObject();
+                    jsonObjEditDoctor.addProperty("name", editedDoctor.getName());
+                    jsonObjEditDoctor.addProperty("surname1", editedDoctor.getSurname1());
+                    jsonObjEditDoctor.addProperty("surname2", editedDoctor.getSurname2());
+                    jsonObjEditDoctor.addProperty("birthdate", editedDoctor.getBirthDate().toString());
+                    jsonObjEditDoctor.addProperty("dni", editedDoctor.getDni());
+                    jsonObjEditDoctor.addProperty("email", editedDoctor.getEmail());
+                    jsonObjEditDoctor.addProperty("phone", editedDoctor.getPhoneNumber());
+                    jsonObjEditDoctor.addProperty("address", editedDoctor.getAddress());
+
+                    PostgrestQuery queryEditDoctor = postgrestClient
+                            .from("person")
+                            .update(jsonObjEditDoctor)
+                            .eq("dni", editedDoctor.getDni())
+                            .getQuery();
+                    postgrestClient.sendQuery(queryEditDoctor);
+                    System.out.println("Doctor con id " + originalDoctor.getId() + " editado");
+                }
+            }
+        });
+
+        btnDeleteDoctor.addActionListener(e -> {
+            int selectedRow = tblDoctor.getSelectedRow();
+            if (selectedRow != -1) {
+                int modelRow = tblDoctor.convertRowIndexToModel(selectedRow);
+                String id = tblDoctor.getModel().getValueAt(modelRow, 0).toString();
+                doctors.remove(modelRow);
+                PostgrestQuery deleteDoctor = postgrestClient
+                        .from("person")
+                        .delete()
+                        .eq("id", id)
+                        .getQuery();
+                postgrestClient.sendQuery(deleteDoctor);
+                System.out.println("Doctor eliminado");
+                ((DefaultTableModel) tblDoctor.getModel()).removeRow(modelRow);
+                System.out.println(doctors);
+            }
+        });
 
         btnLogoutDoctor.addActionListener(e -> dispose());
 
@@ -226,210 +404,7 @@ public class WindowAdmin extends UserAuthenticatedWindow {
                 model.addRow(row);
             }
         }
-
-        model.addColumn("Acciones");
         return model;
-    }
-
-    private void configureTable(JTable table, ButtonEditor buttonEditor, ButtonRenderer buttonRenderer) {
-        table.getColumnModel().getColumn(table.getColumnCount() - 1).setCellEditor(buttonEditor);
-        table.getColumnModel().getColumn(table.getColumnCount() - 1).setCellRenderer(buttonRenderer);
-    }
-
-
-    class ButtonRenderer implements TableCellRenderer {
-        private JPanel panel;
-        private JButton btnEdit;
-        private JButton btnDelete;
-
-        public ButtonRenderer() {
-            panel = new JPanel(new FlowLayout());
-            btnEdit = new JButton("Editar");
-            btnDelete = new JButton("Eliminar");
-
-            JPanel pnlButtons = new JPanel(new GridLayout(1, 2));
-            pnlButtons.add(btnEdit);
-            pnlButtons.add(btnDelete);
-            panel.add(pnlButtons);
-
-
-            btnEdit.addActionListener(e -> {
-
-                JTable table = (JTable) SwingUtilities.getAncestorOfClass(JTable.class, btnEdit);
-
-                    if (table != null) {
-                        TableType tableType = getTableType(table, btnEdit);
-                        int selectedRow = table.getSelectedRow();
-                        System.out.println(selectedRow);
-                        if (selectedRow != -1) {
-                            int modelRow = table.convertRowIndexToModel(selectedRow);
-
-                            // Obtén los datos asociados a la fila
-                            Object[] rowData = new Object[table.getColumnCount()];
-                            for (int i = 0; i < table.getColumnCount(); i++) {
-                                rowData[i] = table.getModel().getValueAt(modelRow, i);
-                            }
-
-                            // Realiza la lógica de edición basada en los datos de la fila
-                            switch (tableType) {
-                                case PATIENTS:
-                                    Patient originalPatient = (Patient) rowData[0];
-                                    int indexInListP = patients.indexOf(originalPatient);
-
-                                    if (indexInListP != -1) {
-                                        // Crea un nuevo objeto Patient con los valores editados
-                                        Patient editedPatient = new Patient(
-                                                originalPatient.getId(),                    //id
-                                                rowData[2].toString(),                      //name
-                                                rowData[1].toString().split(" ")[0],  //surname1
-                                                rowData[1].toString().split(" ")[1],  //surname2
-                                                (LocalDate) rowData[8],                     //birthdate
-                                                originalPatient.getSex(),                   //sex
-                                                rowData[4].toString(),                      //dni
-                                                rowData[3].toString(),                      //email
-                                                rowData[6].toString(),                      //phone
-                                                rowData[7].toString(),                      //address
-                                                originalPatient.getMedicalRecord());        //medicalRecord
-
-
-                                        // Actualiza el objeto en la lista
-                                        patients.set(indexInListP, editedPatient);
-
-                                        // Actualiza la fila en la tabla
-                                        for (int i = 1; i < rowData.length; i++) {
-                                            table.getModel().setValueAt(rowData[i], modelRow, i);
-                                        }
-                                    }
-                                    System.out.println(patients);
-                                    break;
-                                case DOCTORS:
-                                    Doctor originalDoctor = (Doctor) rowData[0];
-                                    int indexInListD = doctors.indexOf(originalDoctor);
-                                    if (indexInListD != -1) {
-                                        // Crea un nuevo objeto Patient con los valores editados
-                                        Doctor editedDoctor = new Doctor(
-                                                originalDoctor.getId(),                       //id
-                                                rowData[2].toString(),                        //name
-                                                rowData[1].toString().split(" ")[0],    //surname1
-                                                rowData[1].toString().split(" ")[1],    //surname2
-                                                originalDoctor.getBirthDate(),                //birthdate
-                                                originalDoctor.getSex(),                      //sex
-                                                rowData[4].toString(),                        //dni
-                                                rowData[3].toString(),                        //email
-                                                originalDoctor.getPhoneNumber(),              //phone
-                                                rowData[5].toString(),                        //address
-                                                originalDoctor.getSpeciality(),               //speciality
-                                                originalDoctor.getAppointments());
-
-
-                                    // Actualiza el objeto en la lista
-                                    doctors.set(indexInListD, editedDoctor);
-
-                                    // Actualiza la fila en la tabla
-                                    for (int i = 1; i < rowData.length; i++) {
-                                        table.getModel().setValueAt(rowData[i], modelRow, i);
-                                    }
-                                }
-                                System.out.println(doctors);
-                                break;
-                            case OTHER:
-                                break;
-                        }
-
-
-                    }
-                }
-            });
-
-            btnDelete.addActionListener(e -> {
-                // Obtain Table
-                JTable table = (JTable) SwingUtilities.getAncestorOfClass(JTable.class, btnDelete);
-
-                if (table != null) {
-                    TableType tableType = getTableType(table, btnDelete);
-                    int selectedRow = table.getSelectedRow();
-                    if (selectedRow != -1) {
-                        int modelRow = table.convertRowIndexToModel(selectedRow);
-                        String id = table.getModel().getValueAt(modelRow, 5).toString();
-                        switch (tableType) {
-                            case PATIENTS:
-                                patients.remove(modelRow);
-                                PostgrestQuery deletePatient = postgrestClient
-                                        .from("person")
-                                        .delete()
-                                        .eq("dni", id)
-                                        .getQuery();
-                                postgrestClient.sendQuery(deletePatient);
-                                System.out.println("Paciente eliminado");
-                                break;
-                            case DOCTORS:
-                                doctors.remove(modelRow);
-                                PostgrestQuery deleteDoctor = postgrestClient
-                                        .from("person")
-                                        .delete()
-                                        .eq("dni", "87654321B")
-                                        .getQuery();
-                                postgrestClient.sendQuery(deleteDoctor);
-                                System.out.println("Doctor eliminado");
-                                break;
-                            case OTHER:
-                                break;
-                        }
-
-                        // Remueve la fila de la tabla
-                        ((DefaultTableModel) table.getModel()).removeRow(modelRow);
-                    }
-                }
-            });
-        }
-
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            return panel;
-        }
-        public TableType getTableType(JTable table, JButton button){
-            int selectedRow = table.getSelectedRow();
-            if (selectedRow != -1) {
-                int modelRow = table.convertRowIndexToModel(selectedRow);
-
-                if (table.getModel() instanceof DefaultTableModel model) {
-
-                    if (model.getRowCount() > modelRow) {
-                        Object data = table.getModel();
-                        if (data instanceof Patient) {
-                            return TableType.PATIENTS;
-                        } else if (data instanceof Doctor) {
-                            return TableType.DOCTORS;
-                        }
-
-                        ((DefaultTableModel) table.getModel()).removeRow(modelRow);
-                    }
-                }
-
-
-            }
-            return TableType.OTHER;
-        }
-    }
-
-    class ButtonEditor extends AbstractCellEditor implements TableCellEditor {
-        private final ButtonRenderer renderer;
-        private Object currentValue;
-
-        public ButtonEditor(List<?> dataList) {
-            renderer = new ButtonRenderer();
-        }
-
-        @Override
-        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-            currentValue = value;
-            return renderer.getTableCellRendererComponent(table, value, isSelected, true, row, column);
-        }
-
-        @Override
-        public Object getCellEditorValue() {
-            return currentValue;
-        }
     }
 }
 

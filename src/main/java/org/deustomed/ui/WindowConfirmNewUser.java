@@ -37,12 +37,14 @@ public class WindowConfirmNewUser extends JFrame {
 
         lblId = new JLabel("Id:");
         tfId = new JTextField();
+        tfId.setEditable(false);
         btCopyId = new JButton("Copiar código");
         btOk = new JButton("Confirmar");
 
         if (users.get(0) instanceof Doctor) {
             lblChatCode = new JLabel("Código chat:");
             tfChatCode = new JTextField();
+            tfChatCode.setEditable(false);
         }
         Border border = new TitledBorder("Aquí tiene sus datos identificativos:");
 
