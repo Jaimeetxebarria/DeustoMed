@@ -109,7 +109,7 @@ public class WindowAdmin extends UserAuthenticatedWindow {
 
         btnPatient.addActionListener(e -> new WindowAddUser(patients));
 
-        btnEditPatient.addActionListener(e -> { //Error con el valor birthdate
+        btnEditPatient.addActionListener(e -> {
             int selectedRow = tblPatient.getSelectedRow();
             if (selectedRow != -1) {
                 int modelRow = tblPatient.convertRowIndexToModel(selectedRow);
@@ -126,7 +126,7 @@ public class WindowAdmin extends UserAuthenticatedWindow {
                     }
                 }
                 int indexInListP = patients.indexOf(originalPatient);
-
+                System.out.println(rowData[9]);
                 if (indexInListP != -1) {
                     // Crea un nuevo objeto Patient con los valores editados
                     Patient editedPatient = new Patient(
@@ -134,7 +134,7 @@ public class WindowAdmin extends UserAuthenticatedWindow {
                             rowData[2].toString(),                      //name
                             rowData[1].toString().split(" ")[0],  //surname1
                             rowData[1].toString().split(" ")[1],  //surname2
-                            (LocalDate) rowData[9],                     //birthdate
+                            LocalDate.parse(rowData[9].toString()),     //birthdate
                             originalPatient.getSex(),                   //sex
                             rowData[5].toString(),                      //dni
                             rowData[4].toString(),                      //email
@@ -186,7 +186,7 @@ public class WindowAdmin extends UserAuthenticatedWindow {
                         .eq("id", id)
                         .getQuery();
                 postgrestClient.sendQuery(deletePatient);
-                System.out.println("Paciente eliminado");
+                System.out.println("Paciente con id " + id + " eliminado");
                 ((DefaultTableModel) tblPatient.getModel()).removeRow(modelRow);
             }
         });
@@ -244,12 +244,10 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         btnEditDoctor.addActionListener(e -> { //Arreglar detecta linea erronea
             int selectedRow = tblDoctor.getSelectedRow();
             if (selectedRow != -1) {
-                System.out.println(selectedRow);
-                int modelRow = tblDoctor.convertRowIndexToModel(selectedRow );
                 // Obtén los datos asociados a la fila
-                Object[] rowData = new Object[tblPatient.getColumnCount()];
-                for (int i = 0; i < tblPatient.getColumnCount(); i++) {
-                    rowData[i] = tblPatient.getModel().getValueAt(selectedRow, i);
+                Object[] rowData = new Object[tblDoctor.getColumnCount()];
+                for (int i = 0; i < tblDoctor.getColumnCount(); i++) {
+                    rowData[i] = tblDoctor.getModel().getValueAt(selectedRow, i);
                 }
                 Doctor originalDoctor = null;
                 for (User doctor : doctors) {
@@ -283,7 +281,7 @@ public class WindowAdmin extends UserAuthenticatedWindow {
 
                     // Actualiza la fila en la tabla
                     for (int i = 1; i < rowData.length; i++) {
-                        tblDoctor.getModel().setValueAt(rowData[i], modelRow, i);
+                        tblDoctor.getModel().setValueAt(rowData[i], selectedRow, i);
                     }
 
                     //Actualizar los valores del doctor en la base de datos
