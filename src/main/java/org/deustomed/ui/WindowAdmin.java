@@ -241,7 +241,7 @@ public class WindowAdmin extends UserAuthenticatedWindow {
 
         btnDoctor.addActionListener(e -> new WindowAddUser(doctors));
 
-        btnEditDoctor.addActionListener(e -> { //Arreglar detecta linea erronea
+        btnEditDoctor.addActionListener(e -> {
             int selectedRow = tblDoctor.getSelectedRow();
             if (selectedRow != -1) {
                 // Obtén los datos asociados a la fila
