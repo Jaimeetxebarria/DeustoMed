@@ -104,8 +104,6 @@ public class WindowAddUser extends JFrame {
         tfPhone = new JTextField();
         tfPhone.setToolTipText("El teléfono debe tener el siguiente formato: +123456789");
         tfAddress = new JTextField();
-        tfAddress.setToolTipText("La dirección debe tener el siguiente formato: Calle número(3 digitos), ciudad\nEjemplo: Circle 678, " +
-                "Town");
 
         if (doctors != null) {
             lblSpeciality = createCenteredLabel("Especialidad:");
