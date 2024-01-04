@@ -3,6 +3,7 @@ package org.deustomed.ui;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import org.deustomed.*;
 import org.deustomed.authentication.AnonymousAuthenticationService;
 import org.deustomed.logs.LoggerMaker;
@@ -302,7 +303,11 @@ class ShowPatientWindow extends JFrame {
 
         String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
         Gson gson = new Gson();
-        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+        JsonArray jsonArray = new JsonArray();
+        try {
+            jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+        } catch (JsonSyntaxException e) {
+        }
 
         if (!jsonArray.isEmpty()) {
             for (int i = 0; i < jsonArray.size(); i++) {

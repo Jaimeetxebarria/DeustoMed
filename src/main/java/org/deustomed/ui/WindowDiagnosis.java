@@ -1,5 +1,6 @@
 package org.deustomed.ui;
 
+import com.google.gson.JsonObject;
 import org.deustomed.Appointment;
 import org.deustomed.Diagnosis;
 import org.deustomed.Disease;
@@ -38,10 +39,15 @@ public class WindowDiagnosis extends JFrame {
     }
 
     public WindowDiagnosis(Appointment appointment, PostgrestClient postgrestClient) {
-        setBounds(400, 400, 400, 400);
         Patient patient = appointment.getPatient();
         LocalDateTime date = appointment.getDate();
         WindowDiagnosis.postgrestClient = postgrestClient;
+
+        setTitle("Ventana de diagnóstico para " + patient.getName() + " " + patient.getSurname1() + " " + patient.getSurname2());
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int h = (int) screenSize.getHeight()/ 2 + 270;
+        int w = (int) screenSize.getWidth()/ 2 +20;
+        setBounds((int) (screenSize.getWidth() - h)/2, (int) (screenSize.getHeight() - h)/2, h, w);
 
         Border emptyBorder = BorderFactory.createEmptyBorder(10, 10, 10, 10);
         setLayout(new BorderLayout());
@@ -129,7 +135,9 @@ public class WindowDiagnosis extends JFrame {
         JPanel panelDiagnosisSummary = new JPanel(new BorderLayout());
         panelDiagnosisSummary.setBorder(emptyBorder);
         JTextArea textAreaSummary = new JTextArea();
-        JButton registerDiagnosis = new JButton();
+        textAreaSummary.setBorder(BorderFactory.createTitledBorder(" RESUMEN DEL DIAGNÓSTICO "));
+        textAreaSummary.setPreferredSize(new Dimension(200,200));
+        JButton registerDiagnosis = new JButton("Registrar Diagnóstico");
         registerDiagnosis.setBorder(emptyBorder);
         registerDiagnosis.addActionListener((ActionEvent e) -> {
             Diagnosis diagnosis = new Diagnosis(appointment, patient, appointment.getDoctor(), textAreaSummary.getText());
@@ -149,17 +157,32 @@ public class WindowDiagnosis extends JFrame {
     }
 
     public static void removePatientRelation (String patientID, String relationID, boolean disease) {
+        String additionalFK = (disease) ? "fk_disease_id" : "medication_id";
+        String table = (disease) ? "patient_suffers_disease" : "patient_undergoes_treatment";
 
+        PostgrestQuery query = postgrestClient
+                .from(table)
+                .delete()
+                .eq("fk_patient_id", patientID)
+                .eq(additionalFK, relationID)
+                .getQuery();
+        postgrestClient.sendQuery(query);
     }
 
     public static void updatePatientRelation (String patientID, String relationID, boolean disease) {
         String additionalFK = (disease) ? "fk_disease_id" : "medication_id";
         String table = (disease) ? "patient_suffers_disease" : "patient_undergoes_treatment";
 
-        PostgrestQuery query = postgrestClient.from(table)
-                .update(new Entry("fk_patient_id", patientID),
-                        new Entry(additionalFK, relationID))
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("fk_patient_id", patientID);
+        jsonObject.addProperty(additionalFK, relationID);
+
+        PostgrestQuery query = postgrestClient
+                .from(table)
+                .insert(jsonObject)
+                .select()
                 .getQuery();
+        query.addHeader("Prefer", "resolution=merge-duplicates");
         postgrestClient.sendQuery(query);
     }
 }
