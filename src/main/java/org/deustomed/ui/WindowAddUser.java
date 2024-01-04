@@ -4,7 +4,6 @@ import com.formdev.flatlaf.FlatLightLaf;
 import com.formdev.flatlaf.fonts.inter.FlatInterFont;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.toedter.calendar.JDateChooser;
 import org.deustomed.*;
@@ -112,14 +111,14 @@ public class WindowAddUser extends JFrame {
                     .select("name")
                     .getQuery();
 
-            String jsonResponse = String.valueOf(postgrestClient.sendQuery(specialityQuery));
-            jsonSpeciality = gson.fromJson(jsonResponse, JsonArray.class);
+            List<String> specialitiesFromDb = postgrestClient.sendQuery(specialityQuery)
+                    .getAsJsonArray()
+                    .asList()
+                    .stream()
+                    .map(jsonElement -> jsonElement.getAsJsonObject().get("name").getAsString())
+                    .toList();
 
-            for (JsonElement speciality : jsonSpeciality) {
-                JsonObject specialityObj = speciality.getAsJsonObject();
-                specialities.add(specialityObj.get("name").getAsString());
-            }
-
+            specialities.addAll(specialitiesFromDb);
             cbSpeciality.setModel(new DefaultComboBoxModel<>(specialities.toArray(new String[0])));
         }
 
