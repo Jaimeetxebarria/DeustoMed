@@ -16,6 +16,7 @@ import org.deustomed.postgrest.authentication.PostgrestAuthenticationService;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.time.LocalDate;
@@ -31,6 +32,9 @@ public class WindowAdmin extends UserAuthenticatedWindow {
 
     protected JPanel pnlPatient, pnlDoctor;
     protected JTable tblPatient, tblDoctor;
+    protected final String[] columNamesPatients = {"ID", "Apellidos", "Nombre", "Sexo", "Email", "DNI", "Edad", "Teléfono", "Dirección", "Fecha de nacimiento"};
+    protected final String[] columNamesDoctor = {"ID", "Apellidos", "Nombre", "Sexo", "Email", "DNI", "Edad", "Teléfono", "Dirección", "Fecha de nacimiento", "Especialidad"};
+
     protected DefaultTableModel mdlPatient, mdlDoctor;
     protected JScrollPane scrPatient, scrDoctor;
     protected JTextField tfFindPatient, tfFindDoctor;
@@ -75,7 +79,6 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         Border border = new TitledBorder("Tabla de pacientes:");
         pnlPatient.setBorder(border);
 
-        String[] columNamesPatients = {"ID", "Apellidos", "Nombre", "Sexo", "Email", "DNI", "Edad", "Teléfono", "Dirección", "Fecha de nacimiento"};
         mdlPatient = completeTable(columNamesPatients, patients);
         tblPatient = new JTable(mdlPatient);
         tblPatient.getColumnModel().getColumn(0).setPreferredWidth(25);
@@ -106,6 +109,23 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         pnlPatient.add(pnlBotton, BorderLayout.SOUTH);
 
         tabAdmin.addTab("Usuarios", pnlPatient);
+
+        tfFindPatient.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+                filtrarDatos(tblPatient, tfFindPatient);
+            }
+
+            @Override
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                filtrarDatos(tblPatient, tfFindPatient);
+            }
+
+            @Override
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+                filtrarDatos(tblPatient, tfFindPatient);
+            }
+        });
 
         btnPatient.addActionListener(e -> new WindowAddUser(patients));
 
@@ -207,7 +227,6 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         border = new TitledBorder("Tabla de doctores:");
         pnlDoctor.setBorder(border);
 
-        String[] columNamesDoctor = {"ID", "Apellidos", "Nombre", "Sexo", "Email", "DNI", "Edad", "Teléfono", "Dirección", "Fecha de nacimiento", "Especialidad"};
         mdlDoctor = completeTable(columNamesDoctor, doctors);
         tblDoctor = new JTable(mdlDoctor);
         tblDoctor.getColumnModel().getColumn(0).setPreferredWidth(25);
@@ -238,6 +257,23 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         pnlDoctor.add(pnlBottonDoctor, BorderLayout.SOUTH);
 
         tabAdmin.addTab("Doctores", pnlDoctor);
+
+        tfFindDoctor.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+                filtrarDatos(tblDoctor, tfFindDoctor);
+            }
+
+            @Override
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                filtrarDatos(tblDoctor, tfFindDoctor);
+            }
+
+            @Override
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+                filtrarDatos(tblDoctor, tfFindDoctor);
+            }
+        });
 
         btnDoctor.addActionListener(e -> new WindowAddUser(doctors));
 
@@ -403,6 +439,51 @@ public class WindowAdmin extends UserAuthenticatedWindow {
             }
         }
         return model;
+    }
+
+    private void filtrarDatos(JTable table, JTextField tfFinder) {
+        String filtro = tfFinder.getText().toLowerCase();
+
+        DefaultTableModel modelo = (DefaultTableModel) table.getModel();
+        DefaultTableModel modeloAux = copyModel(modelo);
+        modelo.setRowCount(0);
+        if(!filtro.isEmpty()) {
+            for (int i = 0; i < modeloAux.getRowCount(); i++) {
+                for (int j = 0; j < modeloAux.getColumnCount(); j++) {
+                    String valor = modeloAux.getValueAt(i, j).toString().toLowerCase();
+                    if (valor.contains(filtro)) {
+                        modelo.addRow(modeloAux.getDataVector().elementAt(i));
+                        break;
+                    }
+                }
+            }
+        }else{
+            if (table.equals(tblPatient)){
+                mdlPatient = completeTable(columNamesPatients, patients);
+                tblPatient.setModel(mdlPatient);
+            }else {
+                mdlDoctor = completeTable(columNamesDoctor, doctors);
+                tblDoctor.setModel(mdlDoctor);
+            }
+        }
+    }
+
+    private DefaultTableModel copyModel(DefaultTableModel modeloOriginal){
+        // Obtener datos y columnas del modelo original
+        Object[] columnIdentifiers = new Object[modeloOriginal.getColumnCount()];
+        for (int i = 0; i < modeloOriginal.getColumnCount(); i++) {
+            columnIdentifiers[i] = modeloOriginal.getColumnName(i);
+        }
+
+        Object[][] data = new Object[modeloOriginal.getRowCount()][modeloOriginal.getColumnCount()];
+
+        for (int i = 0; i < modeloOriginal.getRowCount(); i++) {
+            for (int j = 0; j < modeloOriginal.getColumnCount(); j++) {
+                data[i][j] = modeloOriginal.getValueAt(i, j);
+            }
+        }
+
+        return new DefaultTableModel(data, columnIdentifiers);
     }
 }
 
