@@ -4,6 +4,7 @@ import com.formdev.flatlaf.FlatLightLaf;
 import com.formdev.flatlaf.fonts.inter.FlatInterFont;
 import org.deustomed.Doctor;
 import org.deustomed.Patient;
+import org.deustomed.Sex;
 import org.deustomed.User;
 
 import javax.swing.*;
@@ -14,15 +15,15 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
+import java.time.LocalDate;
 
 public class WindowConfirmNewUser extends JFrame {
     public JLabel lblId, lblChatCode;
     public JTextField tfId, tfChatCode;
     public JButton btCopyId, btOk;
 
-    public WindowConfirmNewUser(List<User> users) {
-        if (users.get(0) instanceof Patient) {
+    public WindowConfirmNewUser(User user) {
+        if (user instanceof Patient) {
             setTitle("Paciente creado con éxito");
             setSize(350, 120);
         } else {
@@ -41,7 +42,7 @@ public class WindowConfirmNewUser extends JFrame {
         btCopyId = new JButton("Copiar código");
         btOk = new JButton("Confirmar");
 
-        if (users.get(0) instanceof Doctor) {
+        if (user instanceof Doctor) {
             lblChatCode = new JLabel("Código chat:");
             tfChatCode = new JTextField();
             tfChatCode.setEditable(false);
@@ -54,7 +55,7 @@ public class WindowConfirmNewUser extends JFrame {
 
         JPanel pnlMain = new JPanel();
         pnlMain.setBorder(border);
-        if (users.get(0) instanceof Patient) {
+        if (user instanceof Patient) {
             pnlMain.setLayout(new GridLayout(1, 2));
             pnlMain.add(lblId);
             pnlMain.add(pnlId);
@@ -101,16 +102,14 @@ public class WindowConfirmNewUser extends JFrame {
         FlatLightLaf.setup();
         FlatInterFont.install();
 
-        /*
-        List<User> patients = new ArrayList<>();
-        patients.add(new Patient());
-        new WindowConfirmNewUser(patients);
-        List<User> doctors = new ArrayList<>();
-        doctors.add(new Doctor());
-        new WindowConfirmNewUser(doctors);
+        Patient patient = new Patient("00AAA", "Pablo", "Garcia", "Iglesias",
+                LocalDate.of(1990, 8, 12), Sex.MALE, "dni1",
+                "email1", "phone1", "address1", null);
+        new WindowConfirmNewUser(patient);
 
-
-         */
-
+//        Doctor doctor = new Doctor("00AAA", "Pablo", "Garcia", "Iglesias",
+//                LocalDate.of(1990, 8, 12), Sex.MALE, "dni1",
+//                "email1", "phone1", "address1", null, null);
+//        new WindowConfirmNewUser(doctor);
     }
 }

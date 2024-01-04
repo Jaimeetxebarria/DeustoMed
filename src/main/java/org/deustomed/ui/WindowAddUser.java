@@ -214,7 +214,7 @@ public class WindowAddUser extends JFrame {
                         Patient patient = new Patient(id, name, surname1, surname2, birthDate, sex, dni, email, phone,
                                 address, new ArrayList<>());
                         patients.add(patient);
-                        new WindowConfirmNewUser(patients);
+                        new WindowConfirmNewUser(patient);
                         System.out.println("Nuevo paciente: " + patient);
                         dispose();
                     } else if (doctors != null) {
@@ -234,7 +234,7 @@ public class WindowAddUser extends JFrame {
                                     new ArrayList<>(), speciality, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
                         }
                         doctors.add(doctor);
-                        new WindowConfirmNewUser(doctors);
+                        new WindowConfirmNewUser(doctor);
                         System.out.println("Nuevo doctor: " + doctor);
                         dispose();
                     }
