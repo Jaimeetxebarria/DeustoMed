@@ -351,7 +351,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         return calendar.getTime();
     }
 
-    private static String capitalizeFirstLetter(String input) {
+    public static String capitalizeFirstLetter(String input) {
         if (input == null || input.isEmpty()) {
             return input;
         }

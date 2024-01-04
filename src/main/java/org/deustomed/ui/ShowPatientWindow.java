@@ -13,7 +13,6 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -138,11 +137,8 @@ class ShowPatientWindow extends JFrame {
         tfAge.setEditable(false);
         tfAge.setText(classPatient.getAgeInYears() + "");
         tfSex.setEditable(false);
-        /*if(classPatient.getSex().equals(Sex.MALE)){
-            tfSex.setText("Male");
-        } else {
-            tfSex.setText("Female");
-        }*/
+        String stringSex = (classPatient.getSex().equals(Sex.MALE) ? "Male" : "Female");
+        tfSex.setText(stringSex);
         tfDNI.setEditable(false);
         tfDNI.setText(classPatient.getDni());
         tfBirthdate.setEditable(false);
@@ -209,7 +205,8 @@ class ShowPatientWindow extends JFrame {
         JScrollPane scpDiseases = new JScrollPane(patientDiseases);
         Disease d = new Disease("Disease", true, true);
         patientDiseaseModel.addElement(d);
-        loadPatientDiseases(patient.getId());
+        ArrayList<Disease> list = loadPatientDiseases(patient.getId());
+        list.forEach( disease -> patientDiseaseModel.addElement(disease));
 
         patientTreatmentsModel = new DefaultListModel<>();
         patientTreatments = new JList<>(patientTreatmentsModel);
@@ -219,7 +216,8 @@ class ShowPatientWindow extends JFrame {
         Medication m = new Medication("MM001", "Medication", "Medication", 100, 100, "Company", "");
         patientTreatmentsModel.addElement(m);
         // TODO: 27/12/23 develope loadPatientTreatment and loadPatientDiseases methods: Problem with JSonArray/Object
-        //loadPatientTreatments();
+        ArrayList<Medication> listTreatments = loadPatientTreatments(patient.getId());
+        listTreatments.forEach( treatment -> patientTreatmentsModel.addElement(treatment));
 
         pnlDiseases.add(scpDiseases);
         pnlTreatments.add(scpTreatments);
@@ -252,7 +250,8 @@ class ShowPatientWindow extends JFrame {
         pnlCenter.add(pnlClinicalRecord, BorderLayout.SOUTH);
     }
 
-    private void loadPatientDiseases(String id) {
+    public static ArrayList<Disease> loadPatientDiseases(String id) {
+        ArrayList<Disease> resultList = new ArrayList<>();
         PostgrestQuery query = postgrestClient
                 .from("patient_suffers_disease")
                 .select("fk_disease_id")
@@ -287,14 +286,16 @@ class ShowPatientWindow extends JFrame {
                     boolean hereditaryB = hereditary.equals("TRUE");
 
                     Disease newDisease = new Disease(name, chronicB, hereditaryB);
-                    patientDiseaseModel.addElement(newDisease);
+                    resultList.add(newDisease);
 
                 }
             }
         }
+        return resultList;
     }
 
-    private void loadPatientTreatments(String id) {
+    public static ArrayList<Medication> loadPatientTreatments(String id) {
+        ArrayList<Medication> resultList = new ArrayList<>();
         PostgrestQuery query = postgrestClient
                 .from("patient_undergoes_treatment")
                 .select("medication_id")
@@ -329,13 +330,13 @@ class ShowPatientWindow extends JFrame {
                     String company = jsonObject.get("company").getAsString();
                     String shortDescription = jsonObject.get("shortdescription").getAsString();
 
-
                     Medication medication = new Medication(name, activesubstance, commercialName, stock, dose, company, shortDescription);
-                    patientTreatmentsModel.addElement(medication);
+                    resultList.add(medication);
 
                 }
             }
         }
+        return resultList;
     }
 
     class ListCellRenderer extends DefaultListCellRenderer {
