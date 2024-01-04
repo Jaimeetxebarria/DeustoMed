@@ -77,11 +77,10 @@ create table
 drop table if exists doctor_schedule cascade;
 create table doctor_schedule (
     schedule_id SERIAL primary KEY,
-    doctor_id CHAR(5),
+    doctor_id CHAR(5) references doctor on delete cascade,
     day_of_week VARCHAR(10),
     start_time TIME,
-    end_time TIME,
-    foreign KEY (doctor_id) references doctor(id)
+    end_time TIME
 );
 
 
@@ -89,7 +88,7 @@ drop table if exists patient cascade;
 create table
   patient (
     id char(5) primary key references person on delete cascade,
-    fk_doctor_id char(5) references doctor
+    fk_doctor_id char(5) references doctor on delete set null
   );
 
 drop table if exists admin cascade;
