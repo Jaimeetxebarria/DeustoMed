@@ -185,7 +185,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
                 tableOwnPatient.setDefaultEditor(Patient.class, new TablePatienteEditor(new JTextField()));
                 JScrollPane spTableOwnPatient = new JScrollPane(tableOwnPatient);
 
-                tabbedPaneCenter.addTab("Registro Pacientes Propios", iconPatients, spTableOwnPatient);
+                tabbedPaneCenter.addTab("Registro Pacientes Propios", null, spTableOwnPatient);
             }
 
         } else {

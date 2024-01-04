@@ -15,6 +15,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
@@ -33,19 +34,20 @@ class ShowPatientWindow extends JFrame {
     private ArrayList<JTextField> jTextFields = new ArrayList<>();
 
     public static void main(String[] args) {
-        Patient patient = new Patient("00AKA", "Antonio", "Gonzalez", "Gonzalez", LocalDate.now(), Sex.MALE,
+        Patient patient = new Patient("00AAK", "Antonio", "Gonzalez", "Gonzalez", LocalDate.now(), Sex.MALE,
                 "12345678A", "mail@gmail.vpm", "Calle Dirección Inventada", "Speciality", null);
 
         ShowPatientWindow spw = new ShowPatientWindow(patient);
         spw.setVisible(true);
         spw.setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
-    public ShowPatientWindow(Patient patient){
+
+    public ShowPatientWindow(Patient patient) {
         this.classPatient = patient;
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setTitle("Ventana del paciente "+patient.getName()+" "+patient.getSurname1()+" "+patient.getSurname2());
+        setTitle("Ventana del paciente " + patient.getName() + " " + patient.getSurname1() + " " + patient.getSurname2());
         screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setBounds((int) screenSize.getWidth()/4-35, (int) screenSize.getHeight()/4-56, (int) (screenSize.getWidth()/2+70), (int) (screenSize.getHeight()/2+112));
+        setBounds((int) screenSize.getWidth() / 4 - 50, (int) screenSize.getHeight() / 4 - 60, (int) (screenSize.getWidth() / 2 + 100), (int) (screenSize.getHeight() / 2 + 120));
         setLayout(new BorderLayout());
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -60,14 +62,14 @@ class ShowPatientWindow extends JFrame {
 
         // ----------------------- Nombre+Apellidos (west) -------------------
         panelWest = new JPanel();
-        panelWest.setPreferredSize(new Dimension(200,200));
+        panelWest.setPreferredSize(new Dimension(200, 200));
         panelWest.setLayout(new BorderLayout());
         JButton btnPhoto = new JButton("");
         ImageIcon icon = new ImageIcon("src/main/java/ui/profileImg.png");
-        Image png = icon.getImage().getScaledInstance(150,150, DO_NOTHING_ON_CLOSE);
+        Image png = icon.getImage().getScaledInstance(150, 150, DO_NOTHING_ON_CLOSE);
         btnPhoto.setIcon(new ImageIcon(png));
         btnPhoto.setEnabled(false);
-        btnPhoto.setPreferredSize(new Dimension(150,150));
+        btnPhoto.setPreferredSize(new Dimension(150, 150));
         JPanel p = new JPanel();
         p.add(btnPhoto);
         panelWest.add(p, BorderLayout.NORTH);
@@ -88,29 +90,30 @@ class ShowPatientWindow extends JFrame {
         pnlTitle.add(name);
         pnlTitle.add(surname1);
         pnlTitle.add(surname2);
-        pnlTitle.add(new JLabel("<html>Paciente del doctor <html>"));
-        //pnlTitle.add(new JLabel("Paciente del doctor: "));
+        String doctorName = findDoctorName(patient);
+        pnlTitle.add(new JLabel("<html>Paciente del doctor<html>"));
+        pnlTitle.add(new JLabel("" + doctorName));
         panelWest.add(pnlTitle);
 
         // ----------------------- Mostrar información del paciente (CENTER) -------------------
         // ----------------------- Información general del paciente (CENTER + north) -------------------
         pnlCenter = new JPanel();
-        Border emptyBorder = BorderFactory.createEmptyBorder(15,15,15,15);
+        Border emptyBorder = BorderFactory.createEmptyBorder(15, 15, 15, 15);
         pnlCenter.setBorder(emptyBorder);
         pnlCenter.setLayout(new BorderLayout());
 
-        
+
         JPanel pnlInfo = new JPanel();
         pnlInfo.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
 
         JPanel pnlInfoPatient = new JPanel();
-        pnlInfoPatient.setLayout(new GridLayout(4,2));
+        pnlInfoPatient.setLayout(new GridLayout(4, 2));
         Border titleBorder = BorderFactory.createTitledBorder("Información del Paciente");
         pnlInfoPatient.setBorder(titleBorder);
 
         JPanel pnlContactPatient = new JPanel();
-        pnlContactPatient.setLayout(new GridLayout(4,2));
+        pnlContactPatient.setLayout(new GridLayout(4, 2));
         Border titleBorder1 = BorderFactory.createTitledBorder("Información de contacto");
         pnlContactPatient.setBorder(titleBorder1);
 
@@ -144,9 +147,9 @@ class ShowPatientWindow extends JFrame {
         tfDNI.setText(classPatient.getDni());
         tfBirthdate.setEditable(false);
         LocalDate date = classPatient.getBirthDate();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String dateString = sdf.format(date);
-        tfBirthdate.setText(dateString);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String formattedDate = date.format(formatter);
+        tfBirthdate.setText(formattedDate);
         tfNSS.setEditable(false);
         tfNSS.setText("NSS NO IMPLEMENTADO");
         tfPhone.setEditable(false);
@@ -178,7 +181,7 @@ class ShowPatientWindow extends JFrame {
         gbc.gridy = 0;
         gbc.weightx = 1;
         pnlInfo.add(pnlInfoPatient, gbc);
-        gbc.gridx ++;
+        gbc.gridx++;
         pnlInfo.add(pnlContactPatient, gbc);
         pnlCenter.add(pnlInfo, BorderLayout.NORTH);
         add(pnlCenter, BorderLayout.CENTER);
@@ -201,19 +204,19 @@ class ShowPatientWindow extends JFrame {
 
         patientDiseaseModel = new DefaultListModel<>();
         patientDiseases = new JList<>(patientDiseaseModel);
-        patientDiseases.setPreferredSize(new Dimension(220,100));
+        patientDiseases.setPreferredSize(new Dimension(220, 100));
         patientDiseases.setCellRenderer(new ListCellRenderer());
         JScrollPane scpDiseases = new JScrollPane(patientDiseases);
         Disease d = new Disease("Disease", true, true);
         patientDiseaseModel.addElement(d);
-        //loadPatientDiseases(this.patient.getId());
+        loadPatientDiseases(patient.getId());
 
         patientTreatmentsModel = new DefaultListModel<>();
         patientTreatments = new JList<>(patientTreatmentsModel);
-        patientTreatments.setPreferredSize(new Dimension(220,100));
+        patientTreatments.setPreferredSize(new Dimension(220, 100));
         patientTreatments.setCellRenderer(new ListCellRenderer());
         JScrollPane scpTreatments = new JScrollPane(patientTreatments);
-        Medication m = new Medication("MM001","Medication", "Medication", 100, 100, "Company", "");
+        Medication m = new Medication("MM001", "Medication", "Medication", 100, 100, "Company", "");
         patientTreatmentsModel.addElement(m);
         // TODO: 27/12/23 develope loadPatientTreatment and loadPatientDiseases methods: Problem with JSonArray/Object
         //loadPatientTreatments();
@@ -237,7 +240,7 @@ class ShowPatientWindow extends JFrame {
         clinicalRecord = new JTable(clinicalRecordModel);
 
         JScrollPane scpClinicalRecord = new JScrollPane(clinicalRecord);
-        scpClinicalRecord.setPreferredSize(new Dimension(550,100));
+        scpClinicalRecord.setPreferredSize(new Dimension(550, 100));
         JPanel subPanel = new JPanel();
 
         JPanel pnlClinicalRecord = new JPanel();
@@ -249,42 +252,92 @@ class ShowPatientWindow extends JFrame {
         pnlCenter.add(pnlClinicalRecord, BorderLayout.SOUTH);
     }
 
-    private void loadPatientDiseases(String id){
+    private void loadPatientDiseases(String id) {
         PostgrestQuery query = postgrestClient
-                .from("patient_with_disease_information")
-                .select("*")
+                .from("patient_suffers_disease")
+                .select("fk_disease_id")
                 .eq("fk_patient_id", id)
                 .getQuery();
 
         String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
         Gson gson = new Gson();
         JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
-        for(int i=0; i<jsonArray.size(); i++){
-            JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
-            String name = jsonObject.get("name").getAsString();
-            String chronic = jsonObject.get("chronic").getAsString();
-            String hereditary = jsonObject.get("hereditary").getAsString();
-            boolean chronicB;
-            boolean hereditaryB;
-            if(chronic.equals("TRUE")){
-                chronicB = true;
-            } else {
-                chronicB = false;
-            }
-            if(hereditary.equals("TRUE")){
-                hereditaryB = true;
-            } else {
-                hereditaryB = false;
-            }
 
-            Disease newDisease = new Disease(name, chronicB, hereditaryB);
-            patientDiseaseModel.addElement(newDisease);
+        if (!jsonArray.isEmpty()) {
+            for (int i = 0; i < jsonArray.size(); i++) {
+                JsonObject jsonObject1 = jsonArray.get(i).getAsJsonObject();
+                String diseaseID = jsonObject1.get("fk_disease_id").getAsString();
+                PostgrestQuery queryDisease = postgrestClient
+                        .from("disease")
+                        .select("*")
+                        .eq("id", diseaseID)
+                        .getQuery();
 
+                String jsonResponseDisease = String.valueOf(postgrestClient.sendQuery(queryDisease));
+                Gson gsonDisease = new Gson();
+                JsonArray jsonArrayDisease = gsonDisease.fromJson(jsonResponseDisease, JsonArray.class);
+
+                for (int j = 0; j < jsonArrayDisease.size(); j++) {
+                    JsonObject jsonObject = jsonArray.get(j).getAsJsonObject();
+                    String name = jsonObject.get("name").getAsString();
+                    String chronic = jsonObject.get("chronic").getAsString();
+                    String hereditary = jsonObject.get("hereditary").getAsString();
+
+                    boolean chronicB = chronic.equals("TRUE");
+                    boolean hereditaryB = hereditary.equals("TRUE");
+
+                    Disease newDisease = new Disease(name, chronicB, hereditaryB);
+                    patientDiseaseModel.addElement(newDisease);
+
+                }
+            }
         }
     }
-    private void loadPatientTreatments(){
 
+    private void loadPatientTreatments(String id) {
+        PostgrestQuery query = postgrestClient
+                .from("patient_undergoes_treatment")
+                .select("medication_id")
+                .eq("patient_id", id)
+                .getQuery();
+
+        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
+        Gson gson = new Gson();
+        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+
+        if (!jsonArray.isEmpty()) {
+            for (int i = 0; i < jsonArray.size(); i++) {
+                JsonObject jsonObject1 = jsonArray.get(i).getAsJsonObject();
+                String treatmentID = jsonObject1.get("medication_id").getAsString();
+                PostgrestQuery queryTreatment = postgrestClient
+                        .from("medication")
+                        .select("*")
+                        .eq("id", treatmentID)
+                        .getQuery();
+
+                String jsonResponseTreatment = String.valueOf(postgrestClient.sendQuery(queryTreatment));
+                Gson gsonTreatment = new Gson();
+                JsonArray jsonArrayTreatment = gsonTreatment.fromJson(jsonResponseTreatment, JsonArray.class);
+
+                for (int j = 0; j < jsonArrayTreatment.size(); j++) {
+                    JsonObject jsonObject = jsonArray.get(j).getAsJsonObject();
+                    String name = jsonObject.get("name").getAsString();
+                    String activesubstance = jsonObject.get("activesubstance").getAsString();
+                    String commercialName = jsonObject.get("commercialname").getAsString();
+                    int stock = jsonObject.get("stock").getAsInt();
+                    double dose = jsonObject.get("dose").getAsDouble();
+                    String company = jsonObject.get("company").getAsString();
+                    String shortDescription = jsonObject.get("shortdescription").getAsString();
+
+
+                    Medication medication = new Medication(name, activesubstance, commercialName, stock, dose, company, shortDescription);
+                    patientTreatmentsModel.addElement(medication);
+
+                }
+            }
+        }
     }
+
     class ListCellRenderer extends DefaultListCellRenderer {
         @Override
         public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -301,5 +354,37 @@ class ShowPatientWindow extends JFrame {
             }
             return label;
         }
+    }
+
+    public static String findDoctorName(Patient patient) {
+        PostgrestQuery query = postgrestClient
+                .from("patient")
+                .select("fk_doctor_id")
+                .eq("id", patient.getId())
+                .getQuery();
+
+        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
+        Gson gson = new Gson();
+        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+        JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
+
+        String doctorId = jsonObject.get("fk_doctor_id").getAsString();
+
+        PostgrestQuery query1 = postgrestClient
+                .from("doctor_with_personal_data")
+                .select("name", "surname1", "surname2")
+                .eq("id", doctorId)
+                .getQuery();
+
+        String jsonResponse1 = String.valueOf(postgrestClient.sendQuery(query1));
+        Gson gson1 = new Gson();
+        JsonArray jsonArray1 = gson1.fromJson(jsonResponse1, JsonArray.class);
+        JsonObject jsonObject1 = jsonArray1.get(0).getAsJsonObject();
+
+        String name = jsonObject1.get("name").getAsString();
+        String surname1 = jsonObject1.get("surname1").getAsString();
+        String surname2 = jsonObject1.get("surname2").getAsString();
+
+        return name + " " + surname1 + " " + surname2;
     }
 }
