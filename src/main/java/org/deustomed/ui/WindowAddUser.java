@@ -25,7 +25,7 @@ public class WindowAddUser extends JFrame {
     JTextField tfName, tfSurname1, tfSurname2, tfEmail, tfDni, tfAge, tfPhone, tfAddress;
     ButtonGroup group;
     JRadioButton radMale, radFemale;
-    JButton btnSave;
+    JButton btnSave, btnCancel;
     List<User> patients, doctors;
     JDateChooser dateChooser;
     Date previousDate;
@@ -51,7 +51,6 @@ public class WindowAddUser extends JFrame {
             setTitle("New Doctor");
         }
 
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
         //setResizable(false);
         setLocationRelativeTo(null);
@@ -77,6 +76,7 @@ public class WindowAddUser extends JFrame {
         tfEmail = new JTextField();
         tfDni = new JTextField();
         btnSave = new JButton("Crear");
+        btnCancel = new JButton("Cancelar");
         lblAge = new JLabel("Edad:");
         lblPhone = new JLabel("Teléfono:");
         lblAddress = new JLabel("Dirección:");
@@ -164,8 +164,9 @@ public class WindowAddUser extends JFrame {
         pnlCenter.add(pnlPrimary, BorderLayout.CENTER);
         pnlCenter.add(lblError, BorderLayout.SOUTH);
 
-        JPanel pnlSouth = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        pnlSouth.add(btnSave);
+        JPanel pnlSouth = new JPanel(new BorderLayout());
+        pnlSouth.add(btnSave, BorderLayout.EAST);
+        pnlSouth.add(btnCancel, BorderLayout.WEST);
 
         this.add(pnlCenter, BorderLayout.CENTER);
         this.add(pnlSouth, BorderLayout.SOUTH);
@@ -239,6 +240,8 @@ public class WindowAddUser extends JFrame {
                 }
             }
         });
+
+        btnCancel.addActionListener(e -> {dispose();});
 
         setVisible(true);
     }

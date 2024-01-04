@@ -29,7 +29,6 @@ public class WindowConfirmNewUser extends JFrame {
             setSize(350, 150);
         }
 
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);
 
