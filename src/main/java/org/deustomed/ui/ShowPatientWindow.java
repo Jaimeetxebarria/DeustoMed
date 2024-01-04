@@ -203,9 +203,9 @@ class ShowPatientWindow extends JFrame {
         patientDiseases.setPreferredSize(new Dimension(220, 100));
         patientDiseases.setCellRenderer(new ListCellRenderer());
         JScrollPane scpDiseases = new JScrollPane(patientDiseases);
-        Disease d = new Disease("Disease", true, true);
+        Disease d = new Disease("", "Disease", true, true);
         patientDiseaseModel.addElement(d);
-        ArrayList<Disease> list = loadPatientDiseases(patient.getId());
+        ArrayList<Disease> list = loadPatientDiseases(patient.getId(), postgrestClient);
         list.forEach( disease -> patientDiseaseModel.addElement(disease));
 
         patientTreatmentsModel = new DefaultListModel<>();
@@ -216,7 +216,7 @@ class ShowPatientWindow extends JFrame {
         Medication m = new Medication("MM001", "Medication", "Medication", 100, 100, "Company", "");
         patientTreatmentsModel.addElement(m);
         // TODO: 27/12/23 develope loadPatientTreatment and loadPatientDiseases methods: Problem with JSonArray/Object
-        ArrayList<Medication> listTreatments = loadPatientTreatments(patient.getId());
+        ArrayList<Medication> listTreatments = loadPatientTreatments(patient.getId(), postgrestClient);
         listTreatments.forEach( treatment -> patientTreatmentsModel.addElement(treatment));
 
         pnlDiseases.add(scpDiseases);
@@ -250,7 +250,7 @@ class ShowPatientWindow extends JFrame {
         pnlCenter.add(pnlClinicalRecord, BorderLayout.SOUTH);
     }
 
-    public static ArrayList<Disease> loadPatientDiseases(String id) {
+    public static ArrayList<Disease> loadPatientDiseases(String id, PostgrestClient postgrestClient) {
         ArrayList<Disease> resultList = new ArrayList<>();
         PostgrestQuery query = postgrestClient
                 .from("patient_suffers_disease")
@@ -278,6 +278,7 @@ class ShowPatientWindow extends JFrame {
 
                 for (int j = 0; j < jsonArrayDisease.size(); j++) {
                     JsonObject jsonObject = jsonArray.get(j).getAsJsonObject();
+                    String disease_id = jsonObject.get("id").getAsString();
                     String name = jsonObject.get("name").getAsString();
                     String chronic = jsonObject.get("chronic").getAsString();
                     String hereditary = jsonObject.get("hereditary").getAsString();
@@ -285,7 +286,7 @@ class ShowPatientWindow extends JFrame {
                     boolean chronicB = chronic.equals("TRUE");
                     boolean hereditaryB = hereditary.equals("TRUE");
 
-                    Disease newDisease = new Disease(name, chronicB, hereditaryB);
+                    Disease newDisease = new Disease(disease_id, name, chronicB, hereditaryB);
                     resultList.add(newDisease);
 
                 }
@@ -294,7 +295,7 @@ class ShowPatientWindow extends JFrame {
         return resultList;
     }
 
-    public static ArrayList<Medication> loadPatientTreatments(String id) {
+    public static ArrayList<Medication> loadPatientTreatments(String id, PostgrestClient postgrestClient) {
         ArrayList<Medication> resultList = new ArrayList<>();
         PostgrestQuery query = postgrestClient
                 .from("patient_undergoes_treatment")
@@ -322,6 +323,7 @@ class ShowPatientWindow extends JFrame {
 
                 for (int j = 0; j < jsonArrayTreatment.size(); j++) {
                     JsonObject jsonObject = jsonArray.get(j).getAsJsonObject();
+                    String medication_id = jsonObject.get("id").getAsString();
                     String name = jsonObject.get("name").getAsString();
                     String activesubstance = jsonObject.get("activesubstance").getAsString();
                     String commercialName = jsonObject.get("commercialname").getAsString();
@@ -330,7 +332,7 @@ class ShowPatientWindow extends JFrame {
                     String company = jsonObject.get("company").getAsString();
                     String shortDescription = jsonObject.get("shortdescription").getAsString();
 
-                    Medication medication = new Medication(name, activesubstance, commercialName, stock, dose, company, shortDescription);
+                    Medication medication = new Medication(medication_id, activesubstance, commercialName, stock, dose, company, shortDescription);
                     resultList.add(medication);
 
                 }

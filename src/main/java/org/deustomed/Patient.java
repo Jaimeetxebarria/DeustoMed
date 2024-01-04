@@ -14,12 +14,12 @@ import java.util.Objects;
 
 @Getter
 public class Patient extends User {
-    private ArrayList<Appointment> medicalRecord = new ArrayList<>();
+    private ArrayList<Diagnosis> medicalRecord = new ArrayList<>();
     protected String assignedDoctorId;
 
     public Patient(@NotNull String id, @NotNull String name, @NotNull String surname1, @NotNull String surname2,
                    @NotNull LocalDate birthDate, @NotNull Sex sex, String dni, String email, String phoneNumber,
-                   String address, ArrayList<Appointment> medicalRecord) {
+                   String address, ArrayList<Diagnosis> medicalRecord) {
         super(id, name, surname1, surname2, birthDate, sex, dni, email, phoneNumber, address);
         this.medicalRecord = medicalRecord;
     }
@@ -32,7 +32,7 @@ public class Patient extends User {
 
     public Patient(@NotNull String id, @NotNull PostgrestClient postgrestClient) {
         super(id, postgrestClient);
-
+/*
         //Get medical record (appointments)
         PostgrestQuery query = postgrestClient.from("appointment_with_type").select().eq("fk_patient_id", id).getQuery();
         JsonElement responseJson = postgrestClient.sendQuery(query);
@@ -51,9 +51,10 @@ public class Patient extends User {
         }
 
         setMedicalRecord(appointments);
+ */
     }
 
-    public void setMedicalRecord(ArrayList<Appointment> medicalRecord) {
+    public void setMedicalRecord(ArrayList<Diagnosis> medicalRecord) {
         this.medicalRecord = medicalRecord;
     }
 

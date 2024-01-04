@@ -3,11 +3,13 @@ package org.deustomed;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import lombok.Getter;
+import lombok.Setter;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
 
 import java.util.ArrayList;
-
+@Getter @Setter
 public class Medication {
     public static ArrayList<Medication> medications = new ArrayList<>();
     private String id;
@@ -25,54 +27,6 @@ public class Medication {
         this.stock = stock;
         this.dose = dose;
         this.compnay = compnay;
-        this.shortDescription = shortDescription;
-    }
-
-    public String getActiveSubstance() {
-        return activeSubstance;
-    }
-
-    public void setActiveSubstance(String activeSubstance) {
-        this.activeSubstance = activeSubstance;
-    }
-
-    public String getCommercialName() {
-        return commercialName;
-    }
-
-    public void setCommercialName(String commercialName) {
-        this.commercialName = commercialName;
-    }
-
-    public int getStock() {
-        return stock;
-    }
-
-    public void setStock(int stock) {
-        this.stock = stock;
-    }
-
-    public double getDose() {
-        return dose;
-    }
-
-    public void setDose(double dose) {
-        this.dose = dose;
-    }
-
-    public String getCompnay() {
-        return compnay;
-    }
-
-    public void setCompnay(String compnay) {
-        this.compnay = compnay;
-    }
-
-    public String getShortDescription() {
-        return shortDescription;
-    }
-
-    public void setShortDescription(String shortDescription) {
         this.shortDescription = shortDescription;
     }
 

@@ -305,7 +305,8 @@ public class WindowDoctor extends UserAuthenticatedWindow {
                 btn2.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        // TODO: 29/12/23 Inicialises the diagnosis window: Create new diagnosis for the paitient
+                        WindowDiagnosis windowDiagnosis = new WindowDiagnosis(appointment, postgrestClient);
+                        windowDiagnosis.setVisible(true);
                     }
                 });
 

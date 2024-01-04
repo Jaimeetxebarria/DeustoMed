@@ -3,14 +3,14 @@ package org.deustomed;
 public class Diagnosis {
     private Appointment appointment;
     private Patient patient;
-    private Disease disease;
     private Doctor doctor;
+    private String summary;
 
-    public Diagnosis(Appointment appointment, Patient patient, Disease disease, Doctor doctor) {
+    public Diagnosis(Appointment appointment, Patient patient, Doctor doctor, String summary) {
         this.appointment = appointment;
         this.patient = patient;
-        this.disease = disease;
         this.doctor = doctor;
+        this.summary = summary;
     }
 
     public Appointment getAppointment() {
@@ -27,14 +27,6 @@ public class Diagnosis {
 
     public void setPatient(Patient patient) {
         this.patient = patient;
-    }
-
-    public Disease getDisease() {
-        return disease;
-    }
-
-    public void setDisease(Disease disease) {
-        this.disease = disease;
     }
 
     public Doctor getDoctor() {
