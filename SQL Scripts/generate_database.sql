@@ -92,6 +92,12 @@ create table
     fk_doctor_id char(5) references doctor
   );
 
+drop table if exists admin cascade;
+create table
+  admin (
+    id char(5) primary key references person on delete cascade
+  );
+
 -- alter table patient enable row level security;
 drop table if exists appointment_type cascade;
 create table

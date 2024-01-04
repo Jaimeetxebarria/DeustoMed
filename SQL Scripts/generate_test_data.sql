@@ -142,3 +142,5 @@ $$ LANGUAGE plpgsql;
 
 select insert_person_records();
 
+-- insert into admin
+insert into admin values ('00AAB');
