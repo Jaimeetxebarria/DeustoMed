@@ -14,8 +14,6 @@ import org.deustomed.postgrest.PostgrestQuery;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
@@ -108,16 +106,20 @@ public class WindowAddUser extends JFrame {
         if (doctors != null) {
             lblSpeciality = createCenteredLabel("Especialidad:");
             cbSpeciality = new JComboBox<>();
+
             PostgrestQuery specialityQuery = postgrestClient
                     .from("speciality")
                     .select("name")
                     .getQuery();
+
             String jsonResponse = String.valueOf(postgrestClient.sendQuery(specialityQuery));
             jsonSpeciality = gson.fromJson(jsonResponse, JsonArray.class);
+
             for (JsonElement speciality : jsonSpeciality) {
                 JsonObject specialityObj = speciality.getAsJsonObject();
                 specialities.add(specialityObj.get("name").getAsString());
             }
+
             cbSpeciality.setModel(new DefaultComboBoxModel<>(specialities.toArray(new String[0])));
         }
 
@@ -169,78 +171,73 @@ public class WindowAddUser extends JFrame {
         this.add(pnlCenter, BorderLayout.CENTER);
         this.add(pnlSouth, BorderLayout.SOUTH);
 
-        btnSave.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String name = tfName.getText();
-                String surname1 = tfSurname1.getText();
-                String surname2 = tfSurname2.getText();
-                String email = obtainValueOrNull(tfEmail.getText());
-                String dni = obtainValueOrNull(tfDni.getText());
-                ButtonModel selectedSex = group.getSelection();
-                LocalDate birthDate = LocalDate.ofInstant(dateChooser.getDate().toInstant(), ZoneId.systemDefault());
-                birthDate.format(java.time.format.DateTimeFormatter.ofPattern("yyyy/MM/dd"));
-                String phone = obtainValueOrNull(tfPhone.getText());
-                String address = obtainValueOrNull(tfAddress.getText());
-                Sex sex;
+        btnSave.addActionListener(e -> {
+            String name = tfName.getText();
+            String surname1 = tfSurname1.getText();
+            String surname2 = tfSurname2.getText();
+            String email = obtainValueOrNull(tfEmail.getText());
+            String dni = obtainValueOrNull(tfDni.getText());
+            ButtonModel selectedSex = group.getSelection();
+            LocalDate birthDate = LocalDate.ofInstant(dateChooser.getDate().toInstant(), ZoneId.systemDefault());
+            birthDate.format(java.time.format.DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+            String phone = obtainValueOrNull(tfPhone.getText());
+            String address = obtainValueOrNull(tfAddress.getText());
+            Sex sex;
 
-                if (selectedSex.equals(radMale)) {
-                    sex = Sex.MALE;
-                } else {
-                    sex = Sex.FEMALE;
-                }
+            if (selectedSex.equals(radMale)) {
+                sex = Sex.MALE;
+            } else {
+                sex = Sex.FEMALE;
+            }
 
-                if (validateData()) {
-                    //Add user to person table (añadir id generado)
-                    JsonObject person = new JsonObject();
-                    person.addProperty("name", name);
-                    person.addProperty("surname1", surname1);
-                    person.addProperty("surname2", surname2);
-                    person.addProperty("dni", dni);
-                    person.addProperty("birthdate", String.valueOf(birthDate));
-                    person.addProperty("email", email);
-                    person.addProperty("phone", phone);
-                    person.addProperty("address", address);
-                    person.addProperty("sex", String.valueOf(sex));
-                    person.addProperty("age", getAge(dateChooser.getDate()));
-                    //PostgrestTransformBuilder qb1 = getBlankPostgrestQueryBuilder().insert(person);
-                    //assertPathnameEquals("/table", qb1.getQuery());
+            if (validateData()) {
+                //Add user to person table (añadir id generado)
+                JsonObject person = new JsonObject();
+                person.addProperty("name", name);
+                person.addProperty("surname1", surname1);
+                person.addProperty("surname2", surname2);
+                person.addProperty("dni", dni);
+                person.addProperty("birthdate", String.valueOf(birthDate));
+                person.addProperty("email", email);
+                person.addProperty("phone", phone);
+                person.addProperty("address", address);
+                person.addProperty("sex", String.valueOf(sex));
+                person.addProperty("age", getAge(dateChooser.getDate()));
+                //PostgrestTransformBuilder qb1 = getBlankPostgrestQueryBuilder().insert(person);
+                //assertPathnameEquals("/table", qb1.getQuery());
 
-                    if (patients != null) {
-                        //Add user to patient table DB
+                if (patients != null) {
+                    //Add user to patient table DB
 
-                        //Add to the patient arraylist
-                        String id = "" + (patients.size() + 1);
-                        Patient patient = new Patient(id, name, surname1, surname2, birthDate, sex, dni, email, phone,
-                                address, new ArrayList<>());
-                        patients.add(patient);
-                        new WindowConfirmNewUser(patient);
-                        System.out.println("Nuevo paciente: " + patient);
-                        dispose();
-                    } else if (doctors != null) {
-                        //Add user to doctor table DB
+                    //Add to the patient arraylist
+                    String id = "" + (patients.size() + 1);
+                    Patient patient = new Patient(id, name, surname1, surname2, birthDate, sex, dni, email, phone,
+                            address, new ArrayList<>());
+                    patients.add(patient);
+                    new WindowConfirmNewUser(patient);
+                    System.out.println("Nuevo paciente: " + patient);
+                    dispose();
+                } else if (doctors != null) {
+                    //Add user to doctor table DB
 
-                        //Add to the doctor arraylist
-                        String speciality = ((String) cbSpeciality.getSelectedItem()).toString();
-                        String id = "" + doctors.size() + 1;
-                        // TODO: 19/12/23 diferenciar entre médicos de familia y especialistas;
-                        // TODO: 19/12/23 en este ejemplo es médico de familia, por los que la especialidad es predeterminada
-                        Doctor doctor;
-                        if (speciality.equals("Medicina Familiar")) {
-                            doctor = new FamilyDoctor(id, name, surname1, surname2, birthDate, sex,
-                                    dni, email, phone, address, new ArrayList<>(), new ArrayList<>());
-                        } else {
-                            doctor = new SpecialistDoctor(id, name, surname1, surname2, birthDate, sex, dni, email, phone, address,
-                                    new ArrayList<>(), speciality, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-                        }
-                        doctors.add(doctor);
-                        new WindowConfirmNewUser(doctor);
-                        System.out.println("Nuevo doctor: " + doctor);
-                        dispose();
+                    //Add to the doctor arraylist
+                    String speciality = ((String) cbSpeciality.getSelectedItem()).toString();
+                    String id = "" + doctors.size() + 1;
+                    // TODO: 19/12/23 diferenciar entre médicos de familia y especialistas;
+                    // TODO: 19/12/23 en este ejemplo es médico de familia, por los que la especialidad es predeterminada
+                    Doctor doctor;
+                    if (speciality.equals("Medicina Familiar")) {
+                        doctor = new FamilyDoctor(id, name, surname1, surname2, birthDate, sex,
+                                dni, email, phone, address, new ArrayList<>(), new ArrayList<>());
+                    } else {
+                        doctor = new SpecialistDoctor(id, name, surname1, surname2, birthDate, sex, dni, email, phone, address,
+                                new ArrayList<>(), speciality, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
                     }
+                    doctors.add(doctor);
+                    new WindowConfirmNewUser(doctor);
+                    System.out.println("Nuevo doctor: " + doctor);
+                    dispose();
                 }
-
-
             }
         });
 
@@ -251,6 +248,7 @@ public class WindowAddUser extends JFrame {
      * If the gap is empty, returns null, else returns the value
      *
      * @param value
+     *
      * @return null if the value is empty, else the value
      */
     private String obtainValueOrNull(String value) {
@@ -337,6 +335,7 @@ public class WindowAddUser extends JFrame {
      * Calculates the age of a user given the birthdate and the current date
      *
      * @param birthday The birthday of the user
+     *
      * @return
      */
     private int getAge(Date birthday) {

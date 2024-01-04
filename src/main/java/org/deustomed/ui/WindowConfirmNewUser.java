@@ -13,8 +13,6 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.time.LocalDate;
 
 public class WindowConfirmNewUser extends JFrame {
@@ -47,14 +45,15 @@ public class WindowConfirmNewUser extends JFrame {
             tfChatCode = new JTextField();
             tfChatCode.setEditable(false);
         }
-        Border border = new TitledBorder("Aquí tiene sus datos identificativos:");
 
+        Border border = new TitledBorder("Aquí tiene sus datos identificativos:");
         JPanel pnlId = new JPanel(new GridLayout(1, 2));
         pnlId.add(tfId);
         pnlId.add(btCopyId);
 
         JPanel pnlMain = new JPanel();
         pnlMain.setBorder(border);
+
         if (user instanceof Patient) {
             pnlMain.setLayout(new GridLayout(1, 2));
             pnlMain.add(lblId);
@@ -66,22 +65,12 @@ public class WindowConfirmNewUser extends JFrame {
             pnlMain.add(lblChatCode);
             pnlMain.add(tfChatCode);
         }
+
         add(pnlMain, BorderLayout.CENTER);
         add(btOk, BorderLayout.SOUTH);
 
-        btCopyId.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                copyToClipboard(tfId.getText());
-            }
-        });
-
-        btOk.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dispose();
-            }
-        });
+        btCopyId.addActionListener(e -> copyToClipboard(tfId.getText()));
+        btOk.addActionListener(e -> dispose());
 
         setVisible(true);
     }
