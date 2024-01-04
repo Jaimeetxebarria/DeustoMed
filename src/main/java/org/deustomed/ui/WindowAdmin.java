@@ -414,9 +414,15 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         ConfigLoader configLoader = new ConfigLoader();
         SwingUtilities.invokeLater(() -> new WindowAdmin(new AnonymousAuthenticationService(configLoader.getAnonymousToken())));
     }
-
+    private class CustomTableModel extends DefaultTableModel {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            // Hacer que las celdas de las columnas 0 y 3 no sean editables
+            return !(column == 0 || column == 5 || column == 9);
+        }
+    }
     public DefaultTableModel completeTable(String[] columNames, List<User> users) {
-        DefaultTableModel model = new DefaultTableModel();
+        DefaultTableModel model = new CustomTableModel();
         model.setColumnIdentifiers(columNames);
         if(!users.isEmpty()) {
             for (User user : users) {
