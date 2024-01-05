@@ -1,5 +1,6 @@
 package org.deustomed.ui;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.deustomed.Appointment;
 import org.deustomed.Diagnosis;
@@ -58,9 +59,13 @@ public class WindowDiagnosis extends JFrame {
         panel1.setBorder(emptyBorder);
         panel2.setBorder(emptyBorder);
 
-        JLabel title = new JLabel("NUEVO DIAGNÓSTICO PARA " + patient.getName() + " " + patient.getSurname1() + " " + patient.getSurname2() + " ");
+        JLabel title = new JLabel("NUEVO DIAGNÓSTICO para " + patient.getName() + " " + patient.getSurname1() + " " + patient.getSurname2() + " ");
+        Font font = new Font(title.getFont().getName(), Font.BOLD, title.getFont().getSize());
+        title.setFont(font);
         JLabel dateLabel = new JLabel(capitalizeFirstLetter(date.getDayOfWeek().toString()) + ", " + date.getDayOfMonth() + " " + capitalizeFirstLetter(date.getMonth().toString()) + " " + date.toLocalTime());
+        dateLabel.setFont(font);
         dateLabel.setHorizontalAlignment(JLabel.RIGHT);
+
         panel1.add(title);
         panel1.add(dateLabel);
         title.setBorder(emptyBorder);
@@ -70,15 +75,23 @@ public class WindowDiagnosis extends JFrame {
         JPanel panelPatientDiseases = new JPanel(new BorderLayout());
         panelPatientDiseases.setBorder(emptyBorder);
         patientDiseases = new JList<>(patientDiseaseModel);
+        patientDiseases.setBorder(BorderFactory.createTitledBorder("Enfermedades actuales del paciente"));
         ArrayList<Disease> list = loadPatientDiseases(patient.getId(), postgrestClient);
         list.forEach(disease -> patientDiseaseModel.addElement(disease));
         JScrollPane scrollPane1 = new JScrollPane(patientDiseases);
+
         JButton dischargeDisease = new JButton("Dar enfermedad de alta");
         dischargeDisease.addActionListener((ActionEvent e) -> {
-            Disease selectedDisease = patientDiseases.getSelectedValue();
-            removePatientRelation(patient.getId(), selectedDisease.getId(), true);
-            patientDiseaseModel.removeElement(selectedDisease);
+            Disease selectedDisease;
+            if(patientDiseases.getSelectedValue()==null){
+                JOptionPane.showMessageDialog(this, "Debe seleccionar una enfermedad para darla de alta", "Enfermedad no seleccionada", JOptionPane.INFORMATION_MESSAGE);
+            } else{
+                selectedDisease = patientDiseases.getSelectedValue();
+                removePatientRelation(patient.getId(), selectedDisease.getId(), true);
+                patientDiseaseModel.removeElement(selectedDisease);
+            }
         });
+
         panelPatientDiseases.add(scrollPane1, BorderLayout.CENTER);
         panelPatientDiseases.add(dischargeDisease, BorderLayout.SOUTH);
 
@@ -86,32 +99,48 @@ public class WindowDiagnosis extends JFrame {
         JPanel panelPatientTreatments = new JPanel(new BorderLayout());
         panelPatientTreatments.setBorder(emptyBorder);
         patientTreatments = new JList<>(patientTreatmentsModel);
+        patientTreatments.setBorder(BorderFactory.createTitledBorder("Medicación actuales del paciente"));
         ArrayList<Medication> list1 = loadPatientTreatments(patient.getId(), postgrestClient);
         list1.forEach(treat -> patientTreatmentsModel.addElement(treat));
         JScrollPane scrollPane2 = new JScrollPane(patientTreatments);
+
         JButton withdrawTreatment = new JButton("Retirar medicamento ");
         withdrawTreatment.addActionListener((ActionEvent e) -> {
-            Medication selectedMedication = patientTreatments.getSelectedValue();
-            updatePatientRelation(patient.getId(), selectedMedication.getId(), true);
-            patientTreatmentsModel.removeElement(selectedMedication);
+            Medication selectedMedication;
+            if(patientDiseases.getSelectedValue()==null){
+                JOptionPane.showMessageDialog(this, "Debe seleccionar un medicamento para retirarlo", "Medicamento no seleccionada", JOptionPane.INFORMATION_MESSAGE);
+            } else{
+                selectedMedication = patientTreatments.getSelectedValue();
+                removePatientRelation(patient.getId(), selectedMedication.getId(), false);
+                patientTreatmentsModel.removeElement(selectedMedication);
+            }
         });
+
         panelPatientTreatments.add(scrollPane2, BorderLayout.CENTER);
         panelPatientTreatments.add(withdrawTreatment, BorderLayout.SOUTH);
 
         // Panel para diagnosticar nuevas enfermedades al paciente
         JPanel panelDiseaseRegistry = new JPanel(new BorderLayout());
         panelDiseaseRegistry.setBorder(emptyBorder);
-        diseaseRegistryModel = new DefaultListModel<>();
+
         diseaseRegistry = new JList<>(diseaseRegistryModel);
+        diseaseRegistry.setBorder(BorderFactory.createTitledBorder("Registro de enfermedades"));
         ArrayList<Disease> list2 = Disease.loadDiseaseRegistry(postgrestClient);
-        list2.forEach(disease -> patientDiseaseModel.addElement(disease));
-        JScrollPane scrollPane3 = new JScrollPane(patientDiseases);
+        list2.forEach(disease -> diseaseRegistryModel.addElement(disease));
+        JScrollPane scrollPane3 = new JScrollPane(diseaseRegistry);
+
         JButton diagnoseDisease = new JButton("Diagnosticar enfermedad ");
         diagnoseDisease.addActionListener((ActionEvent e) -> {
-            Disease selectedDisease = diseaseRegistry.getSelectedValue();
-            updatePatientRelation(patient.getId(), selectedDisease.getId(), true);
-            patientDiseaseModel.addElement(selectedDisease);
+            Disease selectedDisease;
+            if(patientDiseases.getSelectedValue()==null){
+                JOptionPane.showMessageDialog(this, "Debe seleccionar una enfermedad para diagnosticarla", "Enfermedad no seleccionada", JOptionPane.INFORMATION_MESSAGE);
+            } else{
+                selectedDisease = patientDiseases.getSelectedValue();
+                updatePatientRelation(patient.getId(), selectedDisease.getId(), true);
+                patientDiseaseModel.addElement(selectedDisease);
+            }
         });
+
         panelDiseaseRegistry.add(scrollPane3, BorderLayout.CENTER);
         panelDiseaseRegistry.add(diagnoseDisease, BorderLayout.SOUTH);
 
@@ -119,15 +148,23 @@ public class WindowDiagnosis extends JFrame {
         JPanel panelMedicationRegisrtry = new JPanel(new BorderLayout());
         panelMedicationRegisrtry.setBorder(emptyBorder);
         medicationRegistry = new JList<>(medicationRegistryModel);
+        medicationRegistry.setBorder(BorderFactory.createTitledBorder("Registro de medicamentos"));
         ArrayList<Medication> list3 = Medication.loadMedicationRegistry(postgrestClient);
-        list3.forEach(treat -> patientTreatmentsModel.addElement(treat));
-        JScrollPane scrollPane4 = new JScrollPane(patientTreatments);
+        list3.forEach(treat -> medicationRegistryModel.addElement(treat));
+        JScrollPane scrollPane4 = new JScrollPane(medicationRegistry);
+
         JButton prescribeTreatment = new JButton("Recetar medicamento ");
         prescribeTreatment.addActionListener((ActionEvent e) -> {
-            Medication selectedMedication = patientTreatments.getSelectedValue();
-            updatePatientRelation(patient.getId(), selectedMedication.getId(), true);
-            patientTreatmentsModel.removeElement(selectedMedication);
+            Medication selectedMedication;
+            if(patientDiseases.getSelectedValue()==null){
+                JOptionPane.showMessageDialog(this, "Debe seleccionar un medicamento para recetarlo", "Medicamento no seleccionada", JOptionPane.INFORMATION_MESSAGE);
+            } else{
+                selectedMedication = medicationRegistry.getSelectedValue();
+                updatePatientRelation(patient.getId(), selectedMedication.getId(), false);
+                patientTreatmentsModel.addElement(selectedMedication);
+            }
         });
+
         panelMedicationRegisrtry.add(scrollPane4, BorderLayout.CENTER);
         panelMedicationRegisrtry.add(prescribeTreatment, BorderLayout.SOUTH);
 
@@ -166,7 +203,9 @@ public class WindowDiagnosis extends JFrame {
                 .eq("fk_patient_id", patientID)
                 .eq(additionalFK, relationID)
                 .getQuery();
-        postgrestClient.sendQuery(query);
+
+        //postgrestClient.sendQuery(query);
+        System.out.println("Remove anwser: "+String.valueOf(postgrestClient.sendQuery(query)));
     }
 
     public static void updatePatientRelation (String patientID, String relationID, boolean disease) {
@@ -182,7 +221,8 @@ public class WindowDiagnosis extends JFrame {
                 .insert(jsonObject)
                 .select()
                 .getQuery();
-        query.addHeader("Prefer", "resolution=merge-duplicates");
-        postgrestClient.sendQuery(query);
+
+        //postgrestClient.sendQuery(query);
+        System.out.println(String.valueOf(postgrestClient.sendQuery(query)));
     }
 }

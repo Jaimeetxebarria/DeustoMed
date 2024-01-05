@@ -320,9 +320,9 @@ class ShowPatientWindow extends JFrame {
                 JsonArray jsonArrayTreatment = gsonTreatment.fromJson(jsonResponseTreatment, JsonArray.class);
 
                 for (int j = 0; j < jsonArrayTreatment.size(); j++) {
-                    JsonObject jsonObject = jsonArray.get(j).getAsJsonObject();
+                    JsonObject jsonObject = jsonArrayTreatment.get(j).getAsJsonObject();
+
                     String medication_id = jsonObject.get("id").getAsString();
-                    String name = jsonObject.get("name").getAsString();
                     String activesubstance = jsonObject.get("activesubstance").getAsString();
                     String commercialName = jsonObject.get("commercialname").getAsString();
                     int stock = jsonObject.get("stock").getAsInt();

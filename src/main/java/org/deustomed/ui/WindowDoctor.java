@@ -15,14 +15,15 @@ import org.deustomed.postgrest.PostgrestQuery;
 import org.deustomed.postgrest.authentication.PostgrestAuthenticationService;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellEditor;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.awt.geom.Ellipse2D;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -55,6 +56,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
     private Date selectedDate = new Date();
     private static PostgrestClient postgrestClient;
     private final Logger logger;
+    private LoadingWindow loadingWindow;
 
     public static void main(String[] args) {
         FlatLightLaf.setup();
@@ -64,26 +66,29 @@ public class WindowDoctor extends UserAuthenticatedWindow {
                 LocalDate.now(), Sex.MALE, "12345678A", "paciente1@email.com", "019283712094",
                 "Calle de Ciudad", new ArrayList<>());
         ArrayList<Appointment> appoinments = new ArrayList<>();
-        appoinments.add(new Appointment(patient1.getId(), "doctor.getId()", LocalDateTime.of(2023, 12, 24, 12, 0), "Cita consulta", "Cita " +
-                "consulta con paciente"));
-        appoinments.add(new Appointment(patient1.getId(), "doctor.getId()", LocalDateTime.of(2023, 1, 1, 12, 0), "Cita consulta", "Cita " +
-                "consulta con paciente"));
         appoinments.add(new Appointment(patient1.getId(), "doctor.getId()", LocalDateTime.of(2024, 1, 1, 12, 0), "Cita consulta", "Cita " +
+                "consulta con paciente"));
+        appoinments.add(new Appointment(patient1.getId(), "doctor.getId()", LocalDateTime.of(2024, 1, 1, 12, 30), "Cita consulta", "Cita " +
+                "consulta con paciente"));
+        appoinments.add(new Appointment(patient1.getId(), "doctor.getId()", LocalDateTime.of(2024, 1, 1, 13, 0), "Cita consulta", "Cita " +
                 "consulta con paciente"));
         ArrayList<Patient> patients = new ArrayList<>();
         patients.add(patient1);
         // TODO: 19/12/23 ajustar instancia a constructor
         Doctor doctor1 = new Doctor("00AAB", "Carlos", "Rodriguez", "Martinez", LocalDate.now(), Sex.MALE,
-                "12345A", "carlosrodri@gmail.com", "293472349", "Calle Random", "Medicina Familiar", appoinments);
+                "12345A", "carlosrodri@gmail.com", "293472349", "Calle Random", "Medicina ", appoinments);
 
         ConfigLoader configLoader = new ConfigLoader();
         WindowDoctor win = new WindowDoctor(doctor1, new AnonymousAuthenticationService(configLoader.getAnonymousToken()));
         win.setVisible(true);
+
     }
 
     public WindowDoctor(Doctor doctor, PostgrestAuthenticationService authenticationService) {
         super(authenticationService instanceof UserAuthenticationService ? (UserAuthenticationService) authenticationService : null);
 
+        loadingWindow = new LoadingWindow(doctor.getName() + " " + doctor.getSurname1() + " " + doctor.getSurname2() + " ");
+        loadingWindow.setVisible(true);
         ConfigLoader configLoader = new ConfigLoader();
         postgrestClient = new PostgrestClient(configLoader.getHostname(), configLoader.getEndpoint(), authenticationService);
         WindowDoctor.doctor = doctor;
@@ -167,7 +172,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         TableModelPatient tmp0 = new TableModelPatient(fullRegistry);
         tableTreatedPatient = new JTable(tmp0);
         tableTreatedPatient.setDefaultRenderer(Patient.class, new TablePatientRenderer());
-        tableTreatedPatient.setDefaultEditor(Patient.class, new TablePatienteEditor(new JTextField()));
+        tableTreatedPatient.setDefaultEditor(Patient.class, new TablePatientEditor());
         JScrollPane spTableFullRegistry = new JScrollPane(tableTreatedPatient);
         tabbedPaneCenter.addTab("Registro Completo Pacientes", null, spTableFullRegistry);
 
@@ -187,7 +192,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
                 TableModelPatient tmp1 = new TableModelPatient(ownPatients);
                 tableOwnPatient = new JTable(tmp1);
                 tableOwnPatient.setDefaultRenderer(Patient.class, new TablePatientRenderer());
-                tableOwnPatient.setDefaultEditor(Patient.class, new TablePatienteEditor(new JTextField()));
+                tableOwnPatient.setDefaultEditor(Patient.class, new TablePatientEditor());
                 JScrollPane spTableOwnPatient = new JScrollPane(tableOwnPatient);
 
                 tabbedPaneCenter.addTab("Registro Pacientes Propios", null, spTableOwnPatient);
@@ -200,7 +205,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
             TableModelPatient tmp2 = new TableModelPatient(treatedPatients);
             tableTreatedPatient = new JTable(tmp2);
             tableTreatedPatient.setDefaultRenderer(Patient.class, new TablePatientRenderer());
-            tableTreatedPatient.setDefaultEditor(Patient.class, new TablePatienteEditor(new JTextField()));
+            tableTreatedPatient.setDefaultEditor(Patient.class, new TablePatientEditor());
             JScrollPane spTableTreatedPatients = new JScrollPane(tableTreatedPatient);
 
             ArrayList<String> inTreatmentPatientsIDs = Doctor.loadSpecialistPatientIDs(doctor.getId(), postgrestClient, true);
@@ -209,11 +214,11 @@ public class WindowDoctor extends UserAuthenticatedWindow {
             TableModelPatient tmp3 = new TableModelPatient(inTreatmentPatients);
             tableInTreatmentPatient = new JTable(tmp3);
             tableInTreatmentPatient.setDefaultRenderer(Patient.class, new TablePatientRenderer());
-            tableInTreatmentPatient.setDefaultEditor(Patient.class, new TablePatienteEditor(new JTextField()));
+            tableInTreatmentPatient.setDefaultEditor(Patient.class, new TablePatientEditor());
             JScrollPane spTableInTreatmentPatients = new JScrollPane(tableInTreatmentPatient);
 
-            tabbedPaneCenter.addTab("Registro Pacientes Tratados", iconPatients, spTableTreatedPatients);
-            tabbedPaneCenter.addTab("Registro Pacientes Tratamiento", iconPatients, spTableInTreatmentPatients);
+            tabbedPaneCenter.addTab("Registro Pacientes Tratados", null, spTableTreatedPatients);
+            tabbedPaneCenter.addTab("Registro Pacientes Tratamiento", null, spTableInTreatmentPatients);
 
         }
 
@@ -248,6 +253,13 @@ public class WindowDoctor extends UserAuthenticatedWindow {
 
         visualiseAppoinments(new Date());
 
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowOpened(WindowEvent e) {
+                loadingWindow.dispose();
+                LoadingWindow.stopThread();
+            }
+        });
     }
 
     public void visualiseAppoinments(Date date) {
@@ -369,34 +381,47 @@ public class WindowDoctor extends UserAuthenticatedWindow {
     }
 
     class PatientShowButton extends JButton {
+        private Patient patient;
+
+        public Patient getButtonPatient() {
+            return patient;
+        }
+
         PatientShowButton(Patient patient) {
             super("Mostrar");
+            this.patient = patient;
             this.setFont(new Font("Arial", 0, 12));
             this.setEnabled(true);
-            this.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    ShowPatientWindow spw = new ShowPatientWindow(patient);
-                    spw.setVisible(true);
-                }
-            });
+
         }
     }
 
-    class TablePatienteEditor extends DefaultCellEditor {
 
-        public TablePatienteEditor(JTextField textField) {
-            super(textField);
+    class TablePatientEditor extends AbstractCellEditor implements TableCellEditor {
+        private PatientShowButton patientShowButton;
+
+        public TablePatientEditor() {
+            super();
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+            patientShowButton = new PatientShowButton((Patient) value);
+            patientShowButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    ShowPatientWindow spw = new ShowPatientWindow(patientShowButton.getButtonPatient());
+                    spw.setVisible(true);
+                    fireEditingStopped();
+                }
+            });
+
+            return patientShowButton;
         }
 
         @Override
         public Object getCellEditorValue() {
             return null;
-        }
-
-        @Override
-        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-            return new PatientShowButton((Patient) value);
         }
 
         @Override
@@ -411,22 +436,23 @@ public class WindowDoctor extends UserAuthenticatedWindow {
 
         @Override
         public boolean stopCellEditing() {
-            return false;
+            fireEditingStopped();
+            return true;
         }
 
         @Override
         public void cancelCellEditing() {
-
+            fireEditingCanceled();
         }
 
         @Override
         public void addCellEditorListener(CellEditorListener l) {
-
+            listenerList.add(CellEditorListener.class, l);
         }
 
         @Override
         public void removeCellEditorListener(CellEditorListener l) {
-
+            listenerList.remove(CellEditorListener.class, l);
         }
     }
 
@@ -631,5 +657,47 @@ public class WindowDoctor extends UserAuthenticatedWindow {
 
     public Patient getPatientWithThisID(String id) {
         throw new UnsupportedOperationException("getPatientWithThisID not implemented yet");
+    }
+
+    class LoadingWindow extends JFrame {
+        private static Thread t;
+
+        public LoadingWindow(String name) {
+            screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            setBounds((int) screenSize.getWidth() / 2 - 200, (int) screenSize.getHeight() / 2 - 60, 400, 120);
+            JPanel labelPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            Border emptyBorder = BorderFactory.createEmptyBorder(30, 40, 0,0);
+            labelPanel.setBorder(emptyBorder);
+            String[] states = {"Cargando datos del registro de pacientes .", "Cargando datos del registro de pacientes ..", "Cargando datos del registro de pacientes ...",
+                    "Cargando datos del registro de pacientes ....", "Cargando datos del registro de pacientes ....."};
+            setTitle("Cargando ventana del Dr. " + name);
+            JLabel loadingData = new JLabel();
+            loadingData.setHorizontalAlignment(SwingConstants.LEFT);
+            loadingData.setVerticalAlignment(SwingConstants.CENTER);
+            loadingData.setFont(new Font(loadingData.getFont().getName(), 3, 15));
+            labelPanel.add(loadingData);
+            loadingData.getAlignmentX();
+            this.add(labelPanel);
+            t = new Thread(() -> {
+                int counter = 0;
+                while (counter < 5) {
+                    loadingData.setText(states[counter]);
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                    }
+                    counter++;
+                    if (counter == 5) counter = 0;
+                }
+            }
+            );
+            t.start();
+        }
+
+        public static void stopThread() {
+            t.interrupt();
+        }
+
+        ;
     }
 }

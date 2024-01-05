@@ -44,14 +44,14 @@ public class Medication {
         for (int j = 0; j < jsonArray.size(); j++) {
             JsonObject jsonObject = jsonArray.get(j).getAsJsonObject();
             String id = jsonObject.get("id").getAsString();
-            String activesubstance = jsonObject.get("activesubstance").getAsString();
+            String activeSubstance = jsonObject.get("activesubstance").getAsString();
             String commercialName = jsonObject.get("commercialname").getAsString();
             int stock = jsonObject.get("stock").getAsInt();
             double dose = jsonObject.get("dose").getAsDouble();
             String company = jsonObject.get("company").getAsString();
             String shortDescription = jsonObject.get("shortdescription").getAsString();
 
-            Medication medication = new Medication(id, activesubstance, commercialName, stock, dose, company, shortDescription);
+            Medication medication = new Medication(id, activeSubstance, commercialName, stock, dose, company, shortDescription);
             resultList.add(medication);
         }
         return resultList;
