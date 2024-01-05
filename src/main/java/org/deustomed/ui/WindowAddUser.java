@@ -223,20 +223,12 @@ public class WindowAddUser extends JFrame {
                     //Add to the doctor arraylist
                     String speciality = ((String) cbSpeciality.getSelectedItem()).toString();
                     String id = "" + doctors.size() + 1;
-                    // TODO: 19/12/23 diferenciar entre médicos de familia y especialistas;
-                    // TODO: 19/12/23 en este ejemplo es médico de familia, por los que la especialidad es predeterminada
-                    Doctor doctor;
-                    /*if (speciality.equals("Medicina Familiar")) {
-                        doctor = new Doctor(id, name, surname1, surname2, birthDate, sex,
-                                dni, email, phone, address, new ArrayList<>(), new ArrayList<>());
-                    } else {
-                        doctor = new Doctor(id, name, surname1, surname2, birthDate, sex, dni, email, phone, address,
-                                new ArrayList<>(), speciality, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-                    }
+                    Doctor doctor = new Doctor(id, name, surname1, surname2, birthDate, sex, dni, email, phone,
+                            address,  speciality, new ArrayList<>());
                     doctors.add(doctor);
                     new WindowConfirmNewUser(doctor);
                     System.out.println("Nuevo doctor: " + doctor);
-                    dispose();*/
+                    dispose();
                 }
             }
         });
