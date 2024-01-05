@@ -372,6 +372,7 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         this.setVisible(true);
     }
 
+
     public void obtainPatients(JsonArray jsonPatientData){
         for (JsonElement jsonElement : jsonPatientData) {
             JsonObject jsonObject = jsonElement.getAsJsonObject();

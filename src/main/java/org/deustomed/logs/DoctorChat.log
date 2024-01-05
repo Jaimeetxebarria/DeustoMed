@@ -1,5 +1,7 @@
 dic 17, 2023 11:59:23 P. M. org.deustomed.ui.DoctorChat <init>
 INFO: DoctorChat iniciado por el doctor 00AAA.
+dic 18, 2023 12:23:50 P. M. org.deustomed.ui.DoctorChat <init>
+INFO: DoctorChat iniciado por el doctor 00AAA.
 dic 18, 2023 4:54:48 P. M. org.deustomed.ui.DoctorChat$3 run
 SEVERE: Hilo de comprobación de mensajes interrumpido para el doctor 00AAA
 dic 18, 2023 4:54:50 P. M. org.deustomed.ui.DoctorChat$3 run
