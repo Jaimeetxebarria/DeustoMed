@@ -1,3 +1,5 @@
+package org.deustomed;
+
 import org.deustomed.WeekDayFinder;
 import org.junit.jupiter.api.Test;
 
