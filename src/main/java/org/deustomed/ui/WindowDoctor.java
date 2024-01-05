@@ -594,8 +594,8 @@ public class WindowDoctor extends UserAuthenticatedWindow {
             FamilyDoctor newFamilyDoctor = new FamilyDoctor(id, name, surname1, surname2, date, sex, dni, email, phone, address,
                     appointments, ownPatients);
         } else {
-            // TODO: 26/12/23 Create new SpecialistDoctor: load patients Treated, OnTreatment and ToBeTreated 
-            //SpecialistDoctor newSpecialistDoctor = new SpecialistDoctor();
+            // TODO: 26/12/23 Create new SpecialistDoctor: load patients Treated, OnTreatment and ToBeTreated
+
         }
 
     }

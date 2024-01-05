@@ -298,16 +298,12 @@ class ShowPatientWindow extends JFrame {
         PostgrestQuery query = postgrestClient
                 .from("patient_undergoes_treatment")
                 .select("medication_id")
-                .eq("patient_id", id)
+                .eq("fk_patient_id", id)
                 .getQuery();
 
         String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
         Gson gson = new Gson();
-        JsonArray jsonArray = new JsonArray();
-        try {
-            jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
-        } catch (JsonSyntaxException e) {
-        }
+        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
 
         if (!jsonArray.isEmpty()) {
             for (int i = 0; i < jsonArray.size(); i++) {
