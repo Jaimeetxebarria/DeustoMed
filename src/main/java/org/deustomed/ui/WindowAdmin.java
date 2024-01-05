@@ -118,7 +118,7 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         pnlBotton.add(pnlButtons, BorderLayout.EAST);
         pnlPatient.add(pnlBotton, BorderLayout.SOUTH);
 
-        tabAdmin.addTab("Usuarios", pnlPatient);
+        tabAdmin.addTab("Paciente", pnlPatient);
 
         tfFindPatient.getDocument().addDocumentListener(new DocumentListener() {
             @Override
