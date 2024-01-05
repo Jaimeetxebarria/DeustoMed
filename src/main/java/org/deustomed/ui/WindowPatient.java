@@ -77,7 +77,6 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
     private static PostgrestClient postgrestClient;
     private Logger logger;
     private GreenDateHighlighter highlighter =  new GreenDateHighlighter();
-    protected DoctorMsgCode doctorMsgCode = new DoctorMsgCode();
 
     public WindowPatient(String patientId, PostgrestAuthenticationService authenticationService) {
         super(authenticationService instanceof UserAuthenticationService ? (UserAuthenticationService) authenticationService : null);
@@ -497,7 +496,7 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
             String datetime = appointmentObject.get("date").getAsString();
             String reason = appointmentObject.get("reason").getAsString();
             String fkDoctorId = appointmentObject.get("fk_doctor_id").getAsString();
-            String chatCode = doctorMsgCode.idToMsgCode(fkDoctorId);
+            String chatCode = DoctorMsgCode.idToMsgCode(fkDoctorId);
 
             LocalDateTime dateTime = LocalDateTime.parse(datetime);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy hh:mm a");
@@ -625,9 +624,6 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
         JButton confirmButton = new JButton("Confirmar");
         JButton cancelButton = new JButton("Cancelar");
 
-        DoctorMsgCode codeTransformator = new DoctorMsgCode();
-
-
         confirmButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -639,7 +635,7 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
                 }
 
                 if (!doctorCodeField.getText().equals("")) {
-                    docCode[0] = codeTransformator.MsgCodeToId(doctorCodeField.getText());
+                    docCode[0] = DoctorMsgCode.MsgCodeToId(doctorCodeField.getText());
                 }else{
                     ChatUser selectedUser = (ChatUser) comboBox.getSelectedItem();
                     docCode[0] = selectedUser.getId();

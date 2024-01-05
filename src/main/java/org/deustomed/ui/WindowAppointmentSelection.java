@@ -16,7 +16,6 @@ import org.deustomed.postgrest.authentication.PostgrestAuthenticationService;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -32,7 +31,6 @@ public class WindowAppointmentSelection extends JFrame {
     protected JButton cancelButton;
     protected JButton confirmButton;
     private static PostgrestClient postgrestClient;
-    protected DoctorMsgCode doctorMsgCode = new DoctorMsgCode();
 
     public WindowAppointmentSelection(TreeSet<Appointment> appointments) {
 
@@ -71,7 +69,7 @@ public class WindowAppointmentSelection extends JFrame {
             LocalDateTime localDateTime = ap.getDate();
             Date date = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
 
-            String chatCode = doctorMsgCode.idToMsgCode(ap.getDoctorId());
+            String chatCode = DoctorMsgCode.idToMsgCode(ap.getDoctorId());
 
             String[] row = { dateFormat.format(date),getDoctorName(ap.getDoctorId()), chatCode};
             model.addRow(row);
