@@ -107,7 +107,7 @@ public class Doctor extends User {
             query = postgrestClient
                     .from("patient")
                     .select("*")
-                    .eq("doctor_id", doctorID)
+                    .eq("fk_doctor_id", doctorID)
                     .getQuery();
         }
 

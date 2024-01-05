@@ -226,17 +226,17 @@ public class WindowAddUser extends JFrame {
                     // TODO: 19/12/23 diferenciar entre médicos de familia y especialistas;
                     // TODO: 19/12/23 en este ejemplo es médico de familia, por los que la especialidad es predeterminada
                     Doctor doctor;
-                    if (speciality.equals("Medicina Familiar")) {
-                        doctor = new FamilyDoctor(id, name, surname1, surname2, birthDate, sex,
+                    /*if (speciality.equals("Medicina Familiar")) {
+                        doctor = new Doctor(id, name, surname1, surname2, birthDate, sex,
                                 dni, email, phone, address, new ArrayList<>(), new ArrayList<>());
                     } else {
-                        doctor = new SpecialistDoctor(id, name, surname1, surname2, birthDate, sex, dni, email, phone, address,
+                        doctor = new Doctor(id, name, surname1, surname2, birthDate, sex, dni, email, phone, address,
                                 new ArrayList<>(), speciality, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
                     }
                     doctors.add(doctor);
                     new WindowConfirmNewUser(doctor);
                     System.out.println("Nuevo doctor: " + doctor);
-                    dispose();
+                    dispose();*/
                 }
             }
         });

@@ -46,9 +46,12 @@ public class WindowDoctor extends UserAuthenticatedWindow {
     private JTable tableInTreatmentPatient;
     private JTable tableToTreatPatient;
     private JTable patientRegistry;
+    private ArrayList<Patient> fullRegistry;
+    private ArrayList<Patient> ownPatients;
+    private ArrayList<Patient> treatedPatients;
+    private ArrayList<Patient> inTreatmentPatients;
     private final JTable tableMedication;
     private final JTabbedPane tabbedPaneCenter;
-    private ArrayList<Patient> ownPatients;
     private Date selectedDate = new Date();
     private static PostgrestClient postgrestClient;
     private final Logger logger;
@@ -71,7 +74,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         patients.add(patient1);
         // TODO: 19/12/23 ajustar instancia a constructor
         Doctor doctor1 = new Doctor("00AAB", "Carlos", "Rodriguez", "Martinez", LocalDate.now(), Sex.MALE,
-                "12345A", "carlosrodri@gmail.com", "293472349", "Calle Random", "", appoinments);
+                "12345A", "carlosrodri@gmail.com", "293472349", "Calle Random", "Medicina Familiar", appoinments);
 
         ConfigLoader configLoader = new ConfigLoader();
         WindowDoctor win = new WindowDoctor(doctor1, new AnonymousAuthenticationService(configLoader.getAnonymousToken()));
@@ -158,8 +161,9 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         Icon iconPatients = new ImageIcon("src/main/java/ui/patient.png");
         Icon iconMedication = new ImageIcon("src/main/java/ui/medication.png");
 
-        ArrayList<Patient> fullRegistry = Doctor.loadPatients(doctor.getId(), postgrestClient, true);
-        doctor.setRegistryOfPatients(fullRegistry);
+        doctor.setRegistryOfPatients(Doctor.loadPatientIDs(doctor.getId(), postgrestClient, true));
+        ArrayList<Patient> fullRegistry = doctor.loadPatients(postgrestClient, 0);
+
         TableModelPatient tmp0 = new TableModelPatient(fullRegistry);
         tableTreatedPatient = new JTable(tmp0);
         tableTreatedPatient.setDefaultRenderer(Patient.class, new TablePatientRenderer());
@@ -173,11 +177,12 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         add(tabbedPaneCenter, BorderLayout.CENTER);
 
         // Para Doctor de Medicina Familiar:
-        if (doctor instanceof FamilyDoctor) {
-            //System.out.println(((FamilyDoctor) doctor).getOwnPatients());
-            ownPatients = FamilyDoctor.loadPatients(doctor.getId(), postgrestClient, false);
-            System.out.println("These are the patients: "+ownPatients);
-            ((FamilyDoctor) doctor).setOwnPatients(ownPatients);
+        if (doctor.getSpeciality().equals("Medicina Familiar")) {
+
+            doctor.setOwnPatients(Doctor.loadPatientIDs(doctor.getId(), postgrestClient, false));
+            ownPatients = doctor.loadPatients(postgrestClient, 1);
+            System.out.println("These are the patients: " + ownPatients);
+
             if (ownPatients != null) {
                 TableModelPatient tmp1 = new TableModelPatient(ownPatients);
                 tableOwnPatient = new JTable(tmp1);
@@ -189,33 +194,27 @@ public class WindowDoctor extends UserAuthenticatedWindow {
             }
 
         } else {
-            ArrayList<Patient> treatedPatients = SpecialistDoctor.loadSpecialistPatients(doctor.getId(), postgrestClient, "treated_patients");
-            ((SpecialistDoctor) doctor).setTreatedPatients(treatedPatients);
+            ArrayList<String> treatedPatientsIDs = Doctor.loadSpecialistPatientIDs(doctor.getId(), postgrestClient, true);
+            doctor.setTreatedPatients(treatedPatientsIDs);
+            treatedPatients = doctor.loadPatients(postgrestClient, 2);
             TableModelPatient tmp2 = new TableModelPatient(treatedPatients);
             tableTreatedPatient = new JTable(tmp2);
             tableTreatedPatient.setDefaultRenderer(Patient.class, new TablePatientRenderer());
             tableTreatedPatient.setDefaultEditor(Patient.class, new TablePatienteEditor(new JTextField()));
             JScrollPane spTableTreatedPatients = new JScrollPane(tableTreatedPatient);
 
-            ArrayList<Patient> inTreatmentPatients = SpecialistDoctor.loadSpecialistPatients(doctor.getId(), postgrestClient, "in_treatment_patients");
-            ((SpecialistDoctor) doctor).setInTreatmentPatients(inTreatmentPatients);
+            ArrayList<String> inTreatmentPatientsIDs = Doctor.loadSpecialistPatientIDs(doctor.getId(), postgrestClient, true);
+            doctor.setTreatedPatients(inTreatmentPatientsIDs);
+            inTreatmentPatients = doctor.loadPatients(postgrestClient, 3);
             TableModelPatient tmp3 = new TableModelPatient(inTreatmentPatients);
             tableInTreatmentPatient = new JTable(tmp3);
             tableInTreatmentPatient.setDefaultRenderer(Patient.class, new TablePatientRenderer());
             tableInTreatmentPatient.setDefaultEditor(Patient.class, new TablePatienteEditor(new JTextField()));
             JScrollPane spTableInTreatmentPatients = new JScrollPane(tableInTreatmentPatient);
 
-            ArrayList<Patient> toBeTreatedPatients = SpecialistDoctor.loadSpecialistPatients(doctor.getId(), postgrestClient, "to_be_treated_patients");
-            ((SpecialistDoctor) doctor).setTreatedPatients(toBeTreatedPatients);
-            TableModelPatient tmp4 = new TableModelPatient(toBeTreatedPatients);
-            tableToTreatPatient = new JTable(tmp4);
-            tableToTreatPatient.setDefaultRenderer(Patient.class, new TablePatientRenderer());
-            tableToTreatPatient.setDefaultEditor(Patient.class, new TablePatienteEditor(new JTextField()));
-            JScrollPane spTableToTreatPatients = new JScrollPane(tableToTreatPatient);
-
             tabbedPaneCenter.addTab("Registro Pacientes Tratados", iconPatients, spTableTreatedPatients);
             tabbedPaneCenter.addTab("Registro Pacientes Tratamiento", iconPatients, spTableInTreatmentPatients);
-            tabbedPaneCenter.addTab("Registro Futuros Pacientes", iconPatients, spTableToTreatPatients);
+
         }
 
         //--------------------- Panel EAST: Citas (Appointments) --------------------------------
@@ -560,7 +559,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
 
     /*
     Used to load all the doctors from the database and fill the static ArrayList<Doctor> from Doctor.java
-     */
+
     public void loadDoctors() {
 
         PostgrestQuery query = postgrestClient
@@ -599,7 +598,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         }
 
     }
-
+*/
 
     public ArrayList<Appointment> loadDoctorAppointments(String doctorID) {
         ArrayList<Appointment> resultArrayList = new ArrayList<>();
