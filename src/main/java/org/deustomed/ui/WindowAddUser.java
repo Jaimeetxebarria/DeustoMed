@@ -30,7 +30,6 @@ public class WindowAddUser extends JFrame {
     JDateChooser dateChooser;
     Date previousDate;
     JComboBox<String> cbSpeciality;
-    protected JsonArray jsonSpeciality;
     protected List<String> specialities = new ArrayList<>();
 
     private static PostgrestClient postgrestClient;
@@ -54,15 +53,15 @@ public class WindowAddUser extends JFrame {
         setLayout(new BorderLayout());
         //setResizable(false);
         setLocationRelativeTo(null);
-        setSize(300, 550);
+        setSize(400, 350);
 
-        lblName = createCenteredLabel("*Nombre:");
-        lblSurname1 = createCenteredLabel("*Apellido 1:");
-        lblSurname2 = createCenteredLabel("*Apellido 2:");
-        lblSex = createCenteredLabel("*Sexo:");
-        lblEmail = createCenteredLabel("Email:");
-        lblDni = createCenteredLabel("DNI:");
-        lblError = createCenteredLabel("");
+        lblName = new JLabel("*Nombre:");
+        lblSurname1 = new JLabel("*Apellido 1:");
+        lblSurname2 = new JLabel("*Apellido 2:");
+        lblSex = new JLabel("*Sexo:");
+        lblEmail = new JLabel("Email:");
+        lblDni = new JLabel("DNI:");
+        lblError = new JLabel("");
         lblError.setForeground(Color.RED);
 
         tfName = new JTextField();
@@ -103,7 +102,7 @@ public class WindowAddUser extends JFrame {
         tfAddress = new JTextField();
 
         if (doctors != null) {
-            lblSpeciality = createCenteredLabel("Especialidad:");
+            lblSpeciality = new JLabel("Especialidad:");
             cbSpeciality = new JComboBox<>();
 
             PostgrestQuery specialityQuery = postgrestClient
@@ -127,10 +126,11 @@ public class WindowAddUser extends JFrame {
 
         JPanel pnlPrimary = new JPanel();
         if (patients != null) {
-            pnlPrimary.setLayout(new GridLayout(10, 2));
+            pnlPrimary.setLayout(new GridLayout(10, 2, 5, 5));
         } else if (doctors != null) {
-            pnlPrimary.setLayout(new GridLayout(11, 2));
+            pnlPrimary.setLayout(new GridLayout(11, 2, 5, 5));
         }
+        pnlPrimary.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         pnlPrimary.add(lblName);
         pnlPrimary.add(tfName);
@@ -165,6 +165,7 @@ public class WindowAddUser extends JFrame {
         pnlCenter.add(lblError, BorderLayout.SOUTH);
 
         JPanel pnlSouth = new JPanel(new BorderLayout());
+        pnlSouth.setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
         pnlSouth.add(btnSave, BorderLayout.EAST);
         pnlSouth.add(btnCancel, BorderLayout.WEST);
 
