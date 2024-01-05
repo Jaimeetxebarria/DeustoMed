@@ -65,7 +65,7 @@ public class WindowAddUser extends JFrame {
         setLayout(new BorderLayout());
         //setResizable(false);
         setLocationRelativeTo(null);
-        setSize(400, 350);
+        setSize(400, 390);
 
         lblName = new JLabel("*Nombre:");
         lblSurname1 = new JLabel("*Apellido 1:");
@@ -144,7 +144,7 @@ public class WindowAddUser extends JFrame {
         } else if (doctors != null) {
             pnlPrimary.setLayout(new GridLayout(12, 2, 5, 5));
         }
-        pnlPrimary.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        pnlPrimary.setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
 
         pnlPrimary.add(lblName);
         pnlPrimary.add(tfName);
