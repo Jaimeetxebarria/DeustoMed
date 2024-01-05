@@ -2,10 +2,7 @@ package org.deustomed.ui;
 
 import com.formdev.flatlaf.FlatLightLaf;
 import com.formdev.flatlaf.fonts.inter.FlatInterFont;
-import org.deustomed.Doctor;
-import org.deustomed.Patient;
-import org.deustomed.Sex;
-import org.deustomed.User;
+import org.deustomed.*;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -36,6 +33,8 @@ public class WindowConfirmNewUser extends JFrame {
         lblId = new JLabel("Id:");
         tfId = new JTextField();
         tfId.setEditable(false);
+        tfId.setText(user.getId());
+
         btCopyId = new JButton("Copiar código");
         btOk = new JButton("Confirmar");
 
@@ -43,6 +42,7 @@ public class WindowConfirmNewUser extends JFrame {
             lblChatCode = new JLabel("Código chat:");
             tfChatCode = new JTextField();
             tfChatCode.setEditable(false);
+            tfChatCode.setText(DoctorMsgCode.idToMsgCode(user.getId()));
         }
 
         Border border = new TitledBorder("Aquí tiene sus datos identificativos:");
