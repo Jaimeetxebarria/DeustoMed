@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.TreeSet;
 
 public class WindowAppointmentSelection extends JFrame {
@@ -31,6 +32,7 @@ public class WindowAppointmentSelection extends JFrame {
     protected JButton cancelButton;
     protected JButton confirmButton;
     private static PostgrestClient postgrestClient;
+    private static final HashMap<String, String> doctorIdToName = new HashMap<>();
 
     public WindowAppointmentSelection(TreeSet<Appointment> appointments) {
 
@@ -71,7 +73,7 @@ public class WindowAppointmentSelection extends JFrame {
 
             String chatCode = DoctorMsgCode.idToMsgCode(ap.getDoctorId());
 
-            String[] row = { dateFormat.format(date),getDoctorName(ap.getDoctorId()), chatCode};
+            String[] row = {dateFormat.format(date), getDoctorName(ap.getDoctorId()), chatCode};
             model.addRow(row);
             comboBox.addItem(getDoctorName(ap.getDoctorId()) + " - " + dateFormat.format(date));
         }
@@ -145,6 +147,8 @@ public class WindowAppointmentSelection extends JFrame {
     }
 
     public String getDoctorName(String doctorId) {
+        if (doctorIdToName.containsKey(doctorId)) return doctorIdToName.get(doctorId);
+
         PostgrestQuery query = postgrestClient
                 .from("person")
                 .select("name", "surname1", "surname2")
@@ -160,7 +164,8 @@ public class WindowAppointmentSelection extends JFrame {
         String surname1 = jsonObject.get("surname1").getAsString();
         String surname2 = jsonObject.get("surname2").getAsString();
 
-        String fullName = (name + " " + surname1 + " " + surname2);
+        String fullName = name + " " + surname1 + " " + surname2;
+        doctorIdToName.put(doctorId, fullName);
         return fullName;
     }
 
