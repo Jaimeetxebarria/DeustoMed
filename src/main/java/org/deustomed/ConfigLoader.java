@@ -9,6 +9,7 @@ public class ConfigLoader {
     private String hostname;
     private String endpoint;
     private String anonymousToken;
+    private String authServerBaseUrl;
 
     public ConfigLoader() {
         try (InputStream input = new FileInputStream("src/main/java/org/deustomed/config.properties")) {
@@ -17,6 +18,7 @@ public class ConfigLoader {
             hostname = prop.getProperty("hostname");
             endpoint = prop.getProperty("endpoint");
             anonymousToken = prop.getProperty("anonymous_token");
+            authServerBaseUrl = prop.getProperty("auth_server_base_url");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -32,5 +34,9 @@ public class ConfigLoader {
 
     public String getAnonymousToken() {
         return anonymousToken;
+    }
+
+    public String getAuthServerBaseUrl() {
+        return authServerBaseUrl;
     }
 }
