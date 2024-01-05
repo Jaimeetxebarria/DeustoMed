@@ -35,7 +35,7 @@ public class WindowAddUser extends JFrame {
     private static PostgrestClient postgrestClient;
     private static final Gson gson = new Gson();
 
-    public WindowAddUser(List<User> users) {
+    public WindowAddUser(List<? extends User> users) {
         ConfigLoader configLoader = new ConfigLoader();
         String hostname = configLoader.getHostname();
         String endpoint = configLoader.getEndpoint();
