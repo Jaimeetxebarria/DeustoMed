@@ -32,8 +32,8 @@ public class WindowAdmin extends UserAuthenticatedWindow {
 
     protected JPanel pnlPatient, pnlDoctor;
     protected JTable tblPatient, tblDoctor;
-    protected final String[] columNamesPatients = {"ID", "Apellidos", "Nombre", "Sexo", "Email", "DNI", "Edad", "Teléfono", "Dirección", "Fecha de nacimiento"};
-    protected final String[] columNamesDoctor = {"ID", "Apellidos", "Nombre", "Sexo", "Email", "DNI", "Edad", "Teléfono", "Dirección", "Fecha de nacimiento", "Especialidad"};
+    protected final String[] columNamesPatients = {"ID", "1º apellido", "2º apellido", "Nombre", "Sexo", "Email", "DNI", "Edad", "Teléfono", "Dirección", "Fecha de nacimiento"};
+    protected final String[] columNamesDoctor = {"ID", "1º apellido", "2º apellido", "Nombre", "Sexo", "Email", "DNI", "Edad", "Teléfono", "Dirección", "Fecha de nacimiento", "Especialidad"};
 
     protected DefaultTableModel mdlPatient, mdlDoctor;
     protected JScrollPane scrPatient, scrDoctor;
@@ -73,7 +73,6 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         String jsonResponseP = String.valueOf(postgrestClient.sendQuery(queryPatient));
         jsonPatientData = gson.fromJson(jsonResponseP, JsonArray.class);
         obtainPatients(jsonPatientData);
-        System.out.println(patients);
 
         pnlPatient = new JPanel(new BorderLayout());
         Border border = new TitledBorder("Tabla de pacientes:");
@@ -82,8 +81,8 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         mdlPatient = completeTable(columNamesPatients, patients);
         tblPatient = new JTable(mdlPatient);
         tblPatient.getColumnModel().getColumn(0).setPreferredWidth(25);
-        tblPatient.getColumnModel().getColumn(3).setPreferredWidth(25);
-        tblPatient.getColumnModel().getColumn(6).setPreferredWidth(25);
+        tblPatient.getColumnModel().getColumn(4).setPreferredWidth(30);
+        tblPatient.getColumnModel().getColumn(7).setPreferredWidth(25);
         tblPatient.setRowHeight(25);
 
         scrPatient = new JScrollPane(tblPatient);
@@ -151,15 +150,15 @@ public class WindowAdmin extends UserAuthenticatedWindow {
                     // Crea un nuevo objeto Patient con los valores editados
                     Patient editedPatient = new Patient(
                             originalPatient.getId(),                    //id
-                            rowData[2].toString(),                      //name
+                            rowData[3].toString(),                      //name
                             rowData[1].toString().split(" ")[0],  //surname1
-                            rowData[1].toString().split(" ")[1],  //surname2
+                            rowData[2].toString().split(" ")[1],  //surname2
                             LocalDate.parse(rowData[9].toString()),     //birthdate
                             originalPatient.getSex(),                   //sex
-                            rowData[5].toString(),                      //dni
-                            rowData[4].toString(),                      //email
-                            rowData[7].toString(),                      //phone
-                            rowData[8].toString(),                      //address
+                            rowData[6].toString(),                      //dni
+                            rowData[5].toString(),                      //email
+                            rowData[8].toString(),                      //phone
+                            rowData[9].toString(),                      //address
                             originalPatient.getMedicalRecord());        //medicalRecord
 
 
@@ -221,7 +220,6 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         String jsonResponse = String.valueOf(postgrestClient.sendQuery(queryDoctor));
         jsonDoctorData = gson.fromJson(jsonResponse, JsonArray.class);
         obtainDoctors(jsonDoctorData);
-        System.out.println(doctors);
 
         pnlDoctor = new JPanel(new BorderLayout());
         border = new TitledBorder("Tabla de doctores:");
@@ -230,7 +228,8 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         mdlDoctor = completeTable(columNamesDoctor, doctors);
         tblDoctor = new JTable(mdlDoctor);
         tblDoctor.getColumnModel().getColumn(0).setPreferredWidth(25);
-        tblDoctor.getColumnModel().getColumn(3).setPreferredWidth(25);
+        tblDoctor.getColumnModel().getColumn(4).setPreferredWidth(30);
+        tblPatient.getColumnModel().getColumn(7).setPreferredWidth(25);
         tblDoctor.setRowHeight(25);
 
         scrDoctor = new JScrollPane(tblDoctor);
@@ -299,15 +298,15 @@ public class WindowAdmin extends UserAuthenticatedWindow {
                     // Crea un nuevo objeto Patient con los valores editados
                     Doctor editedDoctor = new Doctor(
                             originalDoctor.getId(),                       //id
-                            rowData[2].toString(),                        //name
+                            rowData[3].toString(),                        //name
                             rowData[1].toString().split(" ")[0],    //surname1
-                            rowData[1].toString().split(" ")[1],    //surname2
+                            rowData[2].toString().split(" ")[1],    //surname2
                             originalDoctor.getBirthDate(),                //birthdate
                             originalDoctor.getSex(),                      //sex
-                            rowData[5].toString(),                        //dni
-                            rowData[6].toString(),                        //email
-                            originalDoctor.getPhoneNumber(),              //phone
-                            rowData[8].toString(),                        //address
+                            rowData[6].toString(),                        //dni
+                            rowData[7].toString(),                        //email
+                            rowData[8].toString(),                        //phone
+                            rowData[9].toString(),                        //address
                             originalDoctor.getSpeciality(),               //speciality
                             originalDoctor.getAppointments());
 
@@ -418,8 +417,7 @@ public class WindowAdmin extends UserAuthenticatedWindow {
     private class CustomTableModel extends DefaultTableModel {
         @Override
         public boolean isCellEditable(int row, int column) {
-            // Hacer que las celdas de las columnas 0 y 3 no sean editables
-            return !(column == 0 || column == 5 || column == 9);
+            return !(column == 0 || column == 3 || column == 5 || column == 9);
         }
     }
     public DefaultTableModel completeTable(String[] columNames, List<User> users) {
@@ -428,19 +426,20 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         if(!users.isEmpty()) {
             for (User user : users) {
                 Object[] row = new String[columNames.length];
-                row[0] = String.valueOf(user.getId());
-                row[1] = user.getSurname1() + " " + user.getSurname2();
-                row[2] = user.getName();
-                row[3] = user.getSex().toString();
-                row[4] = user.getEmail();
-                row[5] = user.getDni();
-                row[6] = String.valueOf(user.getAgeInYears());
-                row[7] = user.getPhoneNumber();
-                row[8] = user.getAddress();
-                row[9] = user.getBirthDate().toString();
+                row[0] = user.getId();
+                row[1] = user.getSurname1();
+                row[2] = user.getSurname2();
+                row[3] = user.getName();
+                row[4] = user.getSex().toString();
+                row[5] = user.getEmail();
+                row[6] = user.getDni();
+                row[7] = String.valueOf(user.getAgeInYears());
+                row[8] = user.getPhoneNumber();
+                row[9] = user.getAddress();
+                row[10] = user.getBirthDate().toString();
                 if (users.get(0) instanceof Doctor){
                     Doctor doctor = (Doctor) user;
-                    row[10] = doctor.getSpeciality();
+                    row[11] = doctor.getSpeciality();
                 }
                 model.addRow(row);
             }
