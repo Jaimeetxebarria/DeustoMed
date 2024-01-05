@@ -70,8 +70,8 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         ArrayList<Patient> patients = new ArrayList<>();
         patients.add(patient1);
         // TODO: 19/12/23 ajustar instancia a constructor
-        Doctor doctor1 = new FamilyDoctor("00AAB", "Carlos", "Rodriguez", "Martinez", LocalDate.now(), Sex.MALE,
-                "12345A", "carlosrodri@gmail.com", "293472349", "Calle Random", appoinments, patients);
+        Doctor doctor1 = new Doctor("00AAB", "Carlos", "Rodriguez", "Martinez", LocalDate.now(), Sex.MALE,
+                "12345A", "carlosrodri@gmail.com", "293472349", "Calle Random", "", appoinments);
 
         ConfigLoader configLoader = new ConfigLoader();
         WindowDoctor win = new WindowDoctor(doctor1, new AnonymousAuthenticationService(configLoader.getAnonymousToken()));

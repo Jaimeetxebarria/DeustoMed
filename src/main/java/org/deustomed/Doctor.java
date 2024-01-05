@@ -15,12 +15,17 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Objects;
 
-//TODO make doctor abstract
-@Getter @Setter
+
+@Getter
+@Setter
+
 public class Doctor extends User {
     private String speciality;
     private ArrayList<Appointment> appointments = new ArrayList<>();
-    private ArrayList<Patient> registryOfPatients = new ArrayList<>();
+    private ArrayList<String> registryOfPatients = new ArrayList<>();
+    private ArrayList<String> ownPatients = new ArrayList<>();
+    private ArrayList<String> inTreatmentPatients = new ArrayList<>();
+    private ArrayList<String> treatedPatients = new ArrayList<>();
 
     public Doctor(@NotNull String id, @NotNull String name, @NotNull String surname1, @NotNull String surname2,
                   @NotNull LocalDate birthDate, @NotNull Sex sex, String dni, String email, String phoneNumber,
@@ -89,18 +94,18 @@ public class Doctor extends User {
                 ", speciality='" + speciality + '\'' +
                 '}';
     }
-    public static ArrayList<Patient> loadPatients(String doctorID, PostgrestClient postgrestClient, boolean fullResgistry) {
 
-        ArrayList<Patient> resultArrayList = new ArrayList<>();
+    public static ArrayList<String> loadPatientIDs(String doctorID, PostgrestClient postgrestClient, boolean fullResgistry) {
+        ArrayList<String> resultArrayList = new ArrayList<>();
         PostgrestQuery query;
-        if(fullResgistry) {
+        if (fullResgistry) {
             query = postgrestClient
-                    .from("patient_with_personal_data")
+                    .from("patient")
                     .select("*")
                     .getQuery();
         } else {
             query = postgrestClient
-                    .from("patient_with_personal_data")
+                    .from("patient")
                     .select("*")
                     .eq("doctor_id", doctorID)
                     .getQuery();
@@ -112,25 +117,86 @@ public class Doctor extends User {
 
         for (int i = 0; i < jsonArray.size(); i++) {
             JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
-
             String id = jsonObject.get("id").getAsString();
-            String name = jsonObject.get("name").getAsString();
-            String surname1 = jsonObject.get("surname1").getAsString();
-            String surname2 = jsonObject.get("surname2").getAsString();
-            String dni = jsonObject.get("dni").getAsString();
-            String birthdate = jsonObject.get("birthdate").getAsString();
-            String email = jsonObject.get("email").getAsString();
-            String phone = jsonObject.get("phone").getAsString();
-            String address = jsonObject.get("address").getAsString();
-            String sexString = jsonObject.get("sex").getAsString();
-            Sex sex = (sexString.equals("MALE")) ? Sex.MALE : Sex.FEMALE;
-
-            LocalDate localDate = LocalDate.parse(birthdate);
-
-            Patient newPatient = new Patient(id, name, surname1, surname2, localDate, sex, dni, email, phone, address, new ArrayList<>());
-            resultArrayList.add(newPatient);
+            resultArrayList.add(id);
         }
 
         return resultArrayList;
     }
+
+    public static ArrayList<String> loadSpecialistPatientIDs(String doctorID, PostgrestClient postgrestClient, boolean treated) {
+        ArrayList<String> resultArrayList = new ArrayList<>();
+
+        String sTreated = (treated) ? "TRUE" : "FALSE";
+        PostgrestQuery query = postgrestClient
+                .from("in_treatment_patients")
+                .select("patient_id")
+                .eq("doctor_id", doctorID)
+                .eq("treated", sTreated)
+                .getQuery();
+
+        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
+        Gson gson = new Gson();
+        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
+            String id = jsonObject.get("id").getAsString();
+            resultArrayList.add(id);
+        }
+
+        return resultArrayList;
+    }
+
+
+    public ArrayList<Patient> loadPatients(PostgrestClient postgrestClient, int sourceListNumber) {
+
+        ArrayList<String> sourceArraylist = switch (sourceListNumber) {
+            case 0 -> new ArrayList<>(this.getRegistryOfPatients());
+            case 1 -> new ArrayList<>(this.getOwnPatients());
+            case 2 -> new ArrayList<>(this.getInTreatmentPatients());
+            case 3 -> new ArrayList<>(this.getTreatedPatients());
+            default -> new ArrayList<>();
+        };
+
+        ArrayList<Patient> resultArrayList = new ArrayList<>();
+
+        for (int i = 0; i < sourceArraylist.size(); i++) {
+            String currentPatientID = sourceArraylist.get(i);
+
+            PostgrestQuery query = postgrestClient
+                    .from("person")
+                    .select("*")
+                    .eq("id", currentPatientID)
+                    .getQuery();
+
+            String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
+            Gson gson = new Gson();
+            JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+
+            for (int j = 0; j < jsonArray.size(); j++) {
+                JsonObject jsonObject = jsonArray.get(j).getAsJsonObject();
+
+                String id = jsonObject.get("id").getAsString();
+                String name = jsonObject.get("name").getAsString();
+                String surname1 = jsonObject.get("surname1").getAsString();
+                String surname2 = jsonObject.get("surname2").getAsString();
+                String dni = jsonObject.get("dni").getAsString();
+                String birthdate = jsonObject.get("birthdate").getAsString();
+                String email = jsonObject.get("email").getAsString();
+                String phone = jsonObject.get("phone").getAsString();
+                String address = jsonObject.get("address").getAsString();
+                String sexString = jsonObject.get("sex").getAsString();
+                Sex sex = (sexString.equals("MALE")) ? Sex.MALE : Sex.FEMALE;
+
+                LocalDate localDate = LocalDate.parse(birthdate);
+
+                Patient newPatient = new Patient(id, name, surname1, surname2, localDate, sex, dni, email, phone, address, new ArrayList<>());
+                resultArrayList.add(newPatient);
+            }
+        }
+
+        return resultArrayList;
+    }
+
 }
