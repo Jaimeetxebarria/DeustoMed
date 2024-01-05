@@ -82,7 +82,7 @@ export const SignUpDataSchema = z
         phone: z
             .string()
             .transform((val) => val.replace(/\s/g, ""))
-            .pipe(z.string().regex(/^\+34\s?[6-9][0-9]{8}$/))
+            .pipe(z.string().regex(/^(\+34)?\s?[6-9][0-9]{8}$/))
             .optional(),
         address: z.string().optional(),
         speciality: z.string().optional(),
