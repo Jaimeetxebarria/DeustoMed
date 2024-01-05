@@ -221,7 +221,7 @@ public class WindowAddUser extends JFrame {
             person.addProperty("email", email);
             person.addProperty("phone", phone);
             person.addProperty("address", address);
-            person.addProperty("speciality", cbSpeciality.getSelectedItem().toString());
+            if (doctors != null) person.addProperty("speciality", cbSpeciality.getSelectedItem().toString());
 
             SSLContext sslContext;
             try {
