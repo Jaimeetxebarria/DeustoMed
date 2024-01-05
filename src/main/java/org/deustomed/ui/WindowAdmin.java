@@ -34,7 +34,18 @@ public class WindowAdmin extends UserAuthenticatedWindow {
     protected JTable tblPatient, tblDoctor;
     protected final String[] columNamesPatients = {"ID", "1º apellido", "2º apellido", "Nombre", "Sexo", "Email", "DNI", "Edad", "Teléfono", "Dirección", "Fecha de nacimiento"};
     protected final String[] columNamesDoctor = {"ID", "1º apellido", "2º apellido", "Nombre", "Sexo", "Email", "DNI", "Edad", "Teléfono", "Dirección", "Fecha de nacimiento", "Especialidad"};
-
+    protected final int ID_COLUMN = 0;
+    protected final int SURNAME1_COLUMN = 1;
+    protected final int SURNAME2_COLUMN = 2;
+    protected final int NAME_COLUMN = 3;
+    protected  final int SEX_COLUMN = 4;
+    protected final int EMAIL_COLUMN = 5;
+    protected final int DNI_COLUMN = 6;
+    protected final int AGE_COLUMN = 7;
+    protected final int PHONE_COLUMN = 8;
+    protected final int ADDRESS_COLUMN = 9;
+    protected final int BIRTHDATE_COLUMN = 10;
+    protected final int SPECIALITY_COLUMN = 11;
     protected DefaultTableModel mdlPatient, mdlDoctor;
     protected JScrollPane scrPatient, scrDoctor;
     protected JTextField tfFindPatient, tfFindDoctor;
@@ -133,7 +144,6 @@ public class WindowAdmin extends UserAuthenticatedWindow {
             if (selectedRow != -1) {
                 int modelRow = tblPatient.convertRowIndexToModel(selectedRow);
 
-                // Obtén los datos asociados a la fila
                 Object[] rowData = new Object[tblPatient.getColumnCount()];
                 for (int i = 0; i < tblPatient.getColumnCount(); i++) {
                     rowData[i] = tblPatient.getModel().getValueAt(modelRow, i);
@@ -145,14 +155,14 @@ public class WindowAdmin extends UserAuthenticatedWindow {
                     }
                 }
                 int indexInListP = patients.indexOf(originalPatient);
-                System.out.println(rowData[9]);
-                if (indexInListP != -1) {
+
+                if (indexInListP != -1 && validateData(tblPatient, modelRow)) {
                     // Crea un nuevo objeto Patient con los valores editados
                     Patient editedPatient = new Patient(
                             originalPatient.getId(),                    //id
                             rowData[3].toString(),                      //name
-                            rowData[1].toString().split(" ")[0],  //surname1
-                            rowData[2].toString().split(" ")[1],  //surname2
+                            rowData[1].toString(),                      //surname1
+                            rowData[2].toString(),                      //surname2
                             LocalDate.parse(rowData[9].toString()),     //birthdate
                             originalPatient.getSex(),                   //sex
                             rowData[6].toString(),                      //dni
@@ -227,9 +237,9 @@ public class WindowAdmin extends UserAuthenticatedWindow {
 
         mdlDoctor = completeTable(columNamesDoctor, doctors);
         tblDoctor = new JTable(mdlDoctor);
-        tblDoctor.getColumnModel().getColumn(0).setPreferredWidth(25);
-        tblDoctor.getColumnModel().getColumn(4).setPreferredWidth(30);
-        tblPatient.getColumnModel().getColumn(7).setPreferredWidth(25);
+        tblDoctor.getColumnModel().getColumn(ID_COLUMN).setPreferredWidth(25);
+        tblDoctor.getColumnModel().getColumn(SEX_COLUMN).setPreferredWidth(30);
+        tblPatient.getColumnModel().getColumn(AGE_COLUMN).setPreferredWidth(25);
         tblDoctor.setRowHeight(25);
 
         scrDoctor = new JScrollPane(tblDoctor);
@@ -294,19 +304,19 @@ public class WindowAdmin extends UserAuthenticatedWindow {
                 System.out.println(rowData[0]);
                 System.out.println(originalDoctor);
                 int indexInListD = doctors.indexOf(originalDoctor);
-                if (indexInListD != -1) {
+                if (indexInListD != -1 && validateData(tblDoctor, selectedRow)) {
                     // Crea un nuevo objeto Patient con los valores editados
                     Doctor editedDoctor = new Doctor(
                             originalDoctor.getId(),                       //id
-                            rowData[3].toString(),                        //name
-                            rowData[1].toString().split(" ")[0],    //surname1
-                            rowData[2].toString().split(" ")[1],    //surname2
+                            rowData[NAME_COLUMN].toString(),              //name
+                            rowData[SURNAME1_COLUMN].toString(),          //surname1
+                            rowData[SURNAME2_COLUMN].toString(),          //surname2
                             originalDoctor.getBirthDate(),                //birthdate
                             originalDoctor.getSex(),                      //sex
-                            rowData[6].toString(),                        //dni
-                            rowData[7].toString(),                        //email
-                            rowData[8].toString(),                        //phone
-                            rowData[9].toString(),                        //address
+                            rowData[DNI_COLUMN].toString(),               //dni
+                            rowData[EMAIL_COLUMN].toString(),             //email
+                            rowData[PHONE_COLUMN].toString(),             //phone
+                            rowData[ADDRESS_COLUMN].toString(),           //address
                             originalDoctor.getSpeciality(),               //speciality
                             originalDoctor.getAppointments());
 
@@ -371,7 +381,6 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         this.setVisible(true);
     }
 
-
     public void obtainPatients(JsonArray jsonPatientData){
         for (JsonElement jsonElement : jsonPatientData) {
             JsonObject jsonObject = jsonElement.getAsJsonObject();
@@ -417,7 +426,7 @@ public class WindowAdmin extends UserAuthenticatedWindow {
     private class CustomTableModel extends DefaultTableModel {
         @Override
         public boolean isCellEditable(int row, int column) {
-            return !(column == 0 || column == 3 || column == 5 || column == 9);
+            return !(column == ID_COLUMN || column == SEX_COLUMN  || column == BIRTHDATE_COLUMN);
         }
     }
     public DefaultTableModel completeTable(String[] columNames, List<User> users) {
@@ -426,25 +435,46 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         if(!users.isEmpty()) {
             for (User user : users) {
                 Object[] row = new String[columNames.length];
-                row[0] = user.getId();
-                row[1] = user.getSurname1();
-                row[2] = user.getSurname2();
-                row[3] = user.getName();
-                row[4] = user.getSex().toString();
-                row[5] = user.getEmail();
-                row[6] = user.getDni();
-                row[7] = String.valueOf(user.getAgeInYears());
-                row[8] = user.getPhoneNumber();
-                row[9] = user.getAddress();
-                row[10] = user.getBirthDate().toString();
+                row[ID_COLUMN] = user.getId();
+                row[SURNAME1_COLUMN] = user.getSurname1();
+                row[SURNAME2_COLUMN] = user.getSurname2();
+                row[NAME_COLUMN] = user.getName();
+                row[SEX_COLUMN] = user.getSex().toString();
+                row[EMAIL_COLUMN] = user.getEmail();
+                row[DNI_COLUMN] = user.getDni();
+                row[AGE_COLUMN] = String.valueOf(user.getAgeInYears());
+                row[PHONE_COLUMN] = user.getPhoneNumber();
+                row[ADDRESS_COLUMN] = user.getAddress();
+                row[BIRTHDATE_COLUMN] = user.getBirthDate().toString();
                 if (users.get(0) instanceof Doctor){
                     Doctor doctor = (Doctor) user;
-                    row[11] = doctor.getSpeciality();
+                    row[SPECIALITY_COLUMN] = doctor.getSpeciality();
                 }
                 model.addRow(row);
             }
         }
         return model;
+    }
+
+    private boolean validateData(JTable table, int row) {
+        String dni = table.getModel().getValueAt(row, DNI_COLUMN).toString();
+        if (!dni.matches("\\d{8}[a-zA-Z]")) {
+            JOptionPane.showMessageDialog(this, "El DNI introducido no es válido", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        String phoneNumber = table.getModel().getValueAt(row, PHONE_COLUMN).toString();
+        if (!phoneNumber.matches("(\\+34)?\\s?[6-9][0-9]{8}")) {
+            JOptionPane.showMessageDialog(this, "El número de teléfono introducido no es válido", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        String email = table.getModel().getValueAt(row, EMAIL_COLUMN).toString();
+        if (!email.matches("(?!\\.)(?!.*\\.\\.)([\\w+-\\.]*)[\\w+-]@([a-zA-Z0-9][a-zA-Z0-9\\-]*\\.)+[a-zA-Z]{2,}")) {
+            JOptionPane.showMessageDialog(this, "El email introducido no es válido", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        return true;
     }
 
     private void filtrarDatos(JTable table, JTextField tfFinder) {
