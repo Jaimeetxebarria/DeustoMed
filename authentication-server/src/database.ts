@@ -60,6 +60,21 @@ async function userExists(id: string, userType: UserType) {
     return data.length !== 0;
 }
 
+async function getSpecialityId(speciality: string) {
+    const { data, error } = await postgrestClient
+        .from("speciality")
+        .select()
+        .eq("name", speciality)
+        .limit(1);
+
+    if (error) {
+        console.log(error);
+        throw error;
+    }
+
+    return data[0]?.id;
+}
+
 async function createPerson(signUpInfo: SignUpDataInfo) {
     return await postgrestClient
         .from("person")
@@ -78,7 +93,7 @@ async function createPerson(signUpInfo: SignUpDataInfo) {
         .select();
 }
 
-async function createUser(id: string, signUpInfo: SignUpDataInfo) {
+async function createUser(id: string, signUpInfo: SignUpDataInfo & { specialityId: number }) {
     switch (signUpInfo.userType) {
         case "patient":
             return postgrestClient.from("patient").insert({
@@ -87,6 +102,7 @@ async function createUser(id: string, signUpInfo: SignUpDataInfo) {
         case "doctor":
             return postgrestClient.from("doctor").insert({
                 id: id,
+                fk_speciality_id: signUpInfo.specialityId,
             });
 
         case "admin":
@@ -100,6 +116,7 @@ export default {
     public: postgrestClient,
     custom_auth: postgrestClient.schema("custom_auth"),
     getPersonId,
+    getSpecialityId,
     userExists,
     createPerson,
     createUser,

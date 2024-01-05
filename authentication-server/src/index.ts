@@ -47,17 +47,24 @@ app.post("/signup", async (req: Request, res: Response) => {
         return res.status(400).send({ errors: errors });
     }
 
+    let specialityId;
+    if (parseResult.data.userType === "doctor") {
+        specialityId = await database.getSpecialityId(parseResult.data.speciality!);
+        if (typeof specialityId === "undefined")
+            return res.status(404).send("Provided speciality does not exist");
+    }
+
+    const newUserData = { ...parseResult.data, specialityId: specialityId };
+
     // Check that the user doesn't exist in the database
     const userId = await database.getPersonId(data);
 
     // Person doesn't exist, create it and also the user
     if (typeof userId === "undefined") {
-        const { data: newId, error: createPersonError } = await database.createPerson(
-            parseResult.data
-        );
+        const { data: newId, error: createPersonError } = await database.createPerson(newUserData);
 
         if (createPersonError) return res.status(500).send("Error creating user");
-        if (newId[0] !== null) await database.createUser(newId[0].id, parseResult.data);
+        if (newId[0] !== null) await database.createUser(newId[0].id, newUserData);
 
         return res.send({ id: newId[0].id, newPerson: true });
     }
@@ -65,7 +72,7 @@ app.post("/signup", async (req: Request, res: Response) => {
     // Person exists, check that the user doesn't exist
     const userExists = await database.userExists(userId, data.userType);
     if (userExists) return res.status(400).send("User already exists");
-    await database.createUser(userId, parseResult.data);
+    await database.createUser(userId, newUserData);
 
     return res.send({ id: userId, newPerson: false });
 });

@@ -85,6 +85,7 @@ export const SignUpDataSchema = z
             .pipe(z.string().regex(/^\+34\s?[6-9][0-9]{8}$/))
             .optional(),
         address: z.string().optional(),
+        speciality: z.string().optional(),
     })
     .refine(
         (signUpInfo) => {
@@ -97,6 +98,17 @@ export const SignUpDataSchema = z
         {
             message: "Doctors must be at least 18 years old",
             path: ["birthDate"],
+        }
+    )
+    .refine(
+        (signUpInfo) => {
+            return !(
+                signUpInfo.userType === "doctor" && typeof signUpInfo.speciality === "undefined"
+            );
+        },
+        {
+            message: "Doctors must have a speciality",
+            path: ["speciality"],
         }
     );
 
