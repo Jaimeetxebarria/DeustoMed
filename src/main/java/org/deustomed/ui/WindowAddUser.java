@@ -291,7 +291,7 @@ public class WindowAddUser extends JFrame {
             }
         });
 
-        btnCancel.addActionListener(e -> {dispose();});
+        btnCancel.addActionListener(e -> dispose());
 
         setVisible(true);
     }
