@@ -11,7 +11,7 @@ public class ConfigLoader {
     private String anonymousToken;
 
     public ConfigLoader() {
-        try (InputStream input = new FileInputStream("src/main/java/org/deustomed/DB.properties")) {
+        try (InputStream input = new FileInputStream("src/main/java/org/deustomed/config.properties")) {
             Properties prop = new Properties();
             prop.load(input);
             hostname = prop.getProperty("hostname");
