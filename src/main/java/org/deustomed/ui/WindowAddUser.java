@@ -216,11 +216,11 @@ public class WindowAddUser extends JFrame {
             person.addProperty("surname2", surname2);
             person.addProperty("birthDate", String.valueOf(birthDate));
             person.addProperty("sex", String.valueOf(sex));
-            person.addProperty("password", new String(pfPassword.getPassword()));
-            person.addProperty("dni", dni);
-            person.addProperty("email", email);
-            person.addProperty("phone", phone);
-            person.addProperty("address", address);
+            if (!new String(pfPassword.getPassword()).isBlank()) person.addProperty("password", new String(pfPassword.getPassword()));
+            if (!tfDni.getText().isBlank()) person.addProperty("dni", dni);
+            if (!tfEmail.getText().isBlank()) person.addProperty("email", email);
+            if (!tfPhone.getText().isBlank()) person.addProperty("phone", phone);
+            if (!tfAddress.getText().isBlank()) person.addProperty("address", address);
             if (doctors != null) person.addProperty("speciality", cbSpeciality.getSelectedItem().toString());
 
             SSLContext sslContext;
