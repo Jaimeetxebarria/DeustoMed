@@ -99,10 +99,10 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         scrPatient = new JScrollPane(tblPatient);
         tfFindPatient = new JTextField();
         tfFindPatient.setPreferredSize(new Dimension(200, 25));
-        btnPatient = new JButton("Add");
-        btnEditPatient = new JButton("Edit");
-        btnDeletePatient = new JButton("Delete");
-        btnLogoutPatient = new JButton("Logout");
+        btnPatient = new JButton("Añadir");
+        btnEditPatient = new JButton("Editar");
+        btnDeletePatient = new JButton("Eliminar");
+        btnLogoutPatient = new JButton("Cerrar sesión");
 
         JPanel pnlUpper = new JPanel(new BorderLayout());
         pnlUpper.add(tfFindPatient, BorderLayout.WEST);
