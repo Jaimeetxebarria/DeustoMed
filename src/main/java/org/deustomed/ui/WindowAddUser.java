@@ -21,8 +21,10 @@ import java.util.stream.Collectors;
 
 public class WindowAddUser extends JFrame {
     // General
-    JLabel lblName, lblSurname1, lblSurname2, lblSex, lblEmail, lblDni, lblError, lblAge, lblPhone, lblAddress, lblBirthDate, lblSpeciality;
+    JLabel lblName, lblSurname1, lblSurname2, lblSex, lblEmail, lblDni, lblError, lblAge, lblPhone, lblAddress, lblBirthDate, lblPassword
+            , lblSpeciality;
     JTextField tfName, tfSurname1, tfSurname2, tfEmail, tfDni, tfAge, tfPhone, tfAddress;
+    JPasswordField pfPassword;
     ButtonGroup group;
     JRadioButton radMale, radFemale;
     JButton btnSave, btnCancel;
@@ -80,6 +82,7 @@ public class WindowAddUser extends JFrame {
         lblPhone = new JLabel("Teléfono:");
         lblAddress = new JLabel("Dirección:");
         lblBirthDate = new JLabel("*Fecha de nacimiento:");
+        lblPassword = new JLabel("*Contraseña:");
 
         //JDateChooser
         Date currentDate = new Date();
@@ -100,6 +103,7 @@ public class WindowAddUser extends JFrame {
         tfPhone = new JTextField();
         tfPhone.setToolTipText("El teléfono debe tener el siguiente formato: +123456789");
         tfAddress = new JTextField();
+        pfPassword = new JPasswordField();
 
         if (doctors != null) {
             lblSpeciality = new JLabel("Especialidad:");
@@ -126,9 +130,9 @@ public class WindowAddUser extends JFrame {
 
         JPanel pnlPrimary = new JPanel();
         if (patients != null) {
-            pnlPrimary.setLayout(new GridLayout(10, 2, 5, 5));
-        } else if (doctors != null) {
             pnlPrimary.setLayout(new GridLayout(11, 2, 5, 5));
+        } else if (doctors != null) {
+            pnlPrimary.setLayout(new GridLayout(12, 2, 5, 5));
         }
         pnlPrimary.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -155,6 +159,8 @@ public class WindowAddUser extends JFrame {
         pnlPrimary.add(tfPhone);
         pnlPrimary.add(lblAddress);
         pnlPrimary.add(tfAddress);
+        pnlPrimary.add(lblPassword);
+        pnlPrimary.add(pfPassword);
 
         if (doctors != null) {
             pnlPrimary.add(lblSpeciality);
@@ -272,12 +278,15 @@ public class WindowAddUser extends JFrame {
      */
     private boolean validateData() {
         if (tfName.getText().isEmpty() ||
-                tfSurname1.getText().isEmpty() ||
-                tfSurname2.getText().isEmpty() ||
-                group.getSelection() == null) {
+                tfSurname1.getText().isBlank() ||
+                tfSurname2.getText().isBlank() ||
+                group.getSelection() == null ||
+                dateChooser.getDate() == null ||
+                new String(pfPassword.getPassword()).isBlank()) {
             lblError.setText("Hay campos obligatorios sin rellenar. Recuerde que los que tienen un '*' son obligatorios");
             return false;
         }
+
         // Validate dni
         String dni = tfDni.getText().trim();
         if (!dni.isEmpty() && !dni.matches("\\d{8}[a-zA-Z]")) {
@@ -297,6 +306,17 @@ public class WindowAddUser extends JFrame {
         String phoneNumber = tfPhone.getText().trim();
         if (!phoneNumber.isEmpty() && !phoneNumber.matches("(\\+34)?\\s?[6-9][0-9]{8}")) {
             lblError.setText("Numero de teléfono inválido");
+            return false;
+        }
+
+        // Validate password
+        String password = new String(pfPassword.getPassword()).trim();
+        boolean isCorrectSize = password.length() >= 8 && password.length() <= 20;
+        boolean hasLetters = password.matches(".*[a-zA-Z]+.*");
+        boolean hasNumbers = password.matches(".*[0-9]+.*");
+        boolean hasSpecialCharacters = password.matches(".*[^a-zA-Z0-9]+.*");
+        if (!isCorrectSize || !hasLetters || !hasNumbers || !hasSpecialCharacters) {
+            lblError.setText("Contraseña inválida");
             return false;
         }
 
