@@ -107,9 +107,8 @@ public class WindowLogin extends JFrame {
 
             if (loginChecker(id, password)) {
                 ConfigLoader configLoader = new ConfigLoader();
-                UserAuthenticationService userAuthenticationService = new UserAuthenticationService("https://localhost:8443",
-                        new BypassTrustManager(),
-                        configLoader.getAnonymousToken());
+                UserAuthenticationService userAuthenticationService = new UserAuthenticationService(configLoader.getAuthServerBaseUrl(),
+                        new BypassTrustManager(), configLoader.getAnonymousToken());
 
                 PostgrestClient postgrestClient = new PostgrestClient(configLoader.getHostname(), configLoader.getEndpoint(),
                         userAuthenticationService);
@@ -152,6 +151,7 @@ public class WindowLogin extends JFrame {
      * Checks that the id and password are valid (not necessarily correct) and updates the error label.
      *
      * @param id, password
+     *
      * @return True if the id and password are valid, false otherwise.
      */
     public boolean loginChecker(String id, String password) {
