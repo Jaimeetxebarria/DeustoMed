@@ -3,16 +3,26 @@ package org.deustomed.ui;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.formdev.flatlaf.fonts.inter.FlatInterFont;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.toedter.calendar.JDateChooser;
 import org.deustomed.*;
 import org.deustomed.authentication.AnonymousAuthenticationService;
+import org.deustomed.authentication.BypassTrustManager;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
@@ -191,52 +201,93 @@ public class WindowAddUser extends JFrame {
             String address = obtainValueOrNull(tfAddress.getText());
             Sex sex;
 
-            if (selectedSex.equals(radMale)) {
+            if (selectedSex.equals(radMale.getModel())) {
                 sex = Sex.MALE;
             } else {
                 sex = Sex.FEMALE;
             }
 
-            if (validateData()) {
-                //Add user to person table (añadir id generado)
-                JsonObject person = new JsonObject();
-                person.addProperty("name", name);
-                person.addProperty("surname1", surname1);
-                person.addProperty("surname2", surname2);
-                person.addProperty("dni", dni);
-                person.addProperty("birthdate", String.valueOf(birthDate));
-                person.addProperty("email", email);
-                person.addProperty("phone", phone);
-                person.addProperty("address", address);
-                person.addProperty("sex", String.valueOf(sex));
-                person.addProperty("age", getAge(dateChooser.getDate()));
-                //PostgrestTransformBuilder qb1 = getBlankPostgrestQueryBuilder().insert(person);
-                //assertPathnameEquals("/table", qb1.getQuery());
+            if (!validateData()) return;
 
-                if (patients != null) {
-                    //Add user to patient table DB
+            JsonObject person = new JsonObject();
+            person.addProperty("userType", patients != null ? "patient" : "doctor");
+            person.addProperty("name", name);
+            person.addProperty("surname1", surname1);
+            person.addProperty("surname2", surname2);
+            person.addProperty("birthDate", String.valueOf(birthDate));
+            person.addProperty("sex", String.valueOf(sex));
+            person.addProperty("password", new String(pfPassword.getPassword()));
+            person.addProperty("dni", dni);
+            person.addProperty("email", email);
+            person.addProperty("phone", phone);
+            person.addProperty("address", address);
+            person.addProperty("speciality", cbSpeciality.getSelectedItem().toString());
 
-                    //Add to the patient arraylist
-                    String id = "" + (patients.size() + 1);
-                    Patient patient = new Patient(id, name, surname1, surname2, birthDate, sex, dni, email, phone,
-                            address, new ArrayList<>());
-                    patients.add(patient);
-                    new WindowConfirmNewUser(patient);
-                    System.out.println("Nuevo paciente: " + patient);
-                    dispose();
-                } else if (doctors != null) {
-                    //Add user to doctor table DB
+            SSLContext sslContext;
+            try {
+                sslContext = SSLContext.getInstance("TLS");
+                sslContext.init(null, new TrustManager[]{new BypassTrustManager()}, new SecureRandom());
+            } catch (NoSuchAlgorithmException | KeyManagementException err) {
+                throw new RuntimeException(err);
+            }
 
-                    //Add to the doctor arraylist
-                    String speciality = ((String) cbSpeciality.getSelectedItem()).toString();
-                    String id = "" + doctors.size() + 1;
-                    Doctor doctor = new Doctor(id, name, surname1, surname2, birthDate, sex, dni, email, phone,
-                            address,  speciality, new ArrayList<>());
-                    doctors.add(doctor);
-                    new WindowConfirmNewUser(doctor);
-                    System.out.println("Nuevo doctor: " + doctor);
-                    dispose();
+            HttpClient authServerClient = HttpClient.newBuilder()
+                    .sslContext(sslContext)
+                    .build();
+
+            HttpRequest signUpRequest = HttpRequest.newBuilder()
+                    .uri(URI.create(configLoader.getAuthServerBaseUrl() + "/signup"))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(person.toString()))
+                    .build();
+
+            HttpResponse<String> response;
+            try {
+                response = authServerClient.send(signUpRequest, HttpResponse.BodyHandlers.ofString());
+            } catch (IOException ex) {
+                lblError.setText("Error de conexión con el servidor");
+                return;
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
+            }
+
+            String userId;
+            switch (response.statusCode()) {
+                case 200 -> {
+                    JsonObject responseJson = gson.fromJson(response.body(), JsonObject.class);
+                    userId = responseJson.get("id").getAsString();
                 }
+                case 400 -> {
+                    if (response.body().equals("User already exists")) lblError.setText("El usuario ya existe");
+                    else lblError.setText("Error de formato en los datos");
+                    return;
+                }
+                case 500 -> {
+                    lblError.setText("Error del servidor");
+                    return;
+                }
+                default -> throw new RuntimeException("Unexpected response code: " + response.statusCode());
+            }
+
+
+            if (patients != null) {
+                //Add to the patient arraylist
+                Patient patient = new Patient(userId, name, surname1, surname2, birthDate, sex, dni, email, phone,
+                        address, new ArrayList<>());
+                patients.add(patient);
+                new WindowConfirmNewUser(patient);
+                System.out.println("Nuevo paciente: " + patient);
+                dispose();
+            } else if (doctors != null) {
+                //Add to the doctor arraylist
+                String speciality = ((String) cbSpeciality.getSelectedItem()).toString();
+                Doctor doctor;
+                doctor = new Doctor(userId, name, surname1, surname2, birthDate, sex, dni, email, phone,
+                        address, speciality, new ArrayList<>());
+                doctors.add(doctor);
+                new WindowConfirmNewUser(doctor);
+                System.out.println("Nuevo doctor: " + doctor);
+                dispose();
             }
         });
 
