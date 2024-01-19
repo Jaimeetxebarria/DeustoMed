@@ -17,8 +17,6 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -84,33 +82,25 @@ public class WindowAppointmentSelection extends JFrame {
         cancelButton = new JButton("Cancelar");
         confirmButton = new JButton("Confirmar");
 
-        cancelButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        cancelButton.addActionListener(e -> dispose());
+
+        confirmButton.addActionListener(e -> {
+            String[] options = {"Sí", "No"};
+            int confirmResult = JOptionPane.showOptionDialog(
+                    null,
+                    "¿Estás seguro de confirmar la cita?",
+                    "Confirmación",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    new ImageIcon("src/main/java/ui/tick.png"),
+                    options,
+                    options[0]);
+
+            if (confirmResult == JOptionPane.YES_OPTION) {
+                // TODO: PUT PATIENT IN THE APPOINTMENT
                 dispose();
             }
-        });
 
-        confirmButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String[] options = {"Sí", "No"};
-                int confirmResult = JOptionPane.showOptionDialog(
-                        null,
-                        "¿Estás seguro de confirmar la cita?",
-                        "Confirmación",
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE,
-                        new ImageIcon("src/main/java/ui/tick.png"),
-                        options,
-                        options[0]);
-
-                if (confirmResult == JOptionPane.YES_OPTION) {
-                    // TODO: PUT PATIENT IN THE APPOINTMENT
-                    dispose();
-                }
-
-            }
         });
 
         buttonPanel.add(Box.createHorizontalGlue());
@@ -173,6 +163,6 @@ public class WindowAppointmentSelection extends JFrame {
         FlatLightLaf.setup();
         FlatInterFont.install();
 
-        new WindowAppointmentSelection(new TreeSet());
+        new WindowAppointmentSelection(new TreeSet<>());
     }
 }
