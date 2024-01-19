@@ -131,6 +131,7 @@ public class WindowAppointment extends JFrame {
                         appointments.add(appointment);
                         timeSlot = timeSlot.plusMinutes(15);
                     }
+                    break; // No other schedule elements will match the current day
                 }
             }
 
