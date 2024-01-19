@@ -415,7 +415,10 @@ public class WindowAdmin extends UserAuthenticatedWindow {
             }
         });
 
-        btnLogoutDoctor.addActionListener(e -> dispose());
+        btnLogoutDoctor.addActionListener(e -> {
+            dispose();
+            new WindowLogin();
+        });
 
 
 
