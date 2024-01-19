@@ -13,6 +13,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.toedter.calendar.JCalendar;
 import com.toedter.calendar.JDayChooser;
+import lombok.Getter;
 import org.deustomed.ConfigLoader;
 import org.deustomed.DoctorMsgCode;
 import org.deustomed.GreenDateHighlighter;
@@ -52,12 +53,13 @@ import java.util.logging.Logger;
 import static org.deustomed.postgrest.PostgrestClient.gson;
 
 public class WindowPatient extends UserAuthenticatedWindow implements MessageCheckerThread {
-    protected String selectedButton = ""; //info, calendar, medicines, chat
+    protected String selectedButton = ""; //info, calendar,chat
     protected String prevDirect, prevTfn, prevEmail;
 
-    protected JButton infoButton, calendarButton, medicinesButton, chatButton, logoutButton, pedirCitaButton, guardarCambiosButton;
-    protected JPanel menuPanel, infoPanel, infoPanel2, calendarPanel, medicinesPanel, chatPanel;
+    protected JButton infoButton, calendarButton,chatButton, logoutButton, pedirCitaButton, guardarCambiosButton;
+    protected JPanel menuPanel, infoPanel, calendarPanel, chatPanel;
 
+    @Getter
     protected JCalendar calendar;
     protected JTable calendarTable;
     protected DefaultTableModel calendarTableModel;
@@ -70,6 +72,7 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
     protected JTextField messageField;
     protected JButton sendButton;
     protected JButton saveChatButton;
+    @Getter
     protected String lastMessage = "";
     protected String patientId;
     final String[] docCode = {""};
@@ -109,7 +112,6 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
 
         ImageIcon infoIcon = new ImageIcon("src/main/java/ui/info.png");
         ImageIcon calendarIcon = new ImageIcon("src/main/java/ui/calendario.png");
-        ImageIcon medicinesIcon = new ImageIcon("src/main/java/ui/medicina.png");
         ImageIcon chatIcon = new ImageIcon("src/main/java/ui/mensaje.png");
         ImageIcon logoutIcon = new ImageIcon("src/main/java/ui/logout.png");
 
@@ -119,9 +121,6 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
         calendarButton = new JButton(calendarIcon);
         calendarButton.setBackground(colorizq);
         calendarButton.setBorder(null);
-        medicinesButton = new JButton(medicinesIcon);
-        medicinesButton.setBackground(colorizq);
-        medicinesButton.setBorder(null);
         chatButton = new JButton(chatIcon);
         chatButton.setBackground(colorizq);
         chatButton.setBorder(null);
@@ -131,15 +130,12 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
 
         infoButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         calendarButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        medicinesButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         chatButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         logoutButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         menuPanel.add(infoButton);
         menuPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         menuPanel.add(calendarButton);
-        menuPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-        menuPanel.add(medicinesButton);
         menuPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         menuPanel.add(chatButton);
         menuPanel.add(Box.createRigidArea(new Dimension(0, 80)));
@@ -168,64 +164,56 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
         calendar.getDayChooser().addDateEvaluator(highlighter);
 
         JDayChooser dayChooser = calendar.getDayChooser();
-        dayChooser.addPropertyChangeListener("day", evt -> {
-
-            calendar.setCalendar(calendar.getCalendar());
-        });
+        dayChooser.addPropertyChangeListener("day", evt -> calendar.setCalendar(calendar.getCalendar()));
 
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                if (selectedButton.equals("calendar")) {
-                    deleteContent();
-                    getContentPane().add(calendarPanel, BorderLayout.CENTER);
-                } else if (selectedButton.equals("info")) {
-                    deleteContent();
-                    getContentPane().add(infoPanel, BorderLayout.CENTER);
-                } else if (selectedButton.equals("chat")) {
-                    deleteContent();
-                    getContentPane().add(chatPanel, BorderLayout.CENTER);
+                switch (selectedButton) {
+                    case "calendar" -> {
+                        deleteContent();
+                        getContentPane().add(calendarPanel, BorderLayout.CENTER);
+                    }
+                    case "info" -> {
+                        deleteContent();
+                        getContentPane().add(infoPanel, BorderLayout.CENTER);
+                    }
+                    case "chat" -> {
+                        deleteContent();
+                        getContentPane().add(chatPanel, BorderLayout.CENTER);
+                    }
                 }
             }
         });
 
 
-        calendarButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                deleteContent();
-                getContentPane().add(calendarPanel, BorderLayout.CENTER);
-                selectedButton = "calendar";
-                revalidate();
-                calendar.setCalendar(calendar.getCalendar());
-            }
+        calendarButton.addActionListener(e -> {
+            deleteContent();
+            getContentPane().add(calendarPanel, BorderLayout.CENTER);
+            selectedButton = "calendar";
+            revalidate();
+            calendar.setCalendar(calendar.getCalendar());
         });
 
-        pedirCitaButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                WindowAppointment windowAppointment = new WindowAppointment(calendar.getDate(),patientId);
-            }
+        pedirCitaButton.addActionListener(e -> {
+            WindowAppointment windowAppointment = new WindowAppointment(calendar.getDate(),patientId);
         });
 
 
         //LOGOUT------------------------------------------------------------------------------------------------------------
 
-        logoutButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Object[] options = {"Sí", "No"};
-                ImageIcon atentionIcon = new ImageIcon("src/main/java/ui/atencion.png");
-                int option = JOptionPane.showOptionDialog(null, "¿Estás seguro de que quieres cerrar sesión?",
-                        "Confirmar Cierre de Sesión", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, atentionIcon, options,
-                        options[0]);
+        logoutButton.addActionListener(e -> {
+            Object[] options = {"Sí", "No"};
+            ImageIcon atentionIcon = new ImageIcon("src/main/java/ui/atencion.png");
+            int option = JOptionPane.showOptionDialog(null, "¿Estás seguro de que quieres cerrar sesión?",
+                    "Confirmar Cierre de Sesión", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, atentionIcon, options,
+                    options[0]);
 
-                if (option == JOptionPane.YES_OPTION) {
-                    dispose();
-                    new WindowLogin();
-                }
-
+            if (option == JOptionPane.YES_OPTION) {
+                dispose();
+                new WindowLogin();
             }
+
         });
 
         //CHAT PANEL---------------------------------------------------------------------------------------------------------
@@ -249,25 +237,19 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
         bottomPanel.add(chatButtonsPanel, BorderLayout.EAST);
         chatPanel.add(bottomPanel, BorderLayout.SOUTH);
 
-        chatButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                deleteContent();
-                getContentPane().add(chatPanel, BorderLayout.CENTER);
-                selectedButton = "chat";
-                revalidate();
-                showDoctorCodeDialog();
-            }
+        chatButton.addActionListener(e -> {
+            deleteContent();
+            getContentPane().add(chatPanel, BorderLayout.CENTER);
+            selectedButton = "chat";
+            revalidate();
+            showDoctorCodeDialog();
         });
 
-        sendButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    sendMessage();
-                } catch (BadLocationException ex) {
-                    logger.severe("Error al enviar mensaje: " + ex.getMessage() + "por el paciente: " + patientId);
-                }
+        sendButton.addActionListener(e -> {
+            try {
+                sendMessage();
+            } catch (BadLocationException ex) {
+                logger.severe("Error al enviar mensaje: " + ex.getMessage() + "por el paciente: " + patientId);
             }
         });
 
@@ -345,14 +327,11 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
 
         setInfoPanelTexfields();
 
-        infoButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                deleteContent();
-                getContentPane().add(infoPanel, BorderLayout.CENTER);
-                selectedButton = "info";
-                revalidate();
-            }
+        infoButton.addActionListener(e -> {
+            deleteContent();
+            getContentPane().add(infoPanel, BorderLayout.CENTER);
+            selectedButton = "info";
+            revalidate();
         });
 
         guardarCambiosButton.setEnabled(false);
@@ -360,53 +339,38 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
         txtEmail.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
-                if (!prevEmail.equals(txtEmail.getText())) {
-                    guardarCambiosButton.setEnabled(true);
-                } else {
-                    guardarCambiosButton.setEnabled(false);
-                }
+                guardarCambiosButton.setEnabled(!prevEmail.equals(txtEmail.getText()));
             }
         });
 
         txtTelefono.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
-                if (!prevTfn.equals(txtTelefono.getText())) {
-                    guardarCambiosButton.setEnabled(true);
-                } else {
-                    guardarCambiosButton.setEnabled(false);
-                }
+                guardarCambiosButton.setEnabled(!prevTfn.equals(txtTelefono.getText()));
             }
         });
 
         txtDireccion.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
-                if (!prevDirect.equals(txtDireccion.getText())) {
-                    guardarCambiosButton.setEnabled(true);
-                } else {
-                    guardarCambiosButton.setEnabled(false);
-                }
+                guardarCambiosButton.setEnabled(!prevDirect.equals(txtDireccion.getText()));
             }
         });
 
-        guardarCambiosButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                prevDirect = txtDireccion.getText();
-                prevEmail = txtEmail.getText();
-                prevTfn = txtTelefono.getText();
+        guardarCambiosButton.addActionListener(e -> {
+            prevDirect = txtDireccion.getText();
+            prevEmail = txtEmail.getText();
+            prevTfn = txtTelefono.getText();
 
-                PostgrestQuery query = postgrestClient.from("person")
-                        .update(new Entry("email", prevEmail),
-                                new Entry("phone", prevTfn),
-                                new Entry("address", prevDirect))
-                        .eq("id", patientId)
-                        .select()
-                        .getQuery();
-                postgrestClient.sendQuery(query);
-                guardarCambiosButton.setEnabled(false);
-            }
+            PostgrestQuery query = postgrestClient.from("person")
+                    .update(new Entry<>("email", prevEmail),
+                            new Entry<>("phone", prevTfn),
+                            new Entry<>("address", prevDirect))
+                    .eq("id", patientId)
+                    .select()
+                    .getQuery();
+            postgrestClient.sendQuery(query);
+            guardarCambiosButton.setEnabled(false);
         });
 
 
@@ -560,14 +524,6 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
         chatDoc.insertString(chatDoc.getLength(), "Doctor: " + message + "\n", null);
     }
 
-    public String getLastMessage() {
-        return lastMessage;
-    }
-
-    public JCalendar getCalendar() {
-        return calendar;
-    }
-
     private void showDoctorCodeDialog() {
 
         JDialog dialog = new JDialog();
@@ -624,75 +580,74 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
         JButton confirmButton = new JButton("Confirmar");
         JButton cancelButton = new JButton("Cancelar");
 
-        confirmButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        confirmButton.addActionListener(e -> {
 
-                try {
-                    chatDoc.remove(0, chatDoc.getLength());
-                } catch (BadLocationException ex) {
-                    logger.severe("Error al limpiar el chat: " + ex.getMessage() + "por el paciente: " + patientId);
-                }
+            try {
+                chatDoc.remove(0, chatDoc.getLength());
+            } catch (BadLocationException ex) {
+                logger.severe("Error al limpiar el chat: " + ex.getMessage() + "por el paciente: " + patientId);
+            }
 
-                if (!doctorCodeField.getText().equals("")) {
-                    docCode[0] = DoctorMsgCode.MsgCodeToId(doctorCodeField.getText());
-                }else{
-                    ChatUser selectedUser = (ChatUser) comboBox.getSelectedItem();
+            if (!doctorCodeField.getText().isEmpty()) {
+                docCode[0] = DoctorMsgCode.MsgCodeToId(doctorCodeField.getText());
+            }else{
+                ChatUser selectedUser = (ChatUser) comboBox.getSelectedItem();
+                if (selectedUser != null) {
                     docCode[0] = selectedUser.getId();
                 }
-
-                //get doctor and patient full names
-
-                String docFullName = getDoctorName(docCode[0]);
-                String patFullName = getPatientName(patientId);
-
-                //Retrieve previous messages
-                PostgrestQuery query = postgrestClient
-                        .from("message")
-                        .select("*")
-                        .eq("fk_patient_id", patientId)
-                        .eq("fk_doctor_id", docCode[0])
-                        .order("date", true)
-                        .getQuery();
-
-                PostgrestQuery updatequery = postgrestClient
-                        .from("message")
-                        .update(new Entry("patient_read", true))
-                        .eq("fk_patient_id", patientId)
-                        .eq("fk_doctor_id", docCode[0])
-                        .getQuery();
-
-                String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
-                String jsonResponseUpdate = String.valueOf(postgrestClient.sendQuery(updatequery));
-                JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
-
-                for (JsonElement jsonElement : jsonArray) {
-                    JsonObject messageObject = jsonElement.getAsJsonObject();
-
-                    String message = messageObject.get("message").getAsString();
-                    String datetime = messageObject.get("date").getAsString();
-                    Boolean patientSent = messageObject.get("patient_sent").getAsBoolean();
-                    LocalDateTime date = LocalDateTime.parse(datetime);
-                    String dateFormatted = date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
-                    SimpleAttributeSet bold = new SimpleAttributeSet();
-                    StyleConstants.setBold(bold, true);
-
-                    try {
-                        if (patientSent) {
-                            chatDoc.insertString(chatDoc.getLength(), patFullName + " " + dateFormatted + ":\n", bold);
-                        } else {
-                            chatDoc.insertString(chatDoc.getLength(), docFullName + " " + dateFormatted + ":\n", bold);
-                        }
-                        chatDoc.insertString(chatDoc.getLength(), message + "\n\n", null);
-                    } catch (BadLocationException ex) {
-                        logger.severe("Error al mostrar el chat: " + ex.getMessage() + "por el paciente: " + patientId);
-                    }
-                }
-
-                dialog.dispose();
-                messageCheckerStart();
-
             }
+
+            //get doctor and patient full names
+
+            String docFullName = getDoctorName(docCode[0]);
+            String patFullName = getPatientName(patientId);
+
+            //Retrieve previous messages
+            PostgrestQuery query12 = postgrestClient
+                    .from("message")
+                    .select("*")
+                    .eq("fk_patient_id", patientId)
+                    .eq("fk_doctor_id", docCode[0])
+                    .order("date", true)
+                    .getQuery();
+
+            PostgrestQuery updatequery = postgrestClient
+                    .from("message")
+                    .update(new Entry<>("patient_read", true))
+                    .eq("fk_patient_id", patientId)
+                    .eq("fk_doctor_id", docCode[0])
+                    .getQuery();
+
+            String jsonResponse12 = String.valueOf(postgrestClient.sendQuery(query12));
+            String jsonResponseUpdate = String.valueOf(postgrestClient.sendQuery(updatequery));
+            JsonArray jsonArray12 = gson.fromJson(jsonResponse12, JsonArray.class);
+
+            for (JsonElement jsonElement : jsonArray12) {
+                JsonObject messageObject = jsonElement.getAsJsonObject();
+
+                String message = messageObject.get("message").getAsString();
+                String datetime = messageObject.get("date").getAsString();
+                boolean patientSent = messageObject.get("patient_sent").getAsBoolean();
+                LocalDateTime date = LocalDateTime.parse(datetime);
+                String dateFormatted = date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+                SimpleAttributeSet bold = new SimpleAttributeSet();
+                StyleConstants.setBold(bold, true);
+
+                try {
+                    if (patientSent) {
+                        chatDoc.insertString(chatDoc.getLength(), patFullName + " " + dateFormatted + ":\n", bold);
+                    } else {
+                        chatDoc.insertString(chatDoc.getLength(), docFullName + " " + dateFormatted + ":\n", bold);
+                    }
+                    chatDoc.insertString(chatDoc.getLength(), message + "\n\n", null);
+                } catch (BadLocationException ex) {
+                    logger.severe("Error al mostrar el chat: " + ex.getMessage() + "por el paciente: " + patientId);
+                }
+            }
+
+            dialog.dispose();
+            messageCheckerStart();
+
         });
 
 
@@ -708,6 +663,11 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
 
         dialog.setVisible(true);
     }
+
+    /**
+     * Returns the full name of a doctor(name + surname1 + surname2)
+     * @param doctorId
+     */
 
     public String getDoctorName(String doctorId) {
         PostgrestQuery query = postgrestClient
@@ -725,9 +685,13 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
         String surname1 = jsonObject.get("surname1").getAsString();
         String surname2 = jsonObject.get("surname2").getAsString();
 
-        String fullName = (name + " " + surname1 + " " + surname2);
-        return fullName;
+        return (name + " " + surname1 + " " + surname2);
     }
+
+    /**
+     * Returns the full name of a patient(name + surname1 + surname2)
+     * @param patientId
+     */
 
     public String getPatientName(String patientId) {
         PostgrestQuery query = postgrestClient
@@ -748,78 +712,83 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
         return (name + " " + surname1 + " " + surname2);
     }
 
+    /**
+     * Stops the thread to update chat messages
+     */
+
     public void messageThreadInterrupt(){
         if(msgThread != null && msgThread.isAlive()){
             msgThread.interrupt();
         }
     }
 
+    /**
+     * Starts the thread to update chat messages
+     */
+
     public void messageCheckerStart(){
 
         messageThreadInterrupt();
-        msgThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
+        msgThread = new Thread(() -> {
 
-                String patientName = getPatientName(patientId);
-                String doctorName = getDoctorName(docCode[0]);
+            String patientName = getPatientName(patientId);
+            String doctorName = getDoctorName(docCode[0]);
 
-                while(!Thread.interrupted()){
+            while(!Thread.interrupted()){
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    logger.severe("Error al interrumpir el hilo: " + e.getMessage() + "por el paciente: " + patientId);
+                }
+
+                PostgrestQuery query = postgrestClient
+                        .from("message")
+                        .select("*")
+                        .eq("fk_patient_id", patientId)
+                        .eq("fk_doctor_id", docCode[0])
+                        .eq("patient_read", String.valueOf(false))
+                        .getQuery();
+
+                String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
+
+                //Update patient_read to true (query 2)
+                PostgrestQuery query2 = postgrestClient
+                        .from("message")
+                        .update(new Entry<>("patient_read", true))
+                        .eq("fk_patient_id", patientId)
+                        .eq("fk_doctor_id", docCode[0])
+                        .getQuery();
+
+                postgrestClient.sendQuery(query2);
+
+                //Set the previously unread messages at chatArea
+                JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+
+                for (JsonElement jsonElement : jsonArray) {
+                    JsonObject messageObject = jsonElement.getAsJsonObject();
+
+                    String message = messageObject.get("message").getAsString();
+                    String datetime = messageObject.get("date").getAsString();
+                    boolean patientSent = messageObject.get("patient_sent").getAsBoolean();
+                    LocalDateTime date = LocalDateTime.parse(datetime);
+                    String dateFormatted = date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+                    SimpleAttributeSet bold = new SimpleAttributeSet();
+                    StyleConstants.setBold(bold, true);
+
                     try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                        logger.severe("Error al interrumpir el hilo: " + e.getMessage() + "por el paciente: " + patientId);
-                    }
-
-                    PostgrestQuery query = postgrestClient
-                            .from("message")
-                            .select("*")
-                            .eq("fk_patient_id", patientId)
-                            .eq("fk_doctor_id", docCode[0])
-                            .eq("patient_read", String.valueOf(false))
-                            .getQuery();
-
-                    String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
-
-                    //Update patient_read to true (query 2)
-                    PostgrestQuery query2 = postgrestClient
-                            .from("message")
-                            .update(new Entry("patient_read", true))
-                            .eq("fk_patient_id", patientId)
-                            .eq("fk_doctor_id", docCode[0])
-                            .getQuery();
-
-                    postgrestClient.sendQuery(query2);
-
-                    //Set the previously unread messages at chatArea
-                    JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
-
-                    for (JsonElement jsonElement : jsonArray) {
-                        JsonObject messageObject = jsonElement.getAsJsonObject();
-
-                        String message = messageObject.get("message").getAsString();
-                        String datetime = messageObject.get("date").getAsString();
-                        Boolean patientSent = messageObject.get("patient_sent").getAsBoolean();
-                        LocalDateTime date = LocalDateTime.parse(datetime);
-                        String dateFormatted = date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
-                        SimpleAttributeSet bold = new SimpleAttributeSet();
-                        StyleConstants.setBold(bold, true);
-
-                        try {
-                            if (patientSent) {
-                                chatDoc.insertString(chatDoc.getLength(), patientName + " " + dateFormatted + ":\n", bold);
-                            } else {
-                                chatDoc.insertString(chatDoc.getLength(), doctorName + " " + dateFormatted + ":\n", bold);
-                            }
-                            chatDoc.insertString(chatDoc.getLength(), message + "\n\n", null);
-                        } catch (BadLocationException ex) {
-                            logger.severe("Error al mostrar el chat: " + ex.getMessage() + "por el paciente: " + patientId);
+                        if (patientSent) {
+                            chatDoc.insertString(chatDoc.getLength(), patientName + " " + dateFormatted + ":\n", bold);
+                        } else {
+                            chatDoc.insertString(chatDoc.getLength(), doctorName + " " + dateFormatted + ":\n", bold);
                         }
+                        chatDoc.insertString(chatDoc.getLength(), message + "\n\n", null);
+                    } catch (BadLocationException ex) {
+                        logger.severe("Error al mostrar el chat: " + ex.getMessage() + "por el paciente: " + patientId);
                     }
-
                 }
 
             }
+
         });
         msgThread.start();
     }

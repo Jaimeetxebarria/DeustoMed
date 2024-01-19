@@ -46,7 +46,7 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
     private JList<ChatUser> conversationsList;
     private DefaultListModel<ChatUser> conversationsModel;
     private StyledDocument chatDocument;
-    private String docCodeF = "";
+    private String docCodeF;
     private String patientId = "";
 
     private static PostgrestClient postgrestClient;
@@ -246,69 +246,66 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
     public void messageCheckerStart(String patientId){
 
         messageThreadInterrupt();
-        msgThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
+        msgThread = new Thread(() -> {
 
-                String patientName = getPatientName(patientId);
-                String doctorName = getDoctorName(docCodeF);
+            String patientName = getPatientName(patientId);
+            String doctorName = getDoctorName(docCodeF);
 
-                while(!Thread.interrupted()){
+            while(!Thread.interrupted()){
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    logger.severe("Hilo de comprobación de mensajes interrumpido para el doctor " + docCodeF);
+                }
+
+                PostgrestQuery query = postgrestClient
+                        .from("message")
+                        .select("*")
+                        .eq("fk_patient_id", patientId)
+                        .eq("fk_doctor_id", docCodeF)
+                        .is("doctor_read", false)
+                        .getQuery();
+
+                String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
+
+                //Update doctor_read to true (query 2)
+                PostgrestQuery query2 = postgrestClient
+                        .from("message")
+                        .update(new Entry<>("doctor_read", true))
+                        .eq("fk_patient_id", patientId)
+                        .eq("fk_doctor_id", docCodeF)
+                        .getQuery();
+
+                postgrestClient.sendQuery(query2);
+
+                //Set the previously unread messages at chatArea
+                JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+
+                for (JsonElement jsonElement : jsonArray) {
+                    JsonObject messageObject = jsonElement.getAsJsonObject();
+
+                    String message = messageObject.get("message").getAsString();
+                    String datetime = messageObject.get("date").getAsString();
+                    boolean patientSent = messageObject.get("patient_sent").getAsBoolean();
+                    LocalDateTime date = LocalDateTime.parse(datetime);
+                    String dateFormatted = date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+                    SimpleAttributeSet bold = new SimpleAttributeSet();
+                    StyleConstants.setBold(bold, true);
+
                     try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                        logger.severe("Hilo de comprobación de mensajes interrumpido para el doctor " + docCodeF);
-                    }
-
-                    PostgrestQuery query = postgrestClient
-                            .from("message")
-                            .select("*")
-                            .eq("fk_patient_id", patientId)
-                            .eq("fk_doctor_id", docCodeF)
-                            .is("doctor_read", false)
-                            .getQuery();
-
-                    String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
-
-                    //Update doctor_read to true (query 2)
-                    PostgrestQuery query2 = postgrestClient
-                            .from("message")
-                            .update(new Entry("doctor_read", true))
-                            .eq("fk_patient_id", patientId)
-                            .eq("fk_doctor_id", docCodeF)
-                            .getQuery();
-
-                    postgrestClient.sendQuery(query2);
-
-                    //Set the previously unread messages at chatArea
-                    JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
-
-                    for (JsonElement jsonElement : jsonArray) {
-                        JsonObject messageObject = jsonElement.getAsJsonObject();
-
-                        String message = messageObject.get("message").getAsString();
-                        String datetime = messageObject.get("date").getAsString();
-                        Boolean patientSent = messageObject.get("patient_sent").getAsBoolean();
-                        LocalDateTime date = LocalDateTime.parse(datetime);
-                        String dateFormatted = date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
-                        SimpleAttributeSet bold = new SimpleAttributeSet();
-                        StyleConstants.setBold(bold, true);
-
-                        try {
-                            if (patientSent) {
-                                chatDocument.insertString(chatDocument.getLength(), patientName + " " + dateFormatted + ":\n", bold);
-                            } else {
-                                chatDocument.insertString(chatDocument.getLength(), doctorName + " " + dateFormatted + ":\n", bold);
-                            }
-                            chatDocument.insertString(chatDocument.getLength(), message + "\n\n", null);
-                        } catch (BadLocationException ex) {
-                            logger.severe("Error al insertar el mensaje en el chat: " + ex.getMessage() + " por el doctor " + docCodeF + ".");
+                        if (patientSent) {
+                            chatDocument.insertString(chatDocument.getLength(), patientName + " " + dateFormatted + ":\n", bold);
+                        } else {
+                            chatDocument.insertString(chatDocument.getLength(), doctorName + " " + dateFormatted + ":\n", bold);
                         }
+                        chatDocument.insertString(chatDocument.getLength(), message + "\n\n", null);
+                    } catch (BadLocationException ex) {
+                        logger.severe("Error al insertar el mensaje en el chat: " + ex.getMessage() + " por el doctor " + docCodeF + ".");
                     }
-
                 }
 
             }
+
         });
         msgThread.start();
     }
@@ -331,8 +328,7 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
         String surname1 = jsonObject.get("surname1").getAsString();
         String surname2 = jsonObject.get("surname2").getAsString();
 
-        String fullName = (name + " " + surname1 + " " + surname2);
-        return fullName;
+        return (name + " " + surname1 + " " + surname2);
     }
 
     public String getPatientName(String patientId) {
@@ -351,8 +347,7 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
         String surname1 = jsonObject.get("surname1").getAsString();
         String surname2 = jsonObject.get("surname2").getAsString();
 
-        String fullName = (name + " " + surname1 + " " + surname2);
-        return fullName;
+        return (name + " " + surname1 + " " + surname2);
     }
 
     private void loadConversation(String patientId) {
@@ -378,7 +373,7 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
 
         PostgrestQuery updatequery = postgrestClient
                 .from("message")
-                .update(new Entry("doctor_read",true))
+                .update(new Entry<>("doctor_read",true))
                 .eq("fk_patient_id",patientId)
                 .eq("fk_doctor_id",docCodeF)
                 .getQuery();
@@ -392,7 +387,7 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
 
             String message = messageObject.get("message").getAsString();
             String datetime = messageObject.get("date").getAsString();
-            Boolean patientSent = messageObject.get("patient_sent").getAsBoolean();
+            boolean patientSent = messageObject.get("patient_sent").getAsBoolean();
             LocalDateTime date = LocalDateTime.parse(datetime);
             String dateFormatted = date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
             SimpleAttributeSet bold = new SimpleAttributeSet();
