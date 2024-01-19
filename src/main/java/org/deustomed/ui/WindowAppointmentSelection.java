@@ -17,6 +17,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -32,7 +33,7 @@ public class WindowAppointmentSelection extends JFrame {
     private static PostgrestClient postgrestClient;
     private static final HashMap<String, String> doctorIdToName = new HashMap<>();
 
-    public WindowAppointmentSelection(TreeSet<Appointment> appointments) {
+    public WindowAppointmentSelection(TreeSet<Appointment> appointments, String patientId) {
 
         ConfigLoader configLoader = new ConfigLoader();
         String hostname = configLoader.getHostname();
@@ -73,7 +74,7 @@ public class WindowAppointmentSelection extends JFrame {
 
             String[] row = {dateFormat.format(date), getDoctorName(ap.getDoctorId()), chatCode};
             model.addRow(row);
-            comboBox.addItem(getDoctorName(ap.getDoctorId()) + " - " + dateFormat.format(date));
+            comboBox.addItem(getDoctorName(ap.getDoctorId()) + " - "  + chatCode + " - " +dateFormat.format(date));
         }
 
         JPanel buttonPanel = new JPanel();
@@ -97,7 +98,47 @@ public class WindowAppointmentSelection extends JFrame {
                     options[0]);
 
             if (confirmResult == JOptionPane.YES_OPTION) {
-                // TODO: PUT PATIENT IN THE APPOINTMENT
+
+                Object selectedItem = comboBox.getSelectedItem();
+                String docCode = null;
+                LocalDateTime fechaLocalDateTime = null;
+
+                if (selectedItem != null) {
+                    String itemStr = selectedItem.toString();
+                    String[] partes = itemStr.split(" - ");
+
+                    if (partes.length >= 3) {
+                        String chatCode = partes[1];
+                        docCode = DoctorMsgCode.MsgCodeToId(chatCode);
+                        String fechaFormateada = partes[2];
+
+                        try {
+                            Date fecha = dateFormat.parse(fechaFormateada);
+                            fechaLocalDateTime = fecha.toInstant()
+                                    .atZone(ZoneId.systemDefault())
+                                    .toLocalDateTime();
+                        } catch (ParseException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    }
+                }
+
+                JsonObject app = new JsonObject();
+                app.addProperty("reason","");
+                app.addProperty("fk_patient_id", patientId);
+                app.addProperty("fk_doctor_id", docCode);
+                app.addProperty("fk_appointment_type_id",1);
+                app.addProperty("date", String.valueOf(fechaLocalDateTime));
+
+                PostgrestQuery query = postgrestClient
+                        .from("appointment")
+                        .insert(app)
+                        .select()
+                        .getQuery();
+
+                postgrestClient.sendQuery(query);
+                System.out.println(query);
+
                 dispose();
             }
 
@@ -163,6 +204,6 @@ public class WindowAppointmentSelection extends JFrame {
         FlatLightLaf.setup();
         FlatInterFont.install();
 
-        new WindowAppointmentSelection(new TreeSet<>());
+        new WindowAppointmentSelection(new TreeSet<>(),"00AAK");
     }
 }

@@ -158,7 +158,7 @@ public class WindowAppointment extends JFrame {
                     appointments.remove(tempAppointment);
                 }
 
-                new WindowAppointmentSelection(appointments);
+                new WindowAppointmentSelection(appointments,patientID);
                 dispose();
             }
 
