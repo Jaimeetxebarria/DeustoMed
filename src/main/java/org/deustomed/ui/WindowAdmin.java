@@ -18,7 +18,11 @@ import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -90,7 +94,9 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         pnlPatient.setBorder(border);
 
         mdlPatient = completeTable(columNamesPatients, patients);
+        TableRowSorter<TableModel> sorterPatients = new TableRowSorter<>(mdlPatient);
         tblPatient = new JTable(mdlPatient);
+        tblPatient.setRowSorter(sorterPatients);
         tblPatient.getColumnModel().getColumn(0).setPreferredWidth(25);
         tblPatient.getColumnModel().getColumn(4).setPreferredWidth(30);
         tblPatient.getColumnModel().getColumn(7).setPreferredWidth(25);
@@ -134,6 +140,25 @@ public class WindowAdmin extends UserAuthenticatedWindow {
             @Override
             public void changedUpdate(javax.swing.event.DocumentEvent e) {
                 filtrarDatos(tblPatient, tfFindPatient);
+            }
+        });
+        tblPatient.getTableHeader().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int column = tblPatient.getTableHeader().columnAtPoint(e.getPoint());
+                if (sorterPatients.getSortKeys().isEmpty() || sorterPatients.getSortKeys().get(0).getColumn() != column) {
+                    sorterPatients.setSortKeys(null);
+                } else {
+                    // Toggle sorting order
+                    List<RowSorter.SortKey> sortKeys = new ArrayList<>(sorterPatients.getSortKeys());
+                    RowSorter.SortKey currentSortKey = sortKeys.get(0);
+                    if (currentSortKey.getSortOrder() == SortOrder.ASCENDING) {
+                        sortKeys.set(0, new RowSorter.SortKey(column, SortOrder.DESCENDING));
+                    } else {
+                        sortKeys.set(0, new RowSorter.SortKey(column, SortOrder.ASCENDING));
+                    }
+                    sorterPatients.setSortKeys(sortKeys);
+                }
             }
         });
 
@@ -236,7 +261,9 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         pnlDoctor.setBorder(border);
 
         mdlDoctor = completeTable(columNamesDoctor, doctors);
+        TableRowSorter<TableModel> sorterDoctors = new TableRowSorter<>(mdlDoctor);
         tblDoctor = new JTable(mdlDoctor);
+        tblDoctor.setRowSorter(sorterDoctors);
         tblDoctor.getColumnModel().getColumn(ID_COLUMN).setPreferredWidth(25);
         tblDoctor.getColumnModel().getColumn(SEX_COLUMN).setPreferredWidth(30);
         tblPatient.getColumnModel().getColumn(AGE_COLUMN).setPreferredWidth(25);
@@ -281,6 +308,25 @@ public class WindowAdmin extends UserAuthenticatedWindow {
             @Override
             public void changedUpdate(javax.swing.event.DocumentEvent e) {
                 filtrarDatos(tblDoctor, tfFindDoctor);
+            }
+        });
+        tblDoctor.getTableHeader().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int column = tblDoctor.getTableHeader().columnAtPoint(e.getPoint());
+                if (sorterDoctors.getSortKeys().isEmpty() || sorterDoctors.getSortKeys().get(0).getColumn() != column) {
+                    sorterDoctors.setSortKeys(null); // No sorting, revert to original order
+                } else {
+                    // Toggle sorting order
+                    List<RowSorter.SortKey> sortKeys = new ArrayList<>(sorterDoctors.getSortKeys());
+                    RowSorter.SortKey currentSortKey = sortKeys.get(0);
+                    if (currentSortKey.getSortOrder() == SortOrder.ASCENDING) {
+                        sortKeys.set(0, new RowSorter.SortKey(column, SortOrder.DESCENDING));
+                    } else {
+                        sortKeys.set(0, new RowSorter.SortKey(column, SortOrder.ASCENDING));
+                    }
+                    sorterDoctors.setSortKeys(sortKeys);
+                }
             }
         });
 
