@@ -7,18 +7,13 @@ import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Objects;
 
 @Getter
 @Setter
-public abstract class User implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
-
+public abstract class User {
     @NotNull
     protected final String id;
     @NotNull
