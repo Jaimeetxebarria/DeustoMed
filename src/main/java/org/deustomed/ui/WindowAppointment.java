@@ -2,7 +2,6 @@ package org.deustomed.ui;
 
 import com.formdev.flatlaf.FlatLightLaf;
 import com.formdev.flatlaf.fonts.inter.FlatInterFont;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -15,8 +14,6 @@ import org.deustomed.postgrest.PostgrestQuery;
 import org.deustomed.postgrest.authentication.PostgrestAuthenticationService;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.time.*;
 import java.util.Calendar;
@@ -40,7 +37,7 @@ public class WindowAppointment extends JFrame {
         ConfigLoader configLoader = new ConfigLoader();
         String hostname = configLoader.getHostname();
         String endpoint = configLoader.getEndpoint();
-        PostgrestAuthenticationService authenticationService =  new AnonymousAuthenticationService(configLoader.getAnonymousToken());
+        PostgrestAuthenticationService authenticationService = new AnonymousAuthenticationService(configLoader.getAnonymousToken());
         postgrestClient = new PostgrestClient(hostname, endpoint, authenticationService);
 
         patientId = patientID;
@@ -83,85 +80,82 @@ public class WindowAppointment extends JFrame {
                 JOptionPane.showMessageDialog(WindowAppointment.this,
                         "Error: La fecha seleccionada ya ha pasado.",
                         "Error", JOptionPane.ERROR_MESSAGE);
-            }else {
-                // Appointment Generator
-                Gson gson = new Gson();
-
-                PostgrestQuery query = postgrestClient
-                        .from("patient")
-                        .select("fk_doctor_id")
-                        .eq("id", patientId)
-                        .getQuery();
-                String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
-                JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
-                JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
-                String docID = jsonObject.get("fk_doctor_id").getAsString();
-
-                PostgrestQuery query2 = postgrestClient
-                        .from("doctor_schedule")
-                        .select("day_of_week", "start_time", "end_time")
-                        .eq("doctor_id", docID)
-                        .getQuery();
-                String jsonResponse2 = String.valueOf(postgrestClient.sendQuery(query2));
-                JsonArray jsonArray2 = gson.fromJson(jsonResponse2, JsonArray.class);
-
-                TreeSet<Appointment> appointments = new TreeSet<>();
-
-                LocalDate localSelectedDate = selectedDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                // Loop through each day (selected date and next two days)
-                for (int i = 0; i < 3; i++) {
-                    LocalDate currentDate = localSelectedDate.plusDays(i);
-                    DayOfWeek currentDayOfWeek = currentDate.getDayOfWeek();
-
-                    // Check each element in the schedule
-                    for (JsonElement jsonElement : jsonArray2) {
-                        JsonObject messageObject = jsonElement.getAsJsonObject();
-                        String dayOfWeek = messageObject.get("day_of_week").getAsString();
-                        DayOfWeek scheduleDayOfWeek = DayOfWeek.valueOf(dayOfWeek.toUpperCase());
-
-                        // Check if the day matches the doctor's schedule
-                        if (currentDayOfWeek == scheduleDayOfWeek) {
-                            String startTimeString = messageObject.get("start_time").getAsString();
-                            String endTimeString = messageObject.get("end_time").getAsString();
-                            LocalTime startTime = LocalTime.parse(startTimeString);
-                            LocalTime endTime = LocalTime.parse(endTimeString);
-
-                            // Create appointments every 15 minutes from start_time to end_time
-                            LocalTime timeSlot = startTime;
-                            while (timeSlot.isBefore(endTime)) {
-                                LocalDateTime dateTime = LocalDateTime.of(currentDate, timeSlot);
-                                Appointment appointment = new Appointment(null, docID, dateTime, null, null);
-                                appointments.add(appointment);
-                                timeSlot = timeSlot.plusMinutes(15);
-                            }
-                        }
-                    }
-                }
-                // Remove already created appointments
-                PostgrestQuery query3 = postgrestClient
-                        .from("appointment")
-                        .select("*")
-                        .eq("fk_doctor_id", docID)
-                        .getQuery();
-
-                String jsonResponse3 = String.valueOf(postgrestClient.sendQuery(query3)); // Use query3 here
-                JsonArray jsonArray3 = gson.fromJson(jsonResponse3, JsonArray.class);
-
-                for (JsonElement jsonElement : jsonArray3) {
-                    JsonObject jsonObject3 = jsonElement.getAsJsonObject();
-
-                    String dateStr = jsonObject3.get("date").getAsString();
-                    LocalDateTime date1 = LocalDateTime.parse(dateStr);
-
-                    Appointment tempAppointment = new Appointment(null, docID, date1, null, null);
-
-                    appointments.remove(tempAppointment);
-                }
-
-                new WindowAppointmentSelection(appointments,patientID);
-                dispose();
+                return;
             }
 
+            // Appointment Generator
+            PostgrestQuery query = postgrestClient
+                    .from("patient")
+                    .select("fk_doctor_id")
+                    .eq("id", patientId)
+                    .getQuery();
+
+            JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
+            JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
+            String docID = jsonObject.get("fk_doctor_id").getAsString();
+
+            PostgrestQuery query2 = postgrestClient
+                    .from("doctor_schedule")
+                    .select("day_of_week", "start_time", "end_time")
+                    .eq("doctor_id", docID)
+                    .getQuery();
+
+            JsonArray doctorScheduleJsonArray = postgrestClient.sendQuery(query2).getAsJsonArray();
+
+            TreeSet<Appointment> appointments = new TreeSet<>();
+
+            LocalDate localSelectedDate = selectedDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            // Loop through each day (selected date and next two days)
+            for (int i = 0; i < 3; i++) {
+                LocalDate currentDate = localSelectedDate.plusDays(i);
+                DayOfWeek currentDayOfWeek = currentDate.getDayOfWeek();
+
+                // Check each element in the schedule
+                for (JsonElement jsonElement : doctorScheduleJsonArray) {
+                    JsonObject scheduleJsonObject = jsonElement.getAsJsonObject();
+                    DayOfWeek scheduleDayOfWeek = DayOfWeek.valueOf(scheduleJsonObject.get("day_of_week").getAsString().toUpperCase());
+
+                    // Check if the day matches the doctor's schedule
+                    if (currentDayOfWeek != scheduleDayOfWeek) continue;
+
+                    String startTimeString = scheduleJsonObject.get("start_time").getAsString();
+                    String endTimeString = scheduleJsonObject.get("end_time").getAsString();
+                    LocalTime startTime = LocalTime.parse(startTimeString);
+                    LocalTime endTime = LocalTime.parse(endTimeString);
+
+                    // Create appointments every 15 minutes from start_time to end_time
+                    LocalTime timeSlot = startTime;
+                    while (timeSlot.isBefore(endTime)) {
+                        LocalDateTime dateTime = LocalDateTime.of(currentDate, timeSlot);
+                        Appointment appointment = new Appointment(null, docID, dateTime, null, null);
+                        appointments.add(appointment);
+                        timeSlot = timeSlot.plusMinutes(15);
+                    }
+                }
+            }
+
+            // Remove already created appointments
+            PostgrestQuery query3 = postgrestClient
+                    .from("appointment")
+                    .select("*")
+                    .eq("fk_doctor_id", docID)
+                    .getQuery();
+
+            JsonArray jsonArray3 = postgrestClient.sendQuery(query3).getAsJsonArray();
+
+            for (JsonElement jsonElement : jsonArray3) {
+                JsonObject jsonObject3 = jsonElement.getAsJsonObject();
+
+                String dateStr = jsonObject3.get("date").getAsString();
+                LocalDateTime date1 = LocalDateTime.parse(dateStr);
+
+                Appointment tempAppointment = new Appointment(null, docID, date1, null, null);
+
+                appointments.remove(tempAppointment);
+            }
+
+            new WindowAppointmentSelection(appointments, patientID);
+            dispose();
         });
 
         GroupLayout layout = new GroupLayout(getContentPane());
@@ -208,9 +202,7 @@ public class WindowAppointment extends JFrame {
                 .eq("id", patientId)
                 .getQuery();
 
-        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
-        Gson gson = new Gson();
-        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+        JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
         JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
 
         String name = jsonObject.get("name").getAsString();
@@ -224,7 +216,6 @@ public class WindowAppointment extends JFrame {
         FlatLightLaf.setup();
         FlatInterFont.install();
 
-        new WindowAppointment(new Date(),"00AAK");
-
+        new WindowAppointment(new Date(), "00AAK");
     }
 }
