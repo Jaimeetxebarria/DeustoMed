@@ -524,17 +524,17 @@ public class WindowAdmin extends UserAuthenticatedWindow {
     }
 
     private void filtrarDatos(JTable table, JTextField tfFinder) {
-        String filtro = tfFinder.getText().toLowerCase();
+        String filter = tfFinder.getText().toLowerCase();
 
-        DefaultTableModel modelo = (DefaultTableModel) table.getModel();
-        DefaultTableModel modeloAux = copyModel(modelo);
-        modelo.setRowCount(0);
-        if(!filtro.isEmpty()) {
-            for (int i = 0; i < modeloAux.getRowCount(); i++) {
-                for (int j = 0; j < modeloAux.getColumnCount(); j++) {
-                    String valor = modeloAux.getValueAt(i, j).toString().toLowerCase();
-                    if (valor.contains(filtro)) {
-                        modelo.addRow(modeloAux.getDataVector().elementAt(i));
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        DefaultTableModel auxModel = copyModel(model);
+        model.setRowCount(0);
+        if(!filter.isEmpty()) {
+            for (int i = 0; i < auxModel.getRowCount(); i++) {
+                for (int j = 0; j < auxModel.getColumnCount(); j++) {
+                    String valor = auxModel.getValueAt(i, j).toString().toLowerCase();
+                    if (valor.contains(filter)) {
+                        model.addRow(auxModel.getDataVector().elementAt(i));
                         break;
                     }
                 }
@@ -548,18 +548,18 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         }
     }
 
-    private DefaultTableModel copyModel(DefaultTableModel modeloOriginal){
+    private DefaultTableModel copyModel(DefaultTableModel originalModel){
         // Obtener datos y columnas del modelo original
-        Object[] columnIdentifiers = new Object[modeloOriginal.getColumnCount()];
-        for (int i = 0; i < modeloOriginal.getColumnCount(); i++) {
-            columnIdentifiers[i] = modeloOriginal.getColumnName(i);
+        Object[] columnIdentifiers = new Object[originalModel.getColumnCount()];
+        for (int i = 0; i < originalModel.getColumnCount(); i++) {
+            columnIdentifiers[i] = originalModel.getColumnName(i);
         }
 
-        Object[][] data = new Object[modeloOriginal.getRowCount()][modeloOriginal.getColumnCount()];
+        Object[][] data = new Object[originalModel.getRowCount()][originalModel.getColumnCount()];
 
-        for (int i = 0; i < modeloOriginal.getRowCount(); i++) {
-            for (int j = 0; j < modeloOriginal.getColumnCount(); j++) {
-                data[i][j] = modeloOriginal.getValueAt(i, j);
+        for (int i = 0; i < originalModel.getRowCount(); i++) {
+            for (int j = 0; j < originalModel.getColumnCount(); j++) {
+                data[i][j] = originalModel.getValueAt(i, j);
             }
         }
 
