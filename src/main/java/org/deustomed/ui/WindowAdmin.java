@@ -541,11 +541,9 @@ public class WindowAdmin extends UserAuthenticatedWindow {
             }
         }else{
             if (table.equals(tblPatient)){
-                mdlPatient = completeTable(columNamesPatients, patients);
-                tblPatient.setModel(mdlPatient);
+                resetTable(tblPatient, columNamesPatients, patients);
             }else {
-                mdlDoctor = completeTable(columNamesDoctor, doctors);
-                tblDoctor.setModel(mdlDoctor);
+                resetTable(tblDoctor, columNamesDoctor, doctors);
             }
         }
     }
@@ -567,6 +565,12 @@ public class WindowAdmin extends UserAuthenticatedWindow {
 
         return new DefaultTableModel(data, columnIdentifiers);
     }
+
+    private void resetTable(JTable table, String[] columnNames, List<User> users) {
+        DefaultTableModel model = completeTable(columnNames, users);
+        table.setModel(model);
+    }
+
 }
 
 
