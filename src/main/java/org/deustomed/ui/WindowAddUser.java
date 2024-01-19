@@ -14,6 +14,8 @@ import org.deustomed.postgrest.PostgrestQuery;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
@@ -47,7 +49,7 @@ public class WindowAddUser extends JFrame {
     private static PostgrestClient postgrestClient;
     private static final Gson gson = new Gson();
 
-    public WindowAddUser(List<? extends User> users) {
+    public WindowAddUser(List<? extends User> users, JTable tblUsers) {
         ConfigLoader configLoader = new ConfigLoader();
         String hostname = configLoader.getHostname();
         String endpoint = configLoader.getEndpoint();
@@ -269,12 +271,15 @@ public class WindowAddUser extends JFrame {
                 default -> throw new RuntimeException("Unexpected response code: " + response.statusCode());
             }
 
-
+            DefaultTableModel model = (DefaultTableModel) tblUsers.getModel();
+            String[] rowData;
             if (patients != null) {
                 //Add to the patient arraylist
                 Patient patient = new Patient(userId, name, surname1, surname2, birthDate, sex, dni, email, phone,
                         address, new ArrayList<>());
                 patients.add(patient);
+                //Update table
+                model.addRow(new String[]{userId, name, surname1, surname2, email, dni, phone, address, sex.toString(), String.valueOf(birthDate)});
                 new WindowConfirmNewUser(patient);
                 System.out.println("Nuevo paciente: " + patient);
                 dispose();
@@ -285,6 +290,8 @@ public class WindowAddUser extends JFrame {
                 doctor = new Doctor(userId, name, surname1, surname2, birthDate, sex, dni, email, phone,
                         address, speciality, new ArrayList<>());
                 doctors.add(doctor);
+                //Update table
+                model.addRow(new String[]{userId, name, surname1, surname2, email, dni, phone, address, sex.toString(), String.valueOf(birthDate), speciality});
                 new WindowConfirmNewUser(doctor);
                 System.out.println("Nuevo doctor: " + doctor);
                 dispose();
@@ -440,7 +447,7 @@ public class WindowAddUser extends JFrame {
 
         SwingUtilities.invokeLater(() -> {
             //new WindowAddUser(patients);
-            new WindowAddUser(doctors);
+            //new WindowAddUser(doctors);
         });
     }
 }

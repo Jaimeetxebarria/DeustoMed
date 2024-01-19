@@ -137,7 +137,7 @@ public class WindowAdmin extends UserAuthenticatedWindow {
             }
         });
 
-        btnPatient.addActionListener(e -> new WindowAddUser(patients));
+        btnPatient.addActionListener(e -> new WindowAddUser(patients, tblPatient));
 
         btnEditPatient.addActionListener(e -> {
             int selectedRow = tblPatient.getSelectedRow();
@@ -284,7 +284,7 @@ public class WindowAdmin extends UserAuthenticatedWindow {
             }
         });
 
-        btnDoctor.addActionListener(e -> new WindowAddUser(doctors));
+        btnDoctor.addActionListener(e -> new WindowAddUser(doctors, tblDoctor));
 
         btnEditDoctor.addActionListener(e -> {
             int selectedRow = tblDoctor.getSelectedRow();
