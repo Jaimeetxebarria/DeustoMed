@@ -15,7 +15,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
@@ -25,6 +24,7 @@ import java.net.http.HttpResponse;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
@@ -279,7 +279,7 @@ public class WindowAddUser extends JFrame {
                         address, new ArrayList<>());
                 patients.add(patient);
                 //Update table
-                model.addRow(new String[]{userId, name, surname1, surname2, email, dni, phone, address, sex.toString(), String.valueOf(birthDate)});
+                model.addRow(new String[]{userId, surname1, surname2, name, sex.toString(), email, dni, tfAge.getText(), phone, address, String.valueOf(birthDate)});
                 new WindowConfirmNewUser(patient);
                 System.out.println("Nuevo paciente: " + patient);
                 dispose();
@@ -291,7 +291,7 @@ public class WindowAddUser extends JFrame {
                         address, speciality, new ArrayList<>());
                 doctors.add(doctor);
                 //Update table
-                model.addRow(new String[]{userId, name, surname1, surname2, email, dni, phone, address, sex.toString(), String.valueOf(birthDate), speciality});
+                model.addRow(new String[]{userId, surname1, surname2, name, sex.toString(), email, dni, tfAge.getText(), phone, address, String.valueOf(birthDate), speciality});
                 new WindowConfirmNewUser(doctor);
                 System.out.println("Nuevo doctor: " + doctor);
                 dispose();
