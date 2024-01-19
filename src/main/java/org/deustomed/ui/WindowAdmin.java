@@ -528,50 +528,19 @@ public class WindowAdmin extends UserAuthenticatedWindow {
 
     private void filtrarDatos(JTable table, JTextField tfFinder) {
         String filter = tfFinder.getText().toLowerCase();
-
         DefaultTableModel model = (DefaultTableModel) table.getModel();
-        DefaultTableModel auxModel = copyModel(model);
-        model.setRowCount(0);
-        if(!filter.isEmpty()) {
-            for (int i = 0; i < auxModel.getRowCount(); i++) {
-                for (int j = 0; j < auxModel.getColumnCount(); j++) {
-                    String valor = auxModel.getValueAt(i, j).toString().toLowerCase();
-                    if (valor.contains(filter)) {
-                        model.addRow(auxModel.getDataVector().elementAt(i));
-                        break;
-                    }
-                }
-            }
-        }else{
-            if (table.equals(tblPatient)){
-                resetTable(tblPatient, columNamesPatients, patients);
-            }else {
-                resetTable(tblDoctor, columNamesDoctor, doctors);
-            }
-        }
-    }
 
-    private DefaultTableModel copyModel(DefaultTableModel originalModel){
-        // Obtener datos y columnas del modelo original
-        Object[] columnIdentifiers = new Object[originalModel.getColumnCount()];
-        for (int i = 0; i < originalModel.getColumnCount(); i++) {
-            columnIdentifiers[i] = originalModel.getColumnName(i);
+        TableRowSorter<TableModel> rowSorter = (TableRowSorter<TableModel>) table.getRowSorter();
+        if (rowSorter == null) {
+            rowSorter = new TableRowSorter<>(model);
+            table.setRowSorter(rowSorter);
         }
 
-        Object[][] data = new Object[originalModel.getRowCount()][originalModel.getColumnCount()];
-
-        for (int i = 0; i < originalModel.getRowCount(); i++) {
-            for (int j = 0; j < originalModel.getColumnCount(); j++) {
-                data[i][j] = originalModel.getValueAt(i, j);
-            }
+        if (filter.trim().length() == 0) {
+            rowSorter.setRowFilter(null);
+        } else {
+            rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + filter));
         }
-
-        return new DefaultTableModel(data, columnIdentifiers);
-    }
-
-    private void resetTable(JTable table, String[] columnNames, List<User> users) {
-        DefaultTableModel model = completeTable(columnNames, users);
-        table.setModel(model);
     }
 
 }
