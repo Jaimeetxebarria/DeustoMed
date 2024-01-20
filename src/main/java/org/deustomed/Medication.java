@@ -11,7 +11,7 @@ import java.util.ArrayList;
 @Getter @Setter
 public class Medication {
     public static ArrayList<Medication> medications = new ArrayList<>();
-    private String id;
+    private int id;
     private String activeSubstance;
     private String commercialName;
     private int stock;
@@ -19,7 +19,7 @@ public class Medication {
     private String compnay;
     private String shortDescription;
 
-    public Medication(String id, String activeSubstance, String commercialName, int stock, double dose, String compnay, String shortDescription) {
+    public Medication(int id, String activeSubstance, String commercialName, int stock, double dose, String compnay, String shortDescription) {
         this.id = id;
         this.activeSubstance = activeSubstance;
         this.commercialName = commercialName;
@@ -40,7 +40,7 @@ public class Medication {
 
         for (int j = 0; j < jsonArray.size(); j++) {
             JsonObject jsonObject = jsonArray.get(j).getAsJsonObject();
-            String id = jsonObject.get("id").getAsString();
+            int id = jsonObject.get("id").getAsInt();
             String activeSubstance = jsonObject.get("activesubstance").getAsString();
             String commercialName = jsonObject.get("commercialname").getAsString();
             int stock = jsonObject.get("stock").getAsInt();

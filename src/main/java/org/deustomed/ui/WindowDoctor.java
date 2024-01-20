@@ -68,17 +68,17 @@ public class WindowDoctor extends UserAuthenticatedWindow {
                 LocalDate.now(), Sex.MALE, "12345678A", "paciente1@email.com", "019283712094",
                 "Calle de Ciudad", new ArrayList<>());
         ArrayList<Appointment> appoinments = new ArrayList<>();
-        appoinments.add(new Appointment(patient1.getId(), "doctor.getId()", LocalDateTime.of(2024, 1, 1, 12, 0), "Cita consulta", "Cita " +
+        appoinments.add(new Appointment(patient1.getId(), "doctor.getId()", LocalDateTime.of(2024, 1, 8, 12, 0), "Cita por dolor abdominal intenso", "Cita " +
                 "consulta con paciente"));
-        appoinments.add(new Appointment(patient1.getId(), "doctor.getId()", LocalDateTime.of(2024, 1, 1, 12, 30), "Cita consulta", "Cita " +
+        appoinments.add(new Appointment(patient1.getId(), "doctor.getId()", LocalDateTime.of(2024, 1, 8, 12, 30), "Cita por infección auditiva", "Cita " +
                 "consulta con paciente"));
-        appoinments.add(new Appointment(patient1.getId(), "doctor.getId()", LocalDateTime.of(2024, 1, 1, 13, 0), "Cita consulta", "Cita " +
+        appoinments.add(new Appointment(patient1.getId(), "doctor.getId()", LocalDateTime.of(2024, 1, 8, 13, 0), "Cita por malestar general", "Cita " +
                 "consulta con paciente"));
         ArrayList<Patient> patients = new ArrayList<>();
         patients.add(patient1);
         // TODO: 19/12/23 ajustar instancia a constructor
         Doctor doctor1 = new Doctor("00AAB", "Carlos", "Rodriguez", "Martinez", LocalDate.now(), Sex.MALE,
-                "12345A", "carlosrodri@gmail.com", "293472349", "Calle Random", "Medicina ", appoinments);
+                "12345A", "carlosrodri@gmail.com", "293472349", "Calle Random", "Medicina Familiar", appoinments);
 
         ConfigLoader configLoader = new ConfigLoader();
         WindowDoctor win = new WindowDoctor(doctor1, new AnonymousAuthenticationService(configLoader.getAnonymousToken()));
@@ -178,7 +178,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         JScrollPane spTableFullRegistry = new JScrollPane(tableTreatedPatient);
         tabbedPaneCenter.addTab("Registro Completo Pacientes", null, spTableFullRegistry);
 
-        //tabbedPaneCenter.addTab("Table Medicamentos", null, tableMedication);
+        //tabbedPaneCenter.addTab("Tabla Medicamentos", null, tableMedication);
         //tabbedPaneCenter.addTab("Calendario", null, null);
         //tabbedPaneCenter.addTab("Chats en Curso", null, null);
         add(tabbedPaneCenter, BorderLayout.CENTER);
@@ -694,8 +694,6 @@ public class WindowDoctor extends UserAuthenticatedWindow {
 
         public static void stopThread() {
             t.interrupt();
-        }
-
-        ;
+        };
     }
 }

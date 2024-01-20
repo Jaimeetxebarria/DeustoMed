@@ -34,6 +34,10 @@ public class WindowDiagnosis extends JFrame {
     private JList<Medication> medicationRegistry;
     private DefaultListModel<Medication> medicationRegistryModel = new DefaultListModel<>();
     private static PostgrestClient postgrestClient;
+    private ArrayList<Medication> prescribedMedication;
+    private ArrayList<Medication> retiredMedication;
+    private ArrayList<Disease> diagnosedDiseases;
+    private ArrayList<Disease> curedDiseases;
 
     public static void main(String[] args) {
 
@@ -87,8 +91,9 @@ public class WindowDiagnosis extends JFrame {
                 JOptionPane.showMessageDialog(this, "Debe seleccionar una enfermedad para darla de alta", "Enfermedad no seleccionada", JOptionPane.INFORMATION_MESSAGE);
             } else{
                 selectedDisease = patientDiseases.getSelectedValue();
-                removePatientRelation(patient.getId(), selectedDisease.getId(), true);
+                //removePatientRelation(patient.getId(), selectedDisease.getId(), true);
                 patientDiseaseModel.removeElement(selectedDisease);
+                this.curedDiseases.add(selectedDisease);
             }
         });
 
@@ -107,12 +112,13 @@ public class WindowDiagnosis extends JFrame {
         JButton withdrawTreatment = new JButton("Retirar medicamento ");
         withdrawTreatment.addActionListener((ActionEvent e) -> {
             Medication selectedMedication;
-            if(patientDiseases.getSelectedValue()==null){
+            if(patientTreatments.getSelectedValue()==null){
                 JOptionPane.showMessageDialog(this, "Debe seleccionar un medicamento para retirarlo", "Medicamento no seleccionada", JOptionPane.INFORMATION_MESSAGE);
             } else{
                 selectedMedication = patientTreatments.getSelectedValue();
-                removePatientRelation(patient.getId(), selectedMedication.getId(), false);
+                //removePatientRelation(patient.getId(), selectedMedication.getId(), false);
                 patientTreatmentsModel.removeElement(selectedMedication);
+                this.retiredMedication.add(selectedMedication);
             }
         });
 
@@ -132,12 +138,13 @@ public class WindowDiagnosis extends JFrame {
         JButton diagnoseDisease = new JButton("Diagnosticar enfermedad ");
         diagnoseDisease.addActionListener((ActionEvent e) -> {
             Disease selectedDisease;
-            if(patientDiseases.getSelectedValue()==null){
+            if(diseaseRegistry.getSelectedValue()==null){
                 JOptionPane.showMessageDialog(this, "Debe seleccionar una enfermedad para diagnosticarla", "Enfermedad no seleccionada", JOptionPane.INFORMATION_MESSAGE);
             } else{
-                selectedDisease = patientDiseases.getSelectedValue();
-                updatePatientRelation(patient.getId(), selectedDisease.getId(), true);
+                selectedDisease = diseaseRegistry.getSelectedValue();
+                //updatePatientRelation(patient.getId(), selectedDisease.getId(), true);
                 patientDiseaseModel.addElement(selectedDisease);
+                this.diagnosedDiseases.add(selectedDisease);
             }
         });
 
@@ -156,12 +163,13 @@ public class WindowDiagnosis extends JFrame {
         JButton prescribeTreatment = new JButton("Recetar medicamento ");
         prescribeTreatment.addActionListener((ActionEvent e) -> {
             Medication selectedMedication;
-            if(patientDiseases.getSelectedValue()==null){
+            if(medicationRegistry.getSelectedValue()==null){
                 JOptionPane.showMessageDialog(this, "Debe seleccionar un medicamento para recetarlo", "Medicamento no seleccionada", JOptionPane.INFORMATION_MESSAGE);
             } else{
                 selectedMedication = medicationRegistry.getSelectedValue();
-                updatePatientRelation(patient.getId(), selectedMedication.getId(), false);
+                //updatePatientRelation(patient.getId(), selectedMedication.getId(), false);
                 patientTreatmentsModel.addElement(selectedMedication);
+                this.prescribedMedication.add(selectedMedication);
             }
         });
 
@@ -171,13 +179,20 @@ public class WindowDiagnosis extends JFrame {
         // Panel de resumen y registro del Diagnóstico
         JPanel panelDiagnosisSummary = new JPanel(new BorderLayout());
         panelDiagnosisSummary.setBorder(emptyBorder);
-        JTextArea textAreaSummary = new JTextArea();
+        JTextArea textAreaSummary = new JTextArea("'Notas del doctor'");
         textAreaSummary.setBorder(BorderFactory.createTitledBorder(" RESUMEN DEL DIAGNÓSTICO "));
         textAreaSummary.setPreferredSize(new Dimension(200,200));
         JButton registerDiagnosis = new JButton("Registrar Diagnóstico");
+
         registerDiagnosis.setBorder(emptyBorder);
         registerDiagnosis.addActionListener((ActionEvent e) -> {
-            Diagnosis diagnosis = new Diagnosis(appointment, patient, appointment.getDoctor(), textAreaSummary.getText());
+            Diagnosis diagnosis = new Diagnosis(appointment, patient, appointment.getDoctor(), textAreaSummary.getText(), prescribedMedication, retiredMedication, diagnosedDiseases, curedDiseases);
+            checkLists();
+            curedDiseases.forEach( d -> removePatientRelation(patient.getId(), d.getId(), true));
+            diagnosedDiseases.forEach( d -> updatePatientRelation(patient.getId(), d.getId(), true));
+            retiredMedication.forEach( m -> removePatientRelation(patient.getId(), m.getId(), false));
+            prescribedMedication.forEach( m -> updatePatientRelation(patient.getId(), m.getId(), false));
+            registerDiagnosis(diagnosis);
             patient.getMedicalRecord().add(diagnosis);
         });
 
@@ -193,7 +208,7 @@ public class WindowDiagnosis extends JFrame {
         this.add(panelDiagnosisSummary, BorderLayout.SOUTH);
     }
 
-    public static void removePatientRelation (String patientID, String relationID, boolean disease) {
+    public static void removePatientRelation (String patientID, int relationID, boolean disease) {
         String additionalFK = (disease) ? "fk_disease_id" : "medication_id";
         String table = (disease) ? "patient_suffers_disease" : "patient_undergoes_treatment";
 
@@ -201,14 +216,14 @@ public class WindowDiagnosis extends JFrame {
                 .from(table)
                 .delete()
                 .eq("fk_patient_id", patientID)
-                .eq(additionalFK, relationID)
+                .eq(additionalFK, String.valueOf(relationID))
                 .getQuery();
 
         //postgrestClient.sendQuery(query);
         System.out.println("Remove anwser: "+String.valueOf(postgrestClient.sendQuery(query)));
     }
 
-    public static void updatePatientRelation (String patientID, String relationID, boolean disease) {
+    public static void updatePatientRelation (String patientID, int relationID, boolean disease) {
         String additionalFK = (disease) ? "fk_disease_id" : "medication_id";
         String table = (disease) ? "patient_suffers_disease" : "patient_undergoes_treatment";
 
@@ -218,6 +233,44 @@ public class WindowDiagnosis extends JFrame {
 
         PostgrestQuery query = postgrestClient
                 .from(table)
+                .insert(jsonObject)
+                .select()
+                .getQuery();
+
+        //postgrestClient.sendQuery(query);
+        System.out.println(String.valueOf(postgrestClient.sendQuery(query)));
+    }
+
+    private void checkLists() {
+        ArrayList<Disease> repetedDiseases = new ArrayList<>();
+        ArrayList<Medication> repetedMedication = new ArrayList<>();
+        diagnosedDiseases.forEach( d -> {
+            if(curedDiseases.contains(d)){
+                repetedDiseases.add(d);
+            }
+        });
+        prescribedMedication.forEach(m -> {
+            if(retiredMedication.contains(m)){
+                repetedMedication.add(m);
+            }
+        });
+        repetedDiseases.forEach( d -> {
+            curedDiseases.remove(d);
+            diagnosedDiseases.remove(d);
+        });
+        repetedMedication.forEach( m -> {
+            retiredMedication.remove(m);
+            prescribedMedication.remove(m);
+        });
+    }
+    public static void registerDiagnosis (Diagnosis diagnosis) {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("fk_doctor_id", diagnosis.getDoctor().getId());
+        jsonObject.addProperty("fk_patient_id", diagnosis.getPatient().getId());
+        jsonObject.addProperty("summary", diagnosis.getSummary());
+
+        PostgrestQuery query = postgrestClient
+                .from("diagnosis")
                 .insert(jsonObject)
                 .select()
                 .getQuery();

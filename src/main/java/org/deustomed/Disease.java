@@ -12,12 +12,12 @@ import java.util.ArrayList;
 @Getter
 @Setter
 public class Disease {
-    private String id;
+    private int id;
     private String name;
     private boolean chronic;
     private boolean hereditary;
 
-    public Disease(String id, String name, boolean chronic, boolean hereditary) {
+    public Disease(int id, String name, boolean chronic, boolean hereditary) {
         this.id = id;
         this.name = name;
         this.chronic = chronic;
@@ -35,7 +35,7 @@ public class Disease {
 
         for (int j = 0; j < jsonArray.size(); j++) {
             JsonObject jsonObject = jsonArray.get(j).getAsJsonObject();
-            String id = jsonObject.get("id").getAsString();
+            int id = jsonObject.get("id").getAsInt();
             String name = jsonObject.get("name").getAsString();
             String chronic = jsonObject.get("chronic").getAsString();
             String hereditary = jsonObject.get("hereditary").getAsString();

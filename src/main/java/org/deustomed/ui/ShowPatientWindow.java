@@ -199,7 +199,7 @@ class ShowPatientWindow extends JFrame {
         patientDiseases.setPreferredSize(new Dimension(220, 100));
         patientDiseases.setCellRenderer(new ListCellRenderer());
         JScrollPane scpDiseases = new JScrollPane(patientDiseases);
-        Disease d = new Disease("", "Disease", true, true);
+        Disease d = new Disease(0, "Disease", true, true);
         patientDiseaseModel.addElement(d);
         ArrayList<Disease> list = loadPatientDiseases(patient.getId(), postgrestClient);
         list.forEach( disease -> patientDiseaseModel.addElement(disease));
@@ -209,7 +209,7 @@ class ShowPatientWindow extends JFrame {
         patientTreatments.setPreferredSize(new Dimension(220, 100));
         patientTreatments.setCellRenderer(new ListCellRenderer());
         JScrollPane scpTreatments = new JScrollPane(patientTreatments);
-        Medication m = new Medication("MM001", "Medication", "Medication", 100, 100, "Company", "");
+        Medication m = new Medication(0, "Medication", "Medication", 100, 100, "Company", "");
         patientTreatmentsModel.addElement(m);
         // TODO: 27/12/23 develope loadPatientTreatment and loadPatientDiseases methods: Problem with JSonArray/Object
         ArrayList<Medication> listTreatments = loadPatientTreatments(patient.getId(), postgrestClient);
@@ -270,7 +270,7 @@ class ShowPatientWindow extends JFrame {
 
                 for (int j = 0; j < jsonArrayDisease.size(); j++) {
                     JsonObject jsonObject = jsonArray.get(j).getAsJsonObject();
-                    String disease_id = jsonObject.get("id").getAsString();
+                    int disease_id = jsonObject.get("id").getAsInt();
                     String name = jsonObject.get("name").getAsString();
                     String chronic = jsonObject.get("chronic").getAsString();
                     String hereditary = jsonObject.get("hereditary").getAsString();
@@ -312,7 +312,7 @@ class ShowPatientWindow extends JFrame {
                 for (int j = 0; j < jsonArrayTreatment.size(); j++) {
                     JsonObject jsonObject = jsonArrayTreatment.get(j).getAsJsonObject();
 
-                    String medication_id = jsonObject.get("id").getAsString();
+                    int medication_id = jsonObject.get("id").getAsInt();
                     String activesubstance = jsonObject.get("activesubstance").getAsString();
                     String commercialName = jsonObject.get("commercialname").getAsString();
                     int stock = jsonObject.get("stock").getAsInt();
