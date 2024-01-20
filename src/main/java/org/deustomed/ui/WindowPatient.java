@@ -30,7 +30,10 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -405,11 +408,11 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
         String name = jsonObject.get("name").getAsString();
         String surname1 = jsonObject.get("surname1").getAsString();
         String surname2 = jsonObject.get("surname2").getAsString();
-        String dni = jsonObject.get("dni").getAsString();
+        String dni = GsonUtils.getStringOrNull(jsonObject, "dni");
         String birthdate = jsonObject.get("birthdate").getAsString();
-        String email = jsonObject.get("email").getAsString();
-        String phone = jsonObject.get("phone").getAsString();
-        String address = jsonObject.get("address").getAsString();
+        String email = GsonUtils.getStringOrNull(jsonObject, "email");
+        String phone = GsonUtils.getStringOrNull(jsonObject, "phone");
+        String address = GsonUtils.getStringOrNull(jsonObject, "address");
 
         LocalDate date = LocalDate.parse(birthdate);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy");
