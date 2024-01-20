@@ -24,7 +24,6 @@ import java.net.http.HttpResponse;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
@@ -66,8 +65,8 @@ public class WindowAddUser extends JFrame {
 
         setLayout(new BorderLayout());
         //setResizable(false);
-        setLocationRelativeTo(null);
         setSize(400, 390);
+        setLocationRelativeTo(null);
 
         lblName = new JLabel("*Nombre:");
         lblSurname1 = new JLabel("*Apellido 1:");

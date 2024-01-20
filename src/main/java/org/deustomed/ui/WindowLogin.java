@@ -94,9 +94,9 @@ public class WindowLogin extends JFrame {
         setLayout(null);
         setResizable(false);
         setTitle("DeustoMed");
+        setSize(300, 425);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(300, 425);
         setVisible(true);
 
         btnLogin.addActionListener(e -> {
