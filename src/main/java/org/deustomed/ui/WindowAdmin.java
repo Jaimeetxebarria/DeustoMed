@@ -2,7 +2,6 @@ package org.deustomed.ui;
 
 import com.formdev.flatlaf.FlatLightLaf;
 import com.formdev.flatlaf.fonts.inter.FlatInterFont;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -45,7 +44,7 @@ public class WindowAdmin extends UserAuthenticatedWindow {
     protected final int SURNAME1_COLUMN = 1;
     protected final int SURNAME2_COLUMN = 2;
     protected final int NAME_COLUMN = 3;
-    protected  final int SEX_COLUMN = 4;
+    protected final int SEX_COLUMN = 4;
     protected final int EMAIL_COLUMN = 5;
     protected final int DNI_COLUMN = 6;
     protected final int AGE_COLUMN = 7;
@@ -58,11 +57,8 @@ public class WindowAdmin extends UserAuthenticatedWindow {
     protected JTextField tfFindPatient, tfFindDoctor;
     protected JButton btnPatient, btnDoctor, btnEditPatient, btnEditDoctor, btnDeletePatient, btnDeleteDoctor;
     protected JButton btnLogoutPatient, btnLogoutDoctor;
-
     protected JPanel pnlLogs;
-
     private static PostgrestClient postgrestClient;
-    static final Gson gson = new Gson();
 
     public WindowAdmin(PostgrestAuthenticationService authenticationService) {
         super(authenticationService instanceof UserAuthenticationService ? (UserAuthenticationService) authenticationService : null);
@@ -511,13 +507,13 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         String filter = tfFinder.getText().toLowerCase();
         DefaultTableModel model = (DefaultTableModel) table.getModel();
 
-        TableRowSorter<TableModel> rowSorter = (TableRowSorter<TableModel>) table.getRowSorter();
+        TableRowSorter<? extends TableModel> rowSorter = (TableRowSorter<? extends TableModel>) table.getRowSorter();
         if (rowSorter == null) {
             rowSorter = new TableRowSorter<>(model);
             table.setRowSorter(rowSorter);
         }
 
-        if (filter.trim().length() == 0) {
+        if (filter.trim().isEmpty()) {
             rowSorter.setRowFilter(null);
         } else {
             filter = filter.replace("+", "\\+");
