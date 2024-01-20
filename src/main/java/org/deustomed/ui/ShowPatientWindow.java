@@ -1,9 +1,7 @@
 package org.deustomed.ui;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
 import org.deustomed.*;
 import org.deustomed.authentication.AnonymousAuthenticationService;
 import org.deustomed.logs.LoggerMaker;
@@ -256,9 +254,7 @@ class ShowPatientWindow extends JFrame {
                 .eq("fk_patient_id", id)
                 .getQuery();
 
-        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
-        Gson gson = new Gson();
-        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+        JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
 
         if (!jsonArray.isEmpty()) {
             for (int i = 0; i < jsonArray.size(); i++) {
@@ -270,9 +266,7 @@ class ShowPatientWindow extends JFrame {
                         .eq("id", diseaseID)
                         .getQuery();
 
-                String jsonResponseDisease = String.valueOf(postgrestClient.sendQuery(queryDisease));
-                Gson gsonDisease = new Gson();
-                JsonArray jsonArrayDisease = gsonDisease.fromJson(jsonResponseDisease, JsonArray.class);
+                JsonArray jsonArrayDisease = postgrestClient.sendQuery(queryDisease).getAsJsonArray();
 
                 for (int j = 0; j < jsonArrayDisease.size(); j++) {
                     JsonObject jsonObject = jsonArray.get(j).getAsJsonObject();
@@ -301,9 +295,7 @@ class ShowPatientWindow extends JFrame {
                 .eq("fk_patient_id", id)
                 .getQuery();
 
-        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
-        Gson gson = new Gson();
-        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+        JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
 
         if (!jsonArray.isEmpty()) {
             for (int i = 0; i < jsonArray.size(); i++) {
@@ -315,9 +307,7 @@ class ShowPatientWindow extends JFrame {
                         .eq("id", treatmentID)
                         .getQuery();
 
-                String jsonResponseTreatment = String.valueOf(postgrestClient.sendQuery(queryTreatment));
-                Gson gsonTreatment = new Gson();
-                JsonArray jsonArrayTreatment = gsonTreatment.fromJson(jsonResponseTreatment, JsonArray.class);
+                JsonArray jsonArrayTreatment = postgrestClient.sendQuery(queryTreatment).getAsJsonArray();
 
                 for (int j = 0; j < jsonArrayTreatment.size(); j++) {
                     JsonObject jsonObject = jsonArrayTreatment.get(j).getAsJsonObject();
@@ -364,9 +354,7 @@ class ShowPatientWindow extends JFrame {
                 .eq("id", patient.getId())
                 .getQuery();
 
-        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
-        Gson gson = new Gson();
-        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+        JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
         JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
 
         String doctorId = jsonObject.get("fk_doctor_id").getAsString();
@@ -377,9 +365,7 @@ class ShowPatientWindow extends JFrame {
                 .eq("id", doctorId)
                 .getQuery();
 
-        String jsonResponse1 = String.valueOf(postgrestClient.sendQuery(query1));
-        Gson gson1 = new Gson();
-        JsonArray jsonArray1 = gson1.fromJson(jsonResponse1, JsonArray.class);
+        JsonArray jsonArray1 = postgrestClient.sendQuery(query1).getAsJsonArray();
         JsonObject jsonObject1 = jsonArray1.get(0).getAsJsonObject();
 
         String name = jsonObject1.get("name").getAsString();

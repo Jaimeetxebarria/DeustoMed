@@ -6,7 +6,10 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.deustomed.*;
+import org.deustomed.ConfigLoader;
+import org.deustomed.Doctor;
+import org.deustomed.Patient;
+import org.deustomed.User;
 import org.deustomed.authentication.AnonymousAuthenticationService;
 import org.deustomed.authentication.UserAuthenticationService;
 import org.deustomed.postgrest.PostgrestClient;
@@ -85,8 +88,8 @@ public class WindowAdmin extends UserAuthenticatedWindow {
                 .from("patient_with_personal_data")
                 .select("*")
                 .getQuery();
-        String jsonResponseP = String.valueOf(postgrestClient.sendQuery(queryPatient));
-        jsonPatientData = gson.fromJson(jsonResponseP, JsonArray.class);
+
+        jsonPatientData = postgrestClient.sendQuery(queryPatient).getAsJsonArray();
         obtainPatients(jsonPatientData);
 
         pnlPatient = new JPanel(new BorderLayout());
@@ -252,8 +255,8 @@ public class WindowAdmin extends UserAuthenticatedWindow {
                 .from("doctor_with_personal_data")
                 .select("*")
                 .getQuery();
-        String jsonResponse = String.valueOf(postgrestClient.sendQuery(queryDoctor));
-        jsonDoctorData = gson.fromJson(jsonResponse, JsonArray.class);
+
+        jsonDoctorData = postgrestClient.sendQuery(queryDoctor).getAsJsonArray();
         obtainDoctors(jsonDoctorData);
 
         pnlDoctor = new JPanel(new BorderLayout());

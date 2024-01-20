@@ -34,8 +34,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.logging.Logger;
 
-import static org.deustomed.postgrest.PostgrestClient.gson;
-
 
 
 public class DoctorChat extends JFrame implements MessageCheckerThread {
@@ -122,8 +120,7 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
                 .eq("fk_doctor_id", docCodeF)
                 .getQuery();
 
-        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
-        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+        JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
 
         HashSet<String> uniquePatientIds = new HashSet<>();
 
@@ -139,8 +136,7 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
                         .eq("id", patientId)
                         .getQuery();
 
-                String jsonResponse1 = String.valueOf(postgrestClient.sendQuery(query1));
-                JsonArray jsonArray1 = gson.fromJson(jsonResponse1, JsonArray.class);
+                JsonArray jsonArray1 = postgrestClient.sendQuery(query1).getAsJsonArray();
                 JsonObject jsonObject = jsonArray1.get(0).getAsJsonObject();
 
                 String name = jsonObject.get("name").getAsString();
@@ -266,7 +262,7 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
                         .is("doctor_read", false)
                         .getQuery();
 
-                String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
+                JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
 
                 //Update doctor_read to true (query 2)
                 PostgrestQuery query2 = postgrestClient
@@ -279,8 +275,6 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
                 postgrestClient.sendQuery(query2);
 
                 //Set the previously unread messages at chatArea
-                JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
-
                 for (JsonElement jsonElement : jsonArray) {
                     JsonObject messageObject = jsonElement.getAsJsonObject();
 
@@ -338,9 +332,7 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
                 .eq("id", patientId)
                 .getQuery();
 
-        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
-        Gson gson = new Gson();
-        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+        JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
         JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
 
         String name = jsonObject.get("name").getAsString();
@@ -378,9 +370,8 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
                 .eq("fk_doctor_id",docCodeF)
                 .getQuery();
 
-        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
-        String jsonResponseUpdate = String.valueOf(postgrestClient.sendQuery(updatequery));
-        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+        JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
+        postgrestClient.sendQuery(updatequery);
 
         for(JsonElement jsonElement : jsonArray){
             JsonObject messageObject = jsonElement.getAsJsonObject();

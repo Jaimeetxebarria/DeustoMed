@@ -2,7 +2,6 @@ package org.deustomed.ui;
 
 import com.formdev.flatlaf.FlatLightLaf;
 import com.formdev.flatlaf.fonts.inter.FlatInterFont;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -16,6 +15,7 @@ import org.deustomed.authentication.AnonymousAuthenticationService;
 import org.deustomed.authentication.UserAuthenticationService;
 import org.deustomed.chat.ChatUser;
 import org.deustomed.chat.MessageCheckerThread;
+import org.deustomed.gsonutils.GsonUtils;
 import org.deustomed.logs.LoggerMaker;
 import org.deustomed.postgrest.Entry;
 import org.deustomed.postgrest.PostgrestClient;
@@ -44,8 +44,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.logging.Logger;
-
-import static org.deustomed.postgrest.PostgrestClient.gson;
 
 public class WindowPatient extends UserAuthenticatedWindow implements MessageCheckerThread {
     protected String selectedButton = ""; //info, calendar,chat
@@ -401,9 +399,7 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
                 .eq("id", patientId)
                 .getQuery();
 
-        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
-        Gson gson = new Gson();
-        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+        JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
         JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
 
         String name = jsonObject.get("name").getAsString();
@@ -443,9 +439,7 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
                 .eq("fk_patient_id", patientId)
                 .getQuery();
 
-        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
-        Gson gson = new Gson();
-        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+        JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
 
         highlighter.clearDates();
 
@@ -467,8 +461,7 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
                     .eq("id", fkDoctorId)
                     .getQuery();
 
-            String jsonResponse1 = String.valueOf(postgrestClient.sendQuery(query1));
-            JsonArray jsonArray1 = gson.fromJson(jsonResponse1, JsonArray.class);
+            JsonArray jsonArray1 = postgrestClient.sendQuery(query1).getAsJsonArray();
             JsonObject jsonObject = jsonArray1.get(0).getAsJsonObject();
 
             String name = jsonObject.get("name").getAsString();
@@ -539,8 +532,7 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
                 .eq("fk_patient_id", patientId)
                 .getQuery();
 
-        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
-        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+        JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
 
         HashSet<String> uniqueDoctorIds = new HashSet<>();
 
@@ -556,8 +548,7 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
                         .eq("id", doctorId)
                         .getQuery();
 
-                String jsonResponse1 = String.valueOf(postgrestClient.sendQuery(query1));
-                JsonArray jsonArray1 = gson.fromJson(jsonResponse1, JsonArray.class);
+                JsonArray jsonArray1 = postgrestClient.sendQuery(query1).getAsJsonArray();
                 JsonObject jsonObject = jsonArray1.get(0).getAsJsonObject();
 
                 String name = jsonObject.get("name").getAsString();
@@ -613,9 +604,8 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
                     .eq("fk_doctor_id", docCode[0])
                     .getQuery();
 
-            String jsonResponse12 = String.valueOf(postgrestClient.sendQuery(query12));
-            String jsonResponseUpdate = String.valueOf(postgrestClient.sendQuery(updatequery));
-            JsonArray jsonArray12 = gson.fromJson(jsonResponse12, JsonArray.class);
+            JsonArray jsonArray12 = postgrestClient.sendQuery(query12).getAsJsonArray();
+            postgrestClient.sendQuery(updatequery).getAsJsonArray();
 
             for (JsonElement jsonElement : jsonArray12) {
                 JsonObject messageObject = jsonElement.getAsJsonObject();
@@ -671,9 +661,7 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
                 .eq("id", doctorId)
                 .getQuery();
 
-        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
-        Gson gson = new Gson();
-        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+        JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
         JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
 
         String name = jsonObject.get("name").getAsString();
@@ -695,9 +683,7 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
                 .eq("id", patientId)
                 .getQuery();
 
-        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
-        Gson gson = new Gson();
-        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+        JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
         JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
 
         String name = jsonObject.get("name").getAsString();
@@ -744,7 +730,7 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
                         .eq("patient_read", String.valueOf(false))
                         .getQuery();
 
-                String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
+                JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
 
                 //Update patient_read to true (query 2)
                 PostgrestQuery query2 = postgrestClient
@@ -757,8 +743,6 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
                 postgrestClient.sendQuery(query2);
 
                 //Set the previously unread messages at chatArea
-                JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
-
                 for (JsonElement jsonElement : jsonArray) {
                     JsonObject messageObject = jsonElement.getAsJsonObject();
 

@@ -2,7 +2,6 @@ package org.deustomed.ui;
 
 import com.formdev.flatlaf.FlatLightLaf;
 import com.formdev.flatlaf.fonts.inter.FlatInterFont;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.deustomed.Appointment;
@@ -165,9 +164,7 @@ public class WindowAppointmentSelection extends JFrame {
                 .eq("id", patientId)
                 .getQuery();
 
-        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
-        Gson gson = new Gson();
-        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+        JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
         JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
 
         String name = jsonObject.get("name").getAsString();
@@ -186,9 +183,7 @@ public class WindowAppointmentSelection extends JFrame {
                 .eq("id", doctorId)
                 .getQuery();
 
-        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
-        Gson gson = new Gson();
-        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+        JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
         JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
 
         String name = jsonObject.get("name").getAsString();

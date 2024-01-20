@@ -1,6 +1,5 @@
 package org.deustomed;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -19,7 +18,6 @@ import java.util.Objects;
 
 @Getter
 @Setter
-
 public class Doctor extends User {
     private String speciality;
     private ArrayList<Appointment> appointments = new ArrayList<>();
@@ -120,9 +118,7 @@ public class Doctor extends User {
                     .getQuery();
         }
 
-        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
-        Gson gson = new Gson();
-        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+        JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
 
         for (int i = 0; i < jsonArray.size(); i++) {
             JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
@@ -144,9 +140,7 @@ public class Doctor extends User {
                 .eq("treated", sTreated)
                 .getQuery();
 
-        String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
-        Gson gson = new Gson();
-        JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+        JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
 
         for (int i = 0; i < jsonArray.size(); i++) {
             JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
@@ -179,9 +173,7 @@ public class Doctor extends User {
                     .eq("id", currentPatientID)
                     .getQuery();
 
-            String jsonResponse = String.valueOf(postgrestClient.sendQuery(query));
-            Gson gson = new Gson();
-            JsonArray jsonArray = gson.fromJson(jsonResponse, JsonArray.class);
+            JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
 
             for (int j = 0; j < jsonArray.size(); j++) {
                 JsonObject jsonObject = jsonArray.get(j).getAsJsonObject();
