@@ -57,8 +57,8 @@ insert into speciality values
   (default, 'Hematología'),
   (default, 'Hepatología'),
   (default, 'Infectología'),
-  (default, 'Medicina interna'),
-  (default, 'Medico de Familia'),
+  (default, 'Medicina Interna'),
+  (default, 'Medicina Familiar'),
   (default, 'Nefrología'),
   (default, 'Neumología'),
   (default, 'Neurología'),
@@ -122,27 +122,36 @@ insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) value
 insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAJ', 'Thursday', '09:00', '18:00');
 
 
---insert into patient values
+INSERT INTO patient (id, fk_doctor_id)
+VALUES
+('00AAF', '00AAB'),
+('00AAG', '00AAB'),
+('00AAH', '00AAE'),
+('00AAI', '00AAD'),
+('00AAJ', '00AAE'),
+('00AAK', '00AAB'),
+('00AAL', '00AAF'),
+('00AAM', '00AAI'),
+('00AAN', '00AAG'),
+('00AAO', '00AAB'),
+('00AAP', '00AAB'),
+('00AAQ', '00AAB'),
+('00AAR', '00AAD'),
+('00AAS', '00AAA'),
+('00AAT', '00AAJ'),
+('00AAU', '00AAH'),
+('00AAV', '00AAD'),
+('00AAW', '00AAB'),
+('00AAX', '00AAA'),
+('00AAY', '00AAA'),
+('00AAZ', '00AAE'),
+('00ABA', '00AAB'),
+('00ABB', '00AAB'),
+('00ABC', '00AAC'),
+('00ABD', '00AAF'),
+('00ABE', '00AAE');
 
-CREATE OR REPLACE FUNCTION insert_person_records()
-RETURNS VOID AS $$
-DECLARE
-    i INTEGER := 0;
-BEGIN
-    FOR i IN 5..30 LOOP
-        INSERT INTO patient (id, fk_doctor_id)
-        VALUES (
-            '00A' || CHR(65 + FLOOR(i / 26)::INTEGER % 26) || CHR(65 + i % 26),
-            '00AA' || CHR(65 + FLOOR(RANDOM() * 10)::INTEGER)
-        );
-    END LOOP;
-END;
-$$ LANGUAGE plpgsql;
 
-
-select insert_person_records();
-
--- insert into admin
 insert into admin values ('00AAB');
 
 -- insert into medication
