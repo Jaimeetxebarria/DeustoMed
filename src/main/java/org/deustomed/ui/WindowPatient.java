@@ -600,7 +600,7 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
                     .order("date", true)
                     .getQuery();
 
-            PostgrestQuery updatequery = postgrestClient
+            PostgrestQuery updateQuery = postgrestClient
                     .from("message")
                     .update(new Entry<>("patient_read", true))
                     .eq("fk_patient_id", patientId)
@@ -608,7 +608,7 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
                     .getQuery();
 
             JsonArray jsonArray12 = postgrestClient.sendQuery(query12).getAsJsonArray();
-            postgrestClient.sendQuery(updatequery).getAsJsonArray();
+            postgrestClient.sendQuery(updateQuery).getAsJsonArray();
 
             for (JsonElement jsonElement : jsonArray12) {
                 JsonObject messageObject = jsonElement.getAsJsonObject();
