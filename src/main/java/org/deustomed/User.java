@@ -3,6 +3,7 @@ package org.deustomed;
 import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
+import org.deustomed.gsonutils.GsonUtils;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
 import org.jetbrains.annotations.NotNull;
@@ -53,6 +54,20 @@ public abstract class User {
         this(id, name, surname1, surname2, birthDate, sex, null, null, null, null);
     }
 
+    public User(@NotNull JsonObject jsonObject) {
+        this.id = jsonObject.get("id").getAsString();
+        this.name = jsonObject.get("name").getAsString();
+        this.surname1 = jsonObject.get("surname1").getAsString();
+        this.surname2 = jsonObject.get("surname2").getAsString();
+        this.birthDate = LocalDate.parse(jsonObject.get("birthdate").getAsString());
+        this.sex = Sex.valueOf(jsonObject.get("sex").getAsString().toUpperCase());
+
+        this.email = GsonUtils.getStringOrNull(jsonObject, "email");
+        this.dni = GsonUtils.getStringOrNull(jsonObject, "dni");
+        this.phoneNumber = GsonUtils.getStringOrNull(jsonObject, "phone");
+        this.address = GsonUtils.getStringOrNull(jsonObject, "address");
+    }
+
     /**
      * Used to obtain the object from the database.
      *
@@ -60,18 +75,12 @@ public abstract class User {
      * @param id              The user id.
      */
     public User(@NotNull String id, @NotNull PostgrestClient postgrestClient) {
+        this(fetchFromDatabase(id, postgrestClient));
+    }
+
+    private static JsonObject fetchFromDatabase(@NotNull String id, @NotNull PostgrestClient postgrestClient) {
         PostgrestQuery query = postgrestClient.from("person").select().eq("id", id).getQuery();
-        JsonObject responseJson = postgrestClient.sendQuery(query).getAsJsonArray().get(0).getAsJsonObject();
-        this.id = responseJson.get("id").getAsString();
-        this.name = responseJson.get("name").getAsString();
-        this.surname1 = responseJson.get("surname1").getAsString();
-        this.surname2 = responseJson.get("surname2").getAsString();
-        this.birthDate = LocalDate.parse(responseJson.get("birthdate").getAsString());
-        this.sex = Sex.valueOf(responseJson.get("sex").getAsString().toUpperCase());
-        this.email = responseJson.get("email").getAsString();
-        this.dni = responseJson.get("dni").getAsString();
-        this.phoneNumber = responseJson.get("phone").getAsString();
-        this.address = responseJson.get("address").getAsString();
+        return postgrestClient.sendQuery(query).getAsJsonArray().get(0).getAsJsonObject();
     }
 
     public int getAgeInYears() {

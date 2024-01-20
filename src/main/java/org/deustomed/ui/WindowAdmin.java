@@ -433,36 +433,14 @@ public class WindowAdmin extends UserAuthenticatedWindow {
     public void obtainPatients(JsonArray jsonPatientData){
         for (JsonElement jsonElement : jsonPatientData) {
             JsonObject jsonObject = jsonElement.getAsJsonObject();
-            String id = jsonObject.get("id").getAsString();
-            String name = jsonObject.get("name").getAsString();
-            String surname1 = jsonObject.get("surname1").getAsString();
-            String surname2 = jsonObject.get("surname2").getAsString();
-            String email = jsonObject.get("email").getAsString();
-            String dni = jsonObject.get("dni").getAsString();
-            String phoneNumber = jsonObject.get("phone").getAsString();
-            String address = jsonObject.get("address").getAsString();
-            Sex sex = Sex.valueOf(jsonObject.get("sex").getAsString().toUpperCase());
-            LocalDate birthDate = LocalDate.parse(jsonObject.get("birthdate").getAsString());
-            patients.add(new Patient(id, name, surname1, surname2, birthDate, sex, dni, email, phoneNumber, address, new ArrayList<>()));
+            patients.add(new Patient(jsonObject));
         }
     }
 
     public void obtainDoctors(JsonArray jsonDoctorIDs){
         for (JsonElement jsonElement : jsonDoctorIDs) {
             JsonObject jsonObject = jsonElement.getAsJsonObject();
-            String id = jsonObject.get("id").getAsString();
-            String name = jsonObject.get("name").getAsString();
-            String surname1 = jsonObject.get("surname1").getAsString();
-            String surname2 = jsonObject.get("surname2").getAsString();
-            String email = jsonObject.get("email").getAsString();
-            String dni = jsonObject.get("dni").getAsString();
-            String phoneNumber = jsonObject.get("phone").getAsString();
-            String address = jsonObject.get("address").getAsString();
-            Sex sex = Sex.valueOf(jsonObject.get("sex").getAsString().toUpperCase());
-            LocalDate birthDate = LocalDate.parse(jsonObject.get("birthdate").getAsString());
-            String speciality = jsonObject.get("speciality").getAsString();
-
-            doctors.add(new Doctor(id, name, surname1, surname2, birthDate, sex, dni, email, phoneNumber, address, speciality, new ArrayList<>()));
+            doctors.add(new Doctor(jsonObject));
         }
     }
     public static void main(String[] args) {
