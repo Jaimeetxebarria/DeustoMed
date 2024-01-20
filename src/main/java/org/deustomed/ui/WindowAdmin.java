@@ -434,6 +434,7 @@ public class WindowAdmin extends UserAuthenticatedWindow {
             JsonObject jsonObject = jsonElement.getAsJsonObject();
             patients.add(new Patient(jsonObject));
         }
+        mergeSort(patients);
     }
 
     public void obtainDoctors(JsonArray jsonDoctorIDs){
@@ -441,6 +442,7 @@ public class WindowAdmin extends UserAuthenticatedWindow {
             JsonObject jsonObject = jsonElement.getAsJsonObject();
             doctors.add(new Doctor(jsonObject));
         }
+        mergeSort(doctors);
     }
     public static void main(String[] args) {
         FlatLightLaf.setup();
@@ -520,6 +522,42 @@ public class WindowAdmin extends UserAuthenticatedWindow {
             rowSorter.setRowFilter(RowFilter.regexFilter("(?i)^" + filter));
         }
     }
+
+    private void mergeSort(List<User> users) {
+        if (users.size() <= 1) {
+            return;
+        }
+
+        int midIndex = users.size() / 2;
+        List<User> leftHalf = new ArrayList<>(users.subList(0, midIndex));
+        List<User> rightHalf = new ArrayList<>(users.subList(midIndex, users.size()));
+
+        mergeSort(leftHalf);
+        mergeSort(rightHalf);
+
+        merge(users, leftHalf, rightHalf);
+    }
+
+    private void merge(List<User> users, List<User> leftHalf, List<User> rightHalf) {
+        int leftIndex = 0, rightIndex = 0, mergeIndex = 0;
+
+        while (leftIndex < leftHalf.size() && rightIndex < rightHalf.size()) {
+            if (leftHalf.get(leftIndex).getName().compareToIgnoreCase(rightHalf.get(rightIndex).getName()) < 0) {
+                users.set(mergeIndex++, leftHalf.get(leftIndex++));
+            } else {
+                users.set(mergeIndex++, rightHalf.get(rightIndex++));
+            }
+        }
+
+        while (leftIndex < leftHalf.size()) {
+            users.set(mergeIndex++, leftHalf.get(leftIndex++));
+        }
+
+        while (rightIndex < rightHalf.size()) {
+            users.set(mergeIndex++, rightHalf.get(rightIndex++));
+        }
+    }
+    
 
 }
 
