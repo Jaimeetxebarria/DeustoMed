@@ -15,14 +15,14 @@ import org.deustomed.postgrest.PostgrestQuery;
 public class Diagnosis {
     private Appointment appointment;
     private Patient patient;
-    private Doctor doctor;
+    private String doctor;
     private String summary;
     private ArrayList<Medication> prescribedMedication;
     private ArrayList<Medication> retiredMedication;
     private ArrayList<Disease> diagnosedDiseases;
     private ArrayList<Disease> curedDiseases;
 
-    public Diagnosis(Appointment appointment, Patient patient, Doctor doctor, String summary, ArrayList<Medication> prescribedMedication, ArrayList<Medication> retiredMedication, ArrayList<Disease> diagnosedDiseases, ArrayList<Disease> curedDiseases) {
+    public Diagnosis(Appointment appointment, Patient patient, String doctor, String summary, ArrayList<Medication> prescribedMedication, ArrayList<Medication> retiredMedication, ArrayList<Disease> diagnosedDiseases, ArrayList<Disease> curedDiseases) {
         this.appointment = appointment;
         this.patient = patient;
         this.doctor = doctor;

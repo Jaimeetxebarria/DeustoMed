@@ -57,8 +57,8 @@ insert into speciality values
   (default, 'Hematología'),
   (default, 'Hepatología'),
   (default, 'Infectología'),
-  (default, 'Medicina interna'),
-  (default, 'Medicina familiar'),
+  (default, 'Medicina Interna'),
+  (default, 'Medicina Familiar'),
   (default, 'Nefrología'),
   (default, 'Neumología'),
   (default, 'Neurología'),
@@ -121,7 +121,6 @@ insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) value
 insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAJ', 'Tuesday', '08:00', '14:00');
 insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) values ('00AAJ', 'Thursday', '09:00', '18:00');
 
-insert into admin values ('00AAB');
 
 INSERT INTO patient (id, fk_doctor_id)
 VALUES
@@ -152,4 +151,18 @@ VALUES
 ('00ABD', '00AAF'),
 ('00ABE', '00AAE');
 
+-- insert into medication
+insert into medication (activesubstance, commercialname, stock, dose, company, shortdescription) values
+    ('acetaminofén', 'paracetamol', 5, 500, 'cinfa', 'fármaco con propiedades analgésicas y antipiréticas'),
+    ('metamizol', 'nolotil', 5, 500, 'cinfa', 'analgésico útil para reduci el dolor o la fiebre'),
+    ('levotiroxina', 'eutirox', 5, 500, 'cinfa', 'tratamiento de enfermedades y disfunciones de la glándula tiroides'),
+    ('salbutamol', 'ventolin', 5, 500, 'cinfa', 'tratamiento del cierre de conductos de aire en los pulmones');
 
+insert into disease (name, chronic, hereditary) values
+    ('bronquitis aguda', false, false),
+    ('bronquitis crónica', true, false),
+    ('resfriado común', false, false),
+    ('otitis', false, false),
+    ('otitis crónica supurativa', true, false),
+    ('influenza', true, false),
+    ('sinusitis', true, false);

@@ -84,6 +84,11 @@ public class WindowDiagnosis extends JFrame {
         list.forEach(disease -> patientDiseaseModel.addElement(disease));
         JScrollPane scrollPane1 = new JScrollPane(patientDiseases);
 
+        prescribedMedication = new ArrayList<>();
+        retiredMedication = new ArrayList<>();
+        diagnosedDiseases = new ArrayList<>();
+        curedDiseases = new ArrayList<>();
+
         JButton dischargeDisease = new JButton("Dar enfermedad de alta");
         dischargeDisease.addActionListener((ActionEvent e) -> {
             Disease selectedDisease;
@@ -186,7 +191,7 @@ public class WindowDiagnosis extends JFrame {
 
         registerDiagnosis.setBorder(emptyBorder);
         registerDiagnosis.addActionListener((ActionEvent e) -> {
-            Diagnosis diagnosis = new Diagnosis(appointment, patient, appointment.getDoctor(), textAreaSummary.getText(), prescribedMedication, retiredMedication, diagnosedDiseases, curedDiseases);
+            Diagnosis diagnosis = new Diagnosis(appointment, patient, appointment.getDoctorId(), textAreaSummary.getText(), prescribedMedication, retiredMedication, diagnosedDiseases, curedDiseases);
             checkLists();
             curedDiseases.forEach( d -> removePatientRelation(patient.getId(), d.getId(), true));
             diagnosedDiseases.forEach( d -> updatePatientRelation(patient.getId(), d.getId(), true));
@@ -265,7 +270,8 @@ public class WindowDiagnosis extends JFrame {
     }
     public static void registerDiagnosis (Diagnosis diagnosis) {
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("fk_doctor_id", diagnosis.getDoctor().getId());
+        System.out.println(diagnosis.getDoctor());
+        jsonObject.addProperty("fk_doctor_id", diagnosis.getDoctor());
         jsonObject.addProperty("fk_patient_id", diagnosis.getPatient().getId());
         jsonObject.addProperty("summary", diagnosis.getSummary());
 

@@ -12,7 +12,6 @@ import org.deustomed.logs.LoggerMaker;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
 import org.deustomed.postgrest.authentication.PostgrestAuthenticationService;
-
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
@@ -83,7 +82,6 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         ConfigLoader configLoader = new ConfigLoader();
         WindowDoctor win = new WindowDoctor(doctor1, new AnonymousAuthenticationService(configLoader.getAnonymousToken()));
         win.setVisible(true);
-
     }
 
     public WindowDoctor(Doctor doctor, PostgrestAuthenticationService authenticationService) {
@@ -99,10 +97,8 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         setBounds((int) screenSize.getWidth() / 4, (int) screenSize.getHeight() / 4, (int) screenSize.getWidth(), (int) screenSize.getHeight());
         setLayout(new BorderLayout());
 
-
         LoggerMaker.setlogFilePath("src/main/java/org/deustomed/logs/WindowPatient.log");
         logger = LoggerMaker.getLogger();
-
 
         // ------------------ pnlInfo ------------------
         pnlInfo = new JPanel();
@@ -276,7 +272,6 @@ public class WindowDoctor extends UserAuthenticatedWindow {
             //System.out.println(truncateTime(asDate));
             //System.out.println("Date: "+truncateTime(date));
 
-
             if (compareDateParts(asDate, date)) {
                 TitledBorder border = new TitledBorder("");
                 JPanel panel = new JPanel();
@@ -327,7 +322,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
                 btn2.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        // TODO: 29/12/23 Cancel the appointment: Erase it from doctor's apporintments list
+                        doctor.getAppointments().remove(appointment);
                     }
                 });
 
@@ -341,7 +336,6 @@ public class WindowDoctor extends UserAuthenticatedWindow {
                 pnlModApp.updateUI();
                 pnlDisplayAppoinments.updateUI();
             }
-
         }
     }
 
@@ -379,7 +373,6 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
             return new PatientShowButton((Patient) value);
         }
-
     }
 
     class PatientShowButton extends JButton {
@@ -546,85 +539,6 @@ public class WindowDoctor extends UserAuthenticatedWindow {
 
         }
     }
-
-    class CreateRoundButton extends JButton {
-        Shape shape;
-
-        public CreateRoundButton(String label) {
-            super(label);
-            Dimension size = getPreferredSize();
-            size.width = size.height = Math.max(size.width, size.height);
-            setPreferredSize(size);
-
-            setContentAreaFilled(false);
-        }
-
-        protected void paintComponent(Graphics g) {
-            if (getModel().isArmed()) {
-                g.setColor(Color.lightGray);
-            } else {
-                g.setColor(getBackground());
-            }
-            g.fillOval(0, 0, getSize().width - 1, getSize().height - 1);
-
-            super.paintComponent(g);
-        }
-
-        protected void paintBorder(Graphics g) {
-            g.setColor(getForeground());
-            g.drawOval(0, 0, getSize().width - 1, getSize().height - 1);
-        }
-
-        public boolean contains(int x, int y) {
-            if (shape == null ||
-                    !shape.getBounds().equals(getBounds())) {
-                shape = new Ellipse2D.Float(0, 0, getWidth(), getHeight());
-            }
-            return shape.contains(x, y);
-        }
-
-    }
-
-    /*
-    Used to load all the doctors from the database and fill the static ArrayList<Doctor> from Doctor.java
-
-    public void loadDoctors() {
-
-        PostgrestQuery query = postgrestClient
-                .from("doctor_with_personal_data")
-                .select("*")
-                .getQuery();
-
-        JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
-        JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
-
-        String id = jsonObject.get("id").getAsString();
-        String name = jsonObject.get("name").getAsString();
-        String surname1 = jsonObject.get("surname1").getAsString();
-        String surname2 = jsonObject.get("surname2").getAsString();
-        String dni = jsonObject.get("dni").getAsString();
-        String birthdate = jsonObject.get("birthdate").getAsString();
-        String email = jsonObject.get("email").getAsString();
-        String phone = jsonObject.get("phone").getAsString();
-        String address = jsonObject.get("address").getAsString();
-        String speciality = jsonObject.get("speciality").getAsString();
-        Sex sex = Sex.valueOf(jsonObject.get("sex").getAsString().toUpperCase());
-
-        LocalDate date = LocalDate.parse(birthdate);
-
-        if (speciality.equals("Medicina Familiar")) {
-            ArrayList<Patient> ownPatients = FamilyDoctor.loadPatients(id, postgrestClient, false);
-            ArrayList<Appointment> appointments = loadDoctorAppointments(id);
-
-            FamilyDoctor newFamilyDoctor = new FamilyDoctor(id, name, surname1, surname2, date, sex, dni, email, phone, address,
-                    appointments, ownPatients);
-        } else {
-            // TODO: 26/12/23 Create new SpecialistDoctor: load patients Treated, OnTreatment and ToBeTreated
-
-        }
-
-    }
-*/
 
     public ArrayList<Appointment> loadDoctorAppointments(String doctorID) {
         ArrayList<Appointment> resultArrayList = new ArrayList<>();
