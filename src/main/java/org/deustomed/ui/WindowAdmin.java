@@ -520,7 +520,7 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         if (filter.trim().length() == 0) {
             rowSorter.setRowFilter(null);
         } else {
-            rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + filter));
+            rowSorter.setRowFilter(RowFilter.regexFilter("(?i)^" + filter));
         }
     }
 
