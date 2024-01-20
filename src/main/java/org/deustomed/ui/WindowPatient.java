@@ -192,7 +192,7 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
         });
 
         pedirCitaButton.addActionListener(e -> {
-            WindowAppointment windowAppointment = new WindowAppointment(calendar.getDate(),patientId);
+            WindowAppointment windowAppointment = new WindowAppointment(calendar.getDate(),patientId,this);
         });
 
 
@@ -436,6 +436,9 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
      * Add all the appointments from the logged patient to the JTable at CalendarPanel using the DB
      */
     public void updateCalendarTable() {
+
+        calendarTableModel.setRowCount(0);
+
         PostgrestQuery query = postgrestClient
                 .from("appointment")
                 .select("*")

@@ -1,5 +1,12 @@
 package org.deustomed;
 
+import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.fonts.inter.FlatInterFont;
+import org.deustomed.authentication.AnonymousAuthenticationService;
+import org.deustomed.ui.WindowPatient;
+
+import javax.swing.*;
+
 public class DoctorMsgCode {
     private static final int despF = 3;
 

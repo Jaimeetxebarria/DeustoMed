@@ -32,7 +32,7 @@ public class WindowAppointment extends JFrame {
     private static PostgrestClient postgrestClient;
 
 
-    public WindowAppointment(Date date, String patientID) {
+    public WindowAppointment(Date date, String patientID, WindowPatient wp) {
 
         ConfigLoader configLoader = new ConfigLoader();
         String hostname = configLoader.getHostname();
@@ -155,7 +155,7 @@ public class WindowAppointment extends JFrame {
                 appointments.remove(tempAppointment);
             }
 
-            new WindowAppointmentSelection(appointments, patientID);
+            new WindowAppointmentSelection(appointments, patientID,wp);
             dispose();
         });
 
@@ -213,10 +213,4 @@ public class WindowAppointment extends JFrame {
         return (name + " " + surname1 + " " + surname2);
     }
 
-    public static void main(String[] args) {
-        FlatLightLaf.setup();
-        FlatInterFont.install();
-
-        new WindowAppointment(new Date(), "00AAK");
-    }
 }

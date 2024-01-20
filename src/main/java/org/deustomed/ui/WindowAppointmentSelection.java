@@ -32,7 +32,7 @@ public class WindowAppointmentSelection extends JFrame {
     private static PostgrestClient postgrestClient;
     private static final HashMap<String, String> doctorIdToName = new HashMap<>();
 
-    public WindowAppointmentSelection(TreeSet<Appointment> appointments, String patientId) {
+    public WindowAppointmentSelection(TreeSet<Appointment> appointments, String patientId, WindowPatient wp) {
 
         ConfigLoader configLoader = new ConfigLoader();
         String hostname = configLoader.getHostname();
@@ -109,6 +109,7 @@ public class WindowAppointmentSelection extends JFrame {
                     if (partes.length >= 3) {
                         String chatCode = partes[1];
                         docCode = DoctorMsgCode.MsgCodeToId(chatCode);
+                        System.out.println(chatCode);
                         String fechaFormateada = partes[2];
 
                         try {
@@ -135,9 +136,10 @@ public class WindowAppointmentSelection extends JFrame {
                         .select()
                         .getQuery();
 
-                postgrestClient.sendQuery(query);
-                System.out.println(query);
+                JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
+                System.out.println(jsonArray);
 
+                wp.updateCalendarTable();
                 dispose();
             }
 
@@ -195,10 +197,5 @@ public class WindowAppointmentSelection extends JFrame {
         return fullName;
     }
 
-    public static void main(String[] args) {
-        FlatLightLaf.setup();
-        FlatInterFont.install();
 
-        new WindowAppointmentSelection(new TreeSet<>(),"00AAK");
-    }
 }
