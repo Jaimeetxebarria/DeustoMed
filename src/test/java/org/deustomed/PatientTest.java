@@ -15,8 +15,8 @@ public class PatientTest {
         Patient patient = new Patient("00AAF", postgrestClient);
 
         Patient expectedPatient = new Patient("00AAF", "Javier", "Ruiz", "González",
-                LocalDate.parse("1992-11-29"), Sex.MALE, "67890123F", "javier.ruiz@email.com",
-                "+456789012", "Circle 678, Town", new ArrayList<>());
+                LocalDate.parse("1992-11-29"), Sex.MALE, "67890133F", "javier.ruiz@email.com",
+                "+34956789012", "Circle 678, Town", new ArrayList<>());
 
         assertEquals(expectedPatient, patient);
     }
