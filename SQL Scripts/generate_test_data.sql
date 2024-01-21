@@ -6,10 +6,10 @@ create sequence
 insert into person (name, surname1, surname2, birthdate, sex, encrypted_password, dni, address, phone, email) values
   ('Elena', 'García', 'Martínez', '1990-05-15', 'FEMALE', '$2a$12$HDSy6LBAAMSt3aT8.hOKx.LUDk.FUHY3NJK8UMelxb2toLcyznTFq', '12345679A', 'Street 123, City', '623456789', 'elena.garcia@email.com'),
   ('Adrián', 'Rodríguez', 'Fernández', '1985-10-20', 'MALE', '$2a$12$gBiNC9REurG/j.jntFuZ8uxL3188CsA3GaaT/CGq6QDzbH3QzQD6u', '87654321B', 'Avenue 456, Town', '+34967654321', 'adrian.rodriguez@email.com'),
-  ('Lucía', 'Martínez', 'López', '2000-12-03', 'FEMALE', '$2a$12$1GL8Aq07iA.kSc2USiCDUuROBO3WSZFTl2fg0BHdAURbTllCVonrq', '23456789C', 'Boulevard 789, Village', '++34934567890', 'lucia.martinez@email.com'),
-  ('Diego', 'Pérez', 'Sánchez', '1995-03-25', 'MALE', '$2a$12$Yh6nt/jcjEkIpgG2MS9JM.vyVUjvZ7STOs.RxUVaafjb/ns/t33cq', '98765432D', 'Lane 012, Hamlet', '++34666543210', 'diego.perez@email.com'),
+  ('Lucía', 'Martínez', 'López', '2000-12-03', 'FEMALE', '$2a$12$1GL8Aq07iA.kSc2USiCDUuROBO3WSZFTl2fg0BHdAURbTllCVonrq', '23456789C', 'Boulevard 789, Village', '+34934567890', 'lucia.martinez@email.com'),
+  ('Diego', 'Pérez', 'Sánchez', '1995-03-25', 'MALE', '$2a$12$Yh6nt/jcjEkIpgG2MS9JM.vyVUjvZ7STOs.RxUVaafjb/ns/t33cq', '98765432D', 'Lane 012, Hamlet', '+34666543210', 'diego.perez@email.com'),
   ('Sara', 'Gómez', 'Hernández', '1988-08-18', 'FEMALE', '$2a$12$UTA9REcytRGOxLcgP/j5d.c4mW0/iQVM3/1Yx2XVlC4sN5fx9FcvS', '34567890E', 'Square 345, City', '+34675678901', 'sara.gomez@email.com'),
-  ('Javier', 'Ruiz', 'González', '1992-11-29', 'MALE', '$2a$12$9PamnhLxeaNUqi8yZ8QieeSGQJ3z.d./m1X2FXBV0mtI6eW7lR5gq', '67890133F', 'Circle 678, Town', '++34956789012', 'javier.ruiz@email.com'),
+  ('Javier', 'Ruiz', 'González', '1992-11-29', 'MALE', '$2a$12$9PamnhLxeaNUqi8yZ8QieeSGQJ3z.d./m1X2FXBV0mtI6eW7lR5gq', '67890133F', 'Circle 678, Town', '+34956789012', 'javier.ruiz@email.com'),
   ('María', 'Serrano', 'Díaz', '1986-07-12', 'FEMALE', '$2a$12$l1lFxIqfiyxITTvDU5asl.e/mJ7SorB/Kq2Aa8XPWSvweVIQKT3gC', '01234567G', 'Plaza 901, Village', '667890123', 'maria.serrano@email.com'),
   ('Carlos', 'Hernández', 'Muñoz', '2002-02-10', 'MALE', '$2a$12$bkOT3sjoe7hpQMrQ7X2h5eSnq15qz0CGpOAO8hjhHKlJIZ1p4WbqO', '76543210H', 'Avenue 234, Hamlet', '678901234', 'carlos.hernandez@email.com'),
   ('Laura', 'Díaz', 'Romero', '1998-09-05', 'FEMALE', '$2a$12$1GL8Aq07iA.kSc2USiCDUuROBO3WSZFTl2fg0BHdAURbTllCVonrq', '23456789I', 'Street 567, City', '+34989012345', 'laura.diaz@email.com'),
@@ -44,6 +44,7 @@ insert into person (name, surname1, surname2, birthdate, sex, encrypted_password
   ('Pedro', 'Morales', 'Silvestre', '2005-06-29', 'MALE', '$2a$12$LRqfuwaIPwRKX41TqWzknOkHLh9eHhevl.VOZPB8qgFkdAYXq9YaG', '12345678K', 'Lane 012, City', '+34634567890', 'pedro.morales@email.com'),
   ('Alba', 'Ferrer', 'Crespo', '1984-03-04', 'FEMALE', '$2a$12$gBiNC9REurG/j.jntFuZ8uxL3188CsA3GaaT/CGq6QDzbH3QzQD6u', '23456789L', 'Square 345, Town', '645678901', 'alba.ferrer@email.com'),
   ('Ivan', 'Jiménez', 'Olivares', '1999-11-23', 'MALE', '$2a$12$5BB.QxUGvukjYEszgYZZAuTHiz2K2QkiNx3cmZ1u0vD7zN1vVIMeK', '34567810M', 'Avenue 678, Village', '956789012', 'ivan.jimenez@email.com');
+
 
 insert into speciality values
   (default, 'Alergología'),
@@ -165,7 +166,3 @@ insert into disease (name, chronic, hereditary) values
     ('otitis crónica supurativa', true, false),
     ('influenza', true, false),
     ('sinusitis', true, false);
-
-insert into in_treatment_patients (patient_id, specialist_doctor_id, treated) values
-    ('00ABH', '00AAA', false),
-    ('00ABG', '00AAA', false);
