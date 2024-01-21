@@ -51,11 +51,17 @@ public class Doctor extends User {
     public Doctor(@NotNull String id, @NotNull PostgrestClient postgrestClient) {
         super(id, postgrestClient);
         //Get doctor data
-        PostgrestQuery query = postgrestClient.from("doctor_with_personal_data").select("speciality").eq("id", id).getQuery();
+        PostgrestQuery query = postgrestClient
+                .from("doctor_with_personal_data")
+                .select("speciality")
+                .eq("id", id)
+                .getQuery();
+
         JsonElement responseJson = postgrestClient.sendQuery(query);
         if (!responseJson.isJsonArray() || responseJson.getAsJsonArray().isEmpty())
             throw new RuntimeException("Doctor not found"); //TODO: Use Postgrest custom exception
-        setSpeciality(responseJson.getAsJsonArray().get(0).getAsJsonObject().get("speciality").getAsString());
+
+        setSpeciality(GsonUtils.getStringOrNull(responseJson.getAsJsonArray().get(0).getAsJsonObject(), "speciality"));
 
         //Get appointments
         query = postgrestClient.from("appointment_with_type").select().eq("fk_doctor_id", id).getQuery();
