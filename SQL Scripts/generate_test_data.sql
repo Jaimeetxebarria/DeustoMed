@@ -149,6 +149,8 @@ VALUES
 ('00ABG', '00AAG'),
 ('00ABH', '00AAG');
 
+insert into admin values('00AAB');
+
 -- insert into medication
 insert into medication (activesubstance, commercialname, stock, dose, company, shortdescription) values
     ('acetaminofén', 'paracetamol', 5, 500, 'cinfa', 'fármaco con propiedades analgésicas y antipiréticas'),
