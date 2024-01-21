@@ -454,7 +454,7 @@ public class WindowAdmin extends UserAuthenticatedWindow {
     private class CustomTableModel extends DefaultTableModel {
         @Override
         public boolean isCellEditable(int row, int column) {
-            return !(column == ID_COLUMN || column == SEX_COLUMN  || column == BIRTHDATE_COLUMN);
+            return !(column == ID_COLUMN || column == SEX_COLUMN  || column == BIRTHDATE_COLUMN || column == SPECIALITY_COLUMN);
         }
     }
     public DefaultTableModel completeTable(String[] columNames, List<User> users) {
