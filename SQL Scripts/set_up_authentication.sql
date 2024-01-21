@@ -8,7 +8,7 @@ create table
     user_id char(5) not null references person,
     fk_user_type smallint references user_type not null,
     access_token uuid not null,
-    access_token_expiry timestamptz default current_timestamp + interval '5 minutes',
+    access_token_expiry timestamptz default current_timestamp + interval '5 minute',
     session_expiry timestamptz default date_trunc('minute', current_timestamp + interval '6 hours')
   );
 
@@ -37,7 +37,7 @@ create or replace function custom_auth.find_session (session_id uuid, _access_to
 returns table (session_user_id char(5), session_user_type text, is_token_expired boolean) security definer as $$
   begin
     return query
-    select s.user_id, (select name from user_type where id = s.fk_user_type), s.access_token_expiry <= current_timestamp
+    select s.user_id, (select name from public.user_type where id = s.fk_user_type), s.access_token_expiry <= current_timestamp
     from custom_auth.session s
     where s.id = session_id and s.access_token = _access_token
     limit 1;
@@ -66,7 +66,7 @@ create or replace function custom_auth.authenticate () returns void as $$
         return;
     end if;
 
-    select custom_auth.find_session(session_id, access_token) into session_user_id, session_user_type, is_access_token_expired;
+    select * into session_user_id, session_user_type, is_access_token_expired from custom_auth.find_session(session_id, access_token);
 
     -- Handle session errors
     if session_user_id is null then
