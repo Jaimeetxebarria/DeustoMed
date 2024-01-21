@@ -25,6 +25,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.*;
@@ -379,6 +380,12 @@ public class WindowAddUser extends JFrame {
 
         if (doctors != null && cbSpeciality.getSelectedItem().toString().isEmpty()) {
             lblError.setText("Se requiere definir una especialidad");
+            return false;
+        }
+
+        LocalDate chosenDate = LocalDate.ofInstant(dateChooser.getDate().toInstant(), ZoneId.systemDefault());
+        if (doctors != null && Period.between(chosenDate, LocalDate.now()).getYears() < 18) {
+            lblError.setText("El doctor debe ser mayor de edad");
             return false;
         }
 
