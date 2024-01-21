@@ -5,6 +5,7 @@ import org.deustomed.postgrest.PostgrestClient;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 public class Appointment implements Comparable<Appointment> {
@@ -43,6 +44,19 @@ public class Appointment implements Comparable<Appointment> {
             doctor = new Doctor(doctorId, postgrestClient);
         }
         return doctor;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Appointment that)) return false;
+        return Objects.equals(getPatientId(), that.getPatientId()) &&
+                Objects.equals(getDoctorId(), that.getDoctorId()) &&
+                Objects.equals(getPatient(), that.getPatient()) &&
+                Objects.equals(getDoctor(), that.getDoctor()) &&
+                Objects.equals(getDate(), that.getDate()) &&
+                Objects.equals(getShortDescription(), that.getShortDescription()) &&
+                Objects.equals(getLongDescription(), that.getLongDescription());
     }
 
     @Override
