@@ -26,20 +26,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/com.miglayout/miglayout -->
-        <dependency>
-            <groupId>com.miglayout</groupId>
-            <artifactId>miglayout</artifactId>
-            <version>${miglayout.version}</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/com.miglayout/miglayout-swing -->
-        <dependency>
-            <groupId>com.miglayout</groupId>
-            <artifactId>miglayout-swing</artifactId>
-            <version>${miglayout-swing.version}</version>
-        </dependency>
-
         <!-- https://mvnrepository.com/artifact/com.formdev/flatlaf -->
         <dependency>
             <groupId>com.formdev</groupId>
