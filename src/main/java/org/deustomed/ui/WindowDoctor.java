@@ -55,6 +55,22 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         FlatLightLaf.setup();
         FlatInterFont.install();
 
+        org.deustomed.Patient patient1 = new org.deustomed.Patient("00AAA", "Paciente1", "Surname1", "Surname2",
+                LocalDate.now(), Sex.MALE, "12345678A", "paciente1@email.com", "019283712094",
+                "Calle de Ciudad", new ArrayList<>());
+        ArrayList<Appointment> appoinments = new ArrayList<>();
+        appoinments.add(new Appointment(patient1.getId(), "doctor.getId()", LocalDateTime.of(2024, 1, 8, 12, 0), "Cita por dolor abdominal intenso", "Cita " +
+                "consulta con paciente"));
+        appoinments.add(new Appointment(patient1.getId(), "doctor.getId()", LocalDateTime.of(2024, 1, 8, 12, 30), "Cita por infección auditiva", "Cita " +
+                "consulta con paciente"));
+        appoinments.add(new Appointment(patient1.getId(), "doctor.getId()", LocalDateTime.of(2024, 1, 8, 13, 0), "Cita por malestar general", "Cita " +
+                "consulta con paciente"));
+        ArrayList<Patient> patients = new ArrayList<>();
+        patients.add(patient1);
+
+        Doctor doctor1 = new Doctor("00AAB", "Carlos", "Rodriguez", "Martinez", LocalDate.now(), Sex.MALE,
+                "12345A", "carlosrodri@gmail.com", "293472349", "Calle Random", "Medicina Familiar", appoinments);
+
         ConfigLoader configLoader = new ConfigLoader();
         WindowDoctor winFamilyDoctor = new WindowDoctor("00AAG", new AnonymousAuthenticationService(configLoader.getAnonymousToken()));
         winFamilyDoctor.setVisible(true);
@@ -68,22 +84,11 @@ public class WindowDoctor extends UserAuthenticatedWindow {
 
         ConfigLoader configLoader = new ConfigLoader();
         postgrestClient = new PostgrestClient(configLoader.getHostname(), configLoader.getEndpoint(), authenticationService);
-        PostgrestQuery query = postgrestClient
-                .from("doctor_with_personal_data")
-                .select("*")
-                .eq("id", doctorID)
-                .getQuery();
 
-        JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
-        JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
-
-        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-
-        this.doctor = new Doctor(jsonObject);
-        this.doctor.setAppointments(Doctor.loadDoctorAppointments(postgrestClient, doctorID));
-
-        loadingWindow = new LoadingWindow(doctor.getName() + " " + doctor.getSurname1() + " " + doctor.getSurname2() + " ");
+        loadingWindow = new LoadingWindow("Loading Screen");
         loadingWindow.setVisible(true);
+
+        this.doctor = new Doctor(doctorID, postgrestClient);
 
         screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setBounds((int) screenSize.getWidth() / 4, (int) screenSize.getHeight() / 4, (int) screenSize.getWidth(), (int) screenSize.getHeight());
@@ -249,11 +254,14 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         this.addWindowListener(new WindowAdapter() {
             @Override
             public void windowOpened(WindowEvent e) {
-                loadingWindow.dispose();
                 LoadingWindow.stopThread();
+                loadingWindow.dispose();
                 setVisible(true);
             }
         });
+        this.setVisible(true);
+        this.setLocationRelativeTo(null);
+        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
     }
 
     public void visualiseAppoinments(Date date) {

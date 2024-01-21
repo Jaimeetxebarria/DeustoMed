@@ -4,11 +4,9 @@ package org.deustomed.ui;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.formdev.flatlaf.fonts.inter.FlatInterFont;
 import org.deustomed.ConfigLoader;
-import org.deustomed.Doctor;
 import org.deustomed.UserType;
 import org.deustomed.authentication.BypassTrustManager;
 import org.deustomed.authentication.UserAuthenticationService;
-import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.authentication.exceptions.AuthenticationServerInternalErrorException;
 import org.deustomed.postgrest.authentication.exceptions.AuthenticationServerUnavailableException;
 import org.deustomed.postgrest.authentication.exceptions.InexistentUserException;
@@ -110,9 +108,6 @@ public class WindowLogin extends JFrame {
                 UserAuthenticationService userAuthenticationService = new UserAuthenticationService(configLoader.getAuthServerBaseUrl(),
                         new BypassTrustManager(), configLoader.getAnonymousToken());
 
-                PostgrestClient postgrestClient = new PostgrestClient(configLoader.getHostname(), configLoader.getEndpoint(),
-                        userAuthenticationService);
-
                 try {
                     switch (buttonGroup.getSelection().getMnemonic()) {
                         case 'P':
@@ -122,8 +117,15 @@ public class WindowLogin extends JFrame {
                             break;
                         case 'D':
                             userAuthenticationService.login(id, password, UserType.DOCTOR);
-                            WindowDoctor wd = new WindowDoctor(id, userAuthenticationService);
-                            wd.setVisible(true);
+                            SwingWorker<Void, Void> worker = new SwingWorker<>() {
+                                @Override
+                                protected Void doInBackground() {
+                                    new WindowDoctor(id, userAuthenticationService);
+                                    return null;
+                                }
+                            };
+                            worker.execute();
+
                             dispose();
                             break;
                         case 'A':
