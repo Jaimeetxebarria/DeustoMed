@@ -55,6 +55,7 @@ public class WindowDiagnosis extends JFrame {
         int w = (int) screenSize.getWidth() / 2 + 20;
         setBounds((int) (screenSize.getWidth() - h) / 2, (int) (screenSize.getHeight() - h) / 2, h, w);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setResizable(false);
 
         Border emptyBorder = BorderFactory.createEmptyBorder(10, 10, 10, 10);
         setLayout(new BorderLayout());

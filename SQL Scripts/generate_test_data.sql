@@ -166,3 +166,7 @@ insert into disease (name, chronic, hereditary) values
     ('otitis crónica supurativa', true, false),
     ('influenza', true, false),
     ('sinusitis', true, false);
+
+insert into in_treatment_patients (patient_id, specialist_doctor_id, treated) values
+    ('00ABG', '00AAA', false),
+    ('00ABH', '00AAA', false);

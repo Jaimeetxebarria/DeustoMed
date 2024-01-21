@@ -56,11 +56,11 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         FlatInterFont.install();
 
         ConfigLoader configLoader = new ConfigLoader();
-        WindowDoctor winFamilyDoctor = new WindowDoctor("00AAG", new SuperuserAuthenticationService(configLoader.getAnonymousToken(), configLoader.getSuperuserToken()));
-        winFamilyDoctor.setVisible(true);
+        //WindowDoctor winFamilyDoctor = new WindowDoctor("00AAG", new SuperuserAuthenticationService(configLoader.getAnonymousToken(), configLoader.getSuperuserToken()));
+        //winFamilyDoctor.setVisible(true);
 
-        // WindowDoctor winSpecialistDoctor = new WindowDoctor("00AAA", new AnonymousAuthenticationService(configLoader.getAnonymousToken()));
-        // winSpecialistDoctor.setVisible(true);
+        WindowDoctor winSpecialistDoctor = new WindowDoctor("00AAA", new SuperuserAuthenticationService(configLoader.getAnonymousToken(), configLoader.getSuperuserToken()));
+        winSpecialistDoctor.setVisible(true);
     }
 
     public WindowDoctor(String doctorID, PostgrestAuthenticationService authenticationService) {
@@ -82,7 +82,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         Comparator<Appointment> appointmentComparator = (o1, o2) -> o1.getDate().compareTo(o2.getDate());
 
         doctor.getAppointments().sort(appointmentComparator);
-
+        setResizable(false);
 
         // ------------------ pnlInfo ------------------
         pnlInfo = new JPanel();
