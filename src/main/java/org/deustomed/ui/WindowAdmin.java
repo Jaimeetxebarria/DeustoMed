@@ -186,17 +186,17 @@ public class WindowAdmin extends UserAuthenticatedWindow {
 
                 if (indexInListP != -1 && validateData(tblPatient, modelRow)) {
                     Patient editedPatient = new Patient(
-                            originalPatient.getId(),                    //id
-                            rowData[3].toString(),                      //name
-                            rowData[1].toString(),                      //surname1
-                            rowData[2].toString(),                      //surname2
-                            LocalDate.parse(rowData[10].toString()),     //birthdate
-                            originalPatient.getSex(),                   //sex
-                            rowData[6].toString(),                      //dni
-                            rowData[5].toString(),                      //email
-                            rowData[8].toString(),                      //phone
-                            rowData[9].toString(),                      //address
-                            originalPatient.getMedicalRecord());        //medicalRecord
+                            originalPatient.getId(),                                //id
+                            rowData[NAME_COLUMN].toString(),                        //name
+                            rowData[SURNAME1_COLUMN].toString(),                    //surname1
+                            rowData[SURNAME2_COLUMN].toString(),                    //surname2
+                            LocalDate.parse(rowData[BIRTHDATE_COLUMN].toString()),  //birthdate
+                            originalPatient.getSex(),                               //sex
+                            rowData[DNI_COLUMN].toString(),                         //dni
+                            rowData[EMAIL_COLUMN].toString(),                       //email
+                            rowData[PHONE_COLUMN].toString(),                       //phone
+                            rowData[ADDRESS_COLUMN].toString(),                     //address
+                            originalPatient.getMedicalRecord());                    //medicalRecord
 
                     patients.set(indexInListP, editedPatient);
 
