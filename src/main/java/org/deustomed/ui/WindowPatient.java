@@ -11,7 +11,6 @@ import lombok.Getter;
 import org.deustomed.ConfigLoader;
 import org.deustomed.DoctorMsgCode;
 import org.deustomed.GreenDateHighlighter;
-import org.deustomed.authentication.AnonymousAuthenticationService;
 import org.deustomed.authentication.SuperuserAuthenticationService;
 import org.deustomed.authentication.UserAuthenticationService;
 import org.deustomed.chat.ChatUser;
@@ -74,7 +73,7 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
     protected String patientId;
     final String[] docCode = {""};
     protected Thread msgThread;
-    private static PostgrestClient postgrestClient;
+    protected PostgrestClient postgrestClient;
     private Logger logger;
     private GreenDateHighlighter highlighter =  new GreenDateHighlighter();
 

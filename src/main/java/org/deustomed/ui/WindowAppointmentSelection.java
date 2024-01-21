@@ -1,16 +1,11 @@
 package org.deustomed.ui;
 
-import com.formdev.flatlaf.FlatLightLaf;
-import com.formdev.flatlaf.fonts.inter.FlatInterFont;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.deustomed.Appointment;
-import org.deustomed.ConfigLoader;
 import org.deustomed.DoctorMsgCode;
-import org.deustomed.authentication.AnonymousAuthenticationService;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
-import org.deustomed.postgrest.authentication.PostgrestAuthenticationService;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -33,12 +28,7 @@ public class WindowAppointmentSelection extends JFrame {
     private static final HashMap<String, String> doctorIdToName = new HashMap<>();
 
     public WindowAppointmentSelection(TreeSet<Appointment> appointments, String patientId, WindowPatient wp) {
-
-        ConfigLoader configLoader = new ConfigLoader();
-        String hostname = configLoader.getHostname();
-        String endpoint = configLoader.getEndpoint();
-        PostgrestAuthenticationService authenticationService =  new AnonymousAuthenticationService(configLoader.getAnonymousToken());
-        postgrestClient = new PostgrestClient(hostname, endpoint, authenticationService);
+        postgrestClient = wp.postgrestClient;
 
         setLayout(new BorderLayout());
 

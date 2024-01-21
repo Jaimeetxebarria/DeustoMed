@@ -1,17 +1,12 @@
 package org.deustomed.ui;
 
-import com.formdev.flatlaf.FlatLightLaf;
-import com.formdev.flatlaf.fonts.inter.FlatInterFont;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.toedter.calendar.JDateChooser;
 import org.deustomed.Appointment;
-import org.deustomed.ConfigLoader;
-import org.deustomed.authentication.AnonymousAuthenticationService;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
-import org.deustomed.postgrest.authentication.PostgrestAuthenticationService;
 
 import javax.swing.*;
 import java.text.SimpleDateFormat;
@@ -33,12 +28,7 @@ public class WindowAppointment extends JFrame {
 
 
     public WindowAppointment(Date date, String patientID, WindowPatient wp) {
-
-        ConfigLoader configLoader = new ConfigLoader();
-        String hostname = configLoader.getHostname();
-        String endpoint = configLoader.getEndpoint();
-        PostgrestAuthenticationService authenticationService = new AnonymousAuthenticationService(configLoader.getAnonymousToken());
-        postgrestClient = new PostgrestClient(hostname, endpoint, authenticationService);
+        postgrestClient = wp.postgrestClient;
 
         patientId = patientID;
 
