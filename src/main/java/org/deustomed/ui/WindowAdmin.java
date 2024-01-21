@@ -128,19 +128,21 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         tfFindPatient.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(javax.swing.event.DocumentEvent e) {
-                filtrarDatos(tblPatient, tfFindPatient);
+                filterData(tblPatient, tfFindPatient);
             }
 
             @Override
             public void removeUpdate(javax.swing.event.DocumentEvent e) {
-                filtrarDatos(tblPatient, tfFindPatient);
+                filterData(tblPatient, tfFindPatient);
             }
 
             @Override
             public void changedUpdate(javax.swing.event.DocumentEvent e) {
-                filtrarDatos(tblPatient, tfFindPatient);
+                filterData(tblPatient, tfFindPatient);
             }
         });
+
+        //Set rowSorter to headers
         tblPatient.getTableHeader().addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -148,7 +150,6 @@ public class WindowAdmin extends UserAuthenticatedWindow {
                 if (sorterPatients.getSortKeys().isEmpty() || sorterPatients.getSortKeys().get(0).getColumn() != column) {
                     sorterPatients.setSortKeys(null);
                 } else {
-                    // Toggle sorting order
                     List<RowSorter.SortKey> sortKeys = new ArrayList<>(sorterPatients.getSortKeys());
                     RowSorter.SortKey currentSortKey = sortKeys.get(0);
                     if (currentSortKey.getSortOrder() == SortOrder.ASCENDING) {
@@ -161,8 +162,10 @@ public class WindowAdmin extends UserAuthenticatedWindow {
             }
         });
 
+        //Create new Patient
         btnPatient.addActionListener(e -> new WindowAddUser(patients, tblPatient));
 
+        //Edit Patient
         btnEditPatient.addActionListener(e -> {
             int selectedRow = tblPatient.getSelectedRow();
             if (selectedRow != -1) {
@@ -181,7 +184,6 @@ public class WindowAdmin extends UserAuthenticatedWindow {
                 int indexInListP = patients.indexOf(originalPatient);
 
                 if (indexInListP != -1 && validateData(tblPatient, modelRow)) {
-                    // Crea un nuevo objeto Patient con los valores editados
                     Patient editedPatient = new Patient(
                             originalPatient.getId(),                    //id
                             rowData[3].toString(),                      //name
@@ -195,16 +197,12 @@ public class WindowAdmin extends UserAuthenticatedWindow {
                             rowData[9].toString(),                      //address
                             originalPatient.getMedicalRecord());        //medicalRecord
 
-
-                    // Actualiza el objeto en la lista
                     patients.set(indexInListP, editedPatient);
 
-                    // Actualiza la fila en la tabla
                     for (int i = 1; i < rowData.length; i++) {
                         tblPatient.getModel().setValueAt(rowData[i], modelRow, i);
                     }
 
-                    //Actualizar los valores del paciente en la base de datos
                     JsonObject jsonObjEditPatient = new JsonObject();
                     jsonObjEditPatient.addProperty("name", editedPatient.getName());
                     jsonObjEditPatient.addProperty("surname1", editedPatient.getSurname1());
@@ -221,12 +219,11 @@ public class WindowAdmin extends UserAuthenticatedWindow {
                             .eq("dni", editedPatient.getDni())
                             .getQuery();
                     postgrestClient.sendQuery(queryEditPatient);
-
-                    System.out.println("Paciente con id " + originalPatient.getId() + " editado");
                 }
             }
         });
 
+        //Delete patient
         btnDeletePatient.addActionListener(e -> {
             int selectedRow = tblPatient.getSelectedRow();
             if (selectedRow != -1) {
@@ -239,12 +236,14 @@ public class WindowAdmin extends UserAuthenticatedWindow {
                         .eq("id", id)
                         .getQuery();
                 postgrestClient.sendQuery(deletePatient);
-                System.out.println("Paciente con id " + id + " eliminado");
                 ((DefaultTableModel) tblPatient.getModel()).removeRow(modelRow);
             }
         });
 
-        btnLogoutPatient.addActionListener(e -> dispose());
+        btnLogoutPatient.addActionListener(e -> {
+            dispose();
+            new WindowLogin();
+        });
 
         //Doctor
         PostgrestQuery queryDoctor = postgrestClient
@@ -293,30 +292,32 @@ public class WindowAdmin extends UserAuthenticatedWindow {
 
         tabAdmin.addTab("Doctores", pnlDoctor);
 
+        //Add listener to the finder
         tfFindDoctor.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(javax.swing.event.DocumentEvent e) {
-                filtrarDatos(tblDoctor, tfFindDoctor);
+                filterData(tblDoctor, tfFindDoctor);
             }
 
             @Override
             public void removeUpdate(javax.swing.event.DocumentEvent e) {
-                filtrarDatos(tblDoctor, tfFindDoctor);
+                filterData(tblDoctor, tfFindDoctor);
             }
 
             @Override
             public void changedUpdate(javax.swing.event.DocumentEvent e) {
-                filtrarDatos(tblDoctor, tfFindDoctor);
+                filterData(tblDoctor, tfFindDoctor);
             }
         });
+
+        //Add sorter to headers
         tblDoctor.getTableHeader().addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 int column = tblDoctor.getTableHeader().columnAtPoint(e.getPoint());
                 if (sorterDoctors.getSortKeys().isEmpty() || sorterDoctors.getSortKeys().get(0).getColumn() != column) {
-                    sorterDoctors.setSortKeys(null); // No sorting, revert to original order
+                    sorterDoctors.setSortKeys(null);
                 } else {
-                    // Toggle sorting order
                     List<RowSorter.SortKey> sortKeys = new ArrayList<>(sorterDoctors.getSortKeys());
                     RowSorter.SortKey currentSortKey = sortKeys.get(0);
                     if (currentSortKey.getSortOrder() == SortOrder.ASCENDING) {
@@ -329,12 +330,13 @@ public class WindowAdmin extends UserAuthenticatedWindow {
             }
         });
 
+        //Create new Doctors
         btnDoctor.addActionListener(e -> new WindowAddUser(doctors, tblDoctor));
 
+        //Edit Doctors
         btnEditDoctor.addActionListener(e -> {
             int selectedRow = tblDoctor.getSelectedRow();
             if (selectedRow != -1) {
-                // Obtén los datos asociados a la fila
                 Object[] rowData = new Object[tblDoctor.getColumnCount()];
                 for (int i = 0; i < tblDoctor.getColumnCount(); i++) {
                     rowData[i] = tblDoctor.getModel().getValueAt(selectedRow, i);
@@ -346,11 +348,8 @@ public class WindowAdmin extends UserAuthenticatedWindow {
                         break;
                     }
                 }
-                System.out.println(rowData[0]);
-                System.out.println(originalDoctor);
                 int indexInListD = doctors.indexOf(originalDoctor);
                 if (indexInListD != -1 && validateData(tblDoctor, selectedRow)) {
-                    // Crea un nuevo objeto Patient con los valores editados
                     Doctor editedDoctor = new Doctor(
                             originalDoctor.getId(),                       //id
                             rowData[NAME_COLUMN].toString(),              //name
@@ -365,16 +364,12 @@ public class WindowAdmin extends UserAuthenticatedWindow {
                             originalDoctor.getSpeciality(),               //speciality
                             originalDoctor.getAppointments());
 
-
-                    // Actualiza el objeto en la lista
                     doctors.set(indexInListD, editedDoctor);
 
-                    // Actualiza la fila en la tabla
                     for (int i = 1; i < rowData.length; i++) {
                         tblDoctor.getModel().setValueAt(rowData[i], selectedRow, i);
                     }
 
-                    //Actualizar los valores del doctor en la base de datos
                     JsonObject jsonObjEditDoctor = new JsonObject();
                     jsonObjEditDoctor.addProperty("name", editedDoctor.getName());
                     jsonObjEditDoctor.addProperty("surname1", editedDoctor.getSurname1());
@@ -391,11 +386,11 @@ public class WindowAdmin extends UserAuthenticatedWindow {
                             .eq("dni", editedDoctor.getDni())
                             .getQuery();
                     postgrestClient.sendQuery(queryEditDoctor);
-                    System.out.println("Doctor con id " + originalDoctor.getId() + " editado");
                 }
             }
         });
 
+        //Delete Doctors
         btnDeleteDoctor.addActionListener(e -> {
             int selectedRow = tblDoctor.getSelectedRow();
             if (selectedRow != -1) {
@@ -408,7 +403,6 @@ public class WindowAdmin extends UserAuthenticatedWindow {
                         .eq("id", id)
                         .getQuery();
                 postgrestClient.sendQuery(deleteDoctor);
-                System.out.println("Doctor eliminado");
                 ((DefaultTableModel) tblDoctor.getModel()).removeRow(modelRow);
                 System.out.println(doctors);
             }
@@ -419,16 +413,15 @@ public class WindowAdmin extends UserAuthenticatedWindow {
             new WindowLogin();
         });
 
-
-
-        //Logs
-        pnlLogs = new JPanel(new BorderLayout());
-
         this.add(tabAdmin);
 
         this.setVisible(true);
     }
 
+    /**
+     * Obtain patients from a jsonArray and add them to the patients list
+     * @param jsonPatientData
+     */
     public void obtainPatients(JsonArray jsonPatientData){
         for (JsonElement jsonElement : jsonPatientData) {
             JsonObject jsonObject = jsonElement.getAsJsonObject();
@@ -437,6 +430,10 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         mergeSort(patients);
     }
 
+    /**
+     * Obtain doctors from a jsonArray and add them to the doctors list
+     * @param jsonDoctorIDs
+     */
     public void obtainDoctors(JsonArray jsonDoctorIDs){
         for (JsonElement jsonElement : jsonDoctorIDs) {
             JsonObject jsonObject = jsonElement.getAsJsonObject();
@@ -444,19 +441,23 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         }
         mergeSort(doctors);
     }
-    public static void main(String[] args) {
-        FlatLightLaf.setup();
-        FlatInterFont.install();
 
-        ConfigLoader configLoader = new ConfigLoader();
-        SwingUtilities.invokeLater(() -> new WindowAdmin(new AnonymousAuthenticationService(configLoader.getAnonymousToken())));
-    }
+    /**
+     * Customed DefaultTableModel to set editable columns
+     */
     private class CustomTableModel extends DefaultTableModel {
         @Override
         public boolean isCellEditable(int row, int column) {
             return !(column == ID_COLUMN || column == SEX_COLUMN  || column == BIRTHDATE_COLUMN || column == SPECIALITY_COLUMN);
         }
     }
+
+    /**
+     * Create a complete DefaultTableModel with the list of users received as a parameter
+     * @param columNames Header names
+     * @param users Data that has to appear at the table
+     * @return created model
+     */
     public DefaultTableModel completeTable(String[] columNames, List<User> users) {
         DefaultTableModel model = new CustomTableModel();
         model.setColumnIdentifiers(columNames);
@@ -484,6 +485,12 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         return model;
     }
 
+    /**
+     * Validate data at the table at the moment of editing the table values
+     * @param table Table edited
+     * @param row   Number of row edited
+     * @return true if the value is validate and if is not false
+     */
     private boolean validateData(JTable table, int row) {
         String dni = table.getModel().getValueAt(row, DNI_COLUMN).toString();
         if (!dni.matches("\\d{8}[a-zA-Z]")) {
@@ -505,7 +512,12 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         return true;
     }
 
-    private void filtrarDatos(JTable table, JTextField tfFinder) {
+    /**
+     * Filter data of a table by the text wrote at a JTextField
+     * @param table Table that has to be filter
+     * @param tfFinder TextField to obtein the text
+     */
+    private void filterData(JTable table, JTextField tfFinder) {
         String filter = tfFinder.getText().toLowerCase();
         DefaultTableModel model = (DefaultTableModel) table.getModel();
 
@@ -523,6 +535,10 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         }
     }
 
+    /**
+     * Sort a list of users recursively using an auxiliary method
+     * @param users list of users that has to be sort
+     */
     private void mergeSort(List<User> users) {
         if (users.size() <= 1) {
             return;
@@ -538,6 +554,12 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         merge(users, leftHalf, rightHalf);
     }
 
+    /**
+     * Auxiliary method to sort a list of users
+     * @param users
+     * @param leftHalf
+     * @param rightHalf
+     */
     private void merge(List<User> users, List<User> leftHalf, List<User> rightHalf) {
         int leftIndex = 0, rightIndex = 0, mergeIndex = 0;
 
@@ -557,8 +579,14 @@ public class WindowAdmin extends UserAuthenticatedWindow {
             users.set(mergeIndex++, rightHalf.get(rightIndex++));
         }
     }
-    
 
+    public static void main(String[] args) {
+        FlatLightLaf.setup();
+        FlatInterFont.install();
+
+        ConfigLoader configLoader = new ConfigLoader();
+        SwingUtilities.invokeLater(() -> new WindowAdmin(new AnonymousAuthenticationService(configLoader.getAnonymousToken())));
+    }
 }
 
 
