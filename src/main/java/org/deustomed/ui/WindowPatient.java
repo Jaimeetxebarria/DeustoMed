@@ -12,6 +12,7 @@ import org.deustomed.ConfigLoader;
 import org.deustomed.DoctorMsgCode;
 import org.deustomed.GreenDateHighlighter;
 import org.deustomed.authentication.AnonymousAuthenticationService;
+import org.deustomed.authentication.SuperuserAuthenticationService;
 import org.deustomed.authentication.UserAuthenticationService;
 import org.deustomed.chat.ChatUser;
 import org.deustomed.chat.MessageCheckerThread;
@@ -834,7 +835,7 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
 
         SwingUtilities.invokeLater(() -> {
             ConfigLoader configLoader = new ConfigLoader();
-            new WindowPatient("00AAK", new AnonymousAuthenticationService(configLoader.getAnonymousToken()));
+            new WindowPatient("00AAK", new SuperuserAuthenticationService(configLoader.getAnonymousToken(), configLoader.getSuperuserToken()));
         });
     }
 }
