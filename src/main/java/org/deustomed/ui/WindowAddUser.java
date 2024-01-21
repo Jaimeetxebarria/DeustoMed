@@ -1,12 +1,9 @@
 package org.deustomed.ui;
 
-import com.formdev.flatlaf.FlatLightLaf;
-import com.formdev.flatlaf.fonts.inter.FlatInterFont;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.toedter.calendar.JDateChooser;
 import org.deustomed.*;
-import org.deustomed.authentication.AnonymousAuthenticationService;
 import org.deustomed.authentication.BypassTrustManager;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
@@ -49,12 +46,12 @@ public class WindowAddUser extends JFrame {
     private static PostgrestClient postgrestClient;
     private static final Gson gson = new Gson();
 
-    public WindowAddUser(List<? extends User> users, JTable tblUsers) {
+    public WindowAddUser(List<? extends User> users, JTable tblUsers, PostgrestClient postgrestClient) {
         ConfigLoader configLoader = new ConfigLoader();
         String hostname = configLoader.getHostname();
         String endpoint = configLoader.getEndpoint();
         String anonymousToken = configLoader.getAnonymousToken();
-        postgrestClient = new PostgrestClient(hostname, endpoint, new AnonymousAuthenticationService(anonymousToken));
+        WindowAddUser.postgrestClient = postgrestClient;
 
         if (users.get(0) instanceof Patient) {
             patients = users.stream().map(user -> (Patient) user).collect(Collectors.toList());

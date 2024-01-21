@@ -9,7 +9,6 @@ import org.deustomed.ConfigLoader;
 import org.deustomed.Doctor;
 import org.deustomed.Patient;
 import org.deustomed.User;
-import org.deustomed.authentication.AnonymousAuthenticationService;
 import org.deustomed.authentication.SuperuserAuthenticationService;
 import org.deustomed.authentication.UserAuthenticationService;
 import org.deustomed.postgrest.PostgrestClient;
@@ -164,7 +163,7 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         });
 
         //Create new Patient
-        btnPatient.addActionListener(e -> new WindowAddUser(patients, tblPatient));
+        btnPatient.addActionListener(e -> new WindowAddUser(patients, tblPatient, postgrestClient));
 
         //Edit Patient
         btnEditPatient.addActionListener(e -> {
@@ -332,7 +331,7 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         });
 
         //Create new Doctors
-        btnDoctor.addActionListener(e -> new WindowAddUser(doctors, tblDoctor));
+        btnDoctor.addActionListener(e -> new WindowAddUser(doctors, tblDoctor, postgrestClient));
 
         //Edit Doctors
         btnEditDoctor.addActionListener(e -> {

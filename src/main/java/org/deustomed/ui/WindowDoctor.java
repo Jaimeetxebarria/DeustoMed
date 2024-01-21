@@ -7,7 +7,6 @@ import org.deustomed.Appointment;
 import org.deustomed.ConfigLoader;
 import org.deustomed.Doctor;
 import org.deustomed.Patient;
-import org.deustomed.authentication.AnonymousAuthenticationService;
 import org.deustomed.authentication.SuperuserAuthenticationService;
 import org.deustomed.authentication.UserAuthenticationService;
 import org.deustomed.postgrest.PostgrestClient;
@@ -28,10 +27,6 @@ import java.awt.event.WindowEvent;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.EventObject;
 import java.util.*;
 
 public class WindowDoctor extends UserAuthenticatedWindow {
@@ -108,7 +103,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         info.setPreferredSize(new Dimension(200, 30));
         info.setHorizontalAlignment(SwingConstants.CENTER);
         info.addActionListener((ActionEvent e) -> {
-            DoctorChat doctorChat = new DoctorChat(doctorID);
+            DoctorChat doctorChat = new DoctorChat(doctorID, postgrestClient);
             doctorChat.setVisible(true);
         });
 
@@ -369,13 +364,10 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
             patientShowButton = new PatientShowButton((Patient) value);
-            patientShowButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    ShowPatientWindow spw = new ShowPatientWindow(patientShowButton.getButtonPatient());
-                    spw.setVisible(true);
-                    fireEditingStopped();
-                }
+            patientShowButton.addActionListener(e -> {
+                ShowPatientWindow spw = new ShowPatientWindow(patientShowButton.getButtonPatient(), postgrestClient);
+                spw.setVisible(true);
+                fireEditingStopped();
             });
 
             return patientShowButton;

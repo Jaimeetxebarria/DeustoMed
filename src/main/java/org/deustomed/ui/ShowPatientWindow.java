@@ -3,25 +3,19 @@ package org.deustomed.ui;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.deustomed.*;
-import org.deustomed.authentication.AnonymousAuthenticationService;
 import org.deustomed.authentication.SuperuserAuthenticationService;
-import org.deustomed.logs.LoggerMaker;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
 import org.jetbrains.annotations.Nls;
 
 import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
 class ShowPatientWindow extends JFrame {
     private JPanel panelWest;
@@ -39,12 +33,16 @@ class ShowPatientWindow extends JFrame {
         Patient patient = new Patient("00AAK", "Antonio", "Gonzalez", "Gonzalez", LocalDate.now(), Sex.MALE,
                 "12345678A", "mail@gmail.vpm", "Calle Dirección Inventada", "Speciality", null);
 
-        ShowPatientWindow spw = new ShowPatientWindow(patient);
+        ConfigLoader configLoader = new ConfigLoader();
+        PostgrestClient postgrestClient = new PostgrestClient(configLoader.getHostname(),
+                configLoader.getEndpoint(), new SuperuserAuthenticationService(configLoader.getAnonymousToken(),
+                configLoader.getSuperuserToken()));
+        ShowPatientWindow spw = new ShowPatientWindow(patient, postgrestClient);
         spw.setVisible(true);
         spw.setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
-    public ShowPatientWindow(Patient patient) {
+    public ShowPatientWindow(Patient patient, PostgrestClient postgrestClient) {
         this.classPatient = patient;
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setTitle("Ventana del paciente " + patient.getName() + " " + patient.getSurname1() + " " + patient.getSurname2());
@@ -53,11 +51,7 @@ class ShowPatientWindow extends JFrame {
         setLayout(new BorderLayout());
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-        ConfigLoader configLoader = new ConfigLoader();
-        String hostname = configLoader.getHostname();
-        String endpoint = configLoader.getEndpoint();
-        String anonymousToken = configLoader.getAnonymousToken();
-        postgrestClient = new PostgrestClient(hostname, endpoint, new SuperuserAuthenticationService(anonymousToken, configLoader.getSuperuserToken()));
+        ShowPatientWindow.postgrestClient = postgrestClient;
         setResizable(false);
 
         // ----------------------- Nombre+Apellidos (west) -------------------

@@ -7,7 +7,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.deustomed.ConfigLoader;
-import org.deustomed.authentication.AnonymousAuthenticationService;
+import org.deustomed.authentication.SuperuserAuthenticationService;
 import org.deustomed.chat.ChatUser;
 import org.deustomed.chat.MessageCheckerThread;
 import org.deustomed.logs.LoggerMaker;
@@ -51,13 +51,8 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
     protected Thread msgThread;
     private Logger logger;
 
-    public DoctorChat(String docCode) {
-
-        ConfigLoader configLoader = new ConfigLoader();
-        String hostname = configLoader.getHostname();
-        String endpoint = configLoader.getEndpoint();
-        String anonymousToken = configLoader.getAnonymousToken();
-        postgrestClient = new PostgrestClient(hostname, endpoint, new AnonymousAuthenticationService(anonymousToken));
+    public DoctorChat(String docCode, PostgrestClient postgrestClient) {
+        DoctorChat.postgrestClient = postgrestClient;
 
         LoggerMaker.setlogFilePath("src/main/java/org/deustomed/logs/DoctorChat.log");
         logger = LoggerMaker.getLogger();
@@ -402,6 +397,10 @@ public class DoctorChat extends JFrame implements MessageCheckerThread {
         FlatLightLaf.setup();
         FlatInterFont.install();
 
-        SwingUtilities.invokeLater(() -> new DoctorChat("00AAA").setVisible(true));
+        ConfigLoader configLoader = new ConfigLoader();
+        PostgrestClient postgrestClient = new PostgrestClient(configLoader.getHostname(), configLoader.getEndpoint(),
+                new SuperuserAuthenticationService(configLoader.getAnonymousToken(), configLoader.getSuperuserToken()));
+
+        SwingUtilities.invokeLater(() -> new DoctorChat("00AAA", postgrestClient).setVisible(true));
     }
 }
