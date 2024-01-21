@@ -5,7 +5,6 @@ import org.deustomed.postgrest.PostgrestClient;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Getter
 public class Appointment implements Comparable<Appointment> {
@@ -44,10 +43,6 @@ public class Appointment implements Comparable<Appointment> {
             doctor = new Doctor(doctorId, postgrestClient);
         }
         return doctor;
-    }
-
-    public Date getDateAsDate() {
-        return java.sql.Timestamp.valueOf(this.date);
     }
 
     @Override
