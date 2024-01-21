@@ -56,11 +56,11 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         FlatInterFont.install();
 
         ConfigLoader configLoader = new ConfigLoader();
-        //WindowDoctor winFamilyDoctor = new WindowDoctor("00AAG", new SuperuserAuthenticationService(configLoader.getAnonymousToken(), configLoader.getSuperuserToken()));
-        //winFamilyDoctor.setVisible(true);
+        WindowDoctor winFamilyDoctor = new WindowDoctor("00AAG", new SuperuserAuthenticationService(configLoader.getAnonymousToken(), configLoader.getSuperuserToken()));
+        winFamilyDoctor.setVisible(true);
 
-        WindowDoctor winSpecialistDoctor = new WindowDoctor("00AAA", new SuperuserAuthenticationService(configLoader.getAnonymousToken(), configLoader.getSuperuserToken()));
-        winSpecialistDoctor.setVisible(true);
+        //WindowDoctor winSpecialistDoctor = new WindowDoctor("00AAA", new SuperuserAuthenticationService(configLoader.getAnonymousToken(), configLoader.getSuperuserToken()));
+        //winSpecialistDoctor.setVisible(true);
     }
 
     public WindowDoctor(String doctorID, PostgrestAuthenticationService authenticationService) {
@@ -140,7 +140,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         add(pnlInfo, BorderLayout.WEST);
 
 
-        //--------------------- Panel CENTER: TabbedPane: Pacientes, Medicamentos, Char Médico-Paciente... --------------------------------
+        //--------------------- Panel CENTER: TabbedPane: Pacientes --------------------------------
 
         tabbedPaneCenter = new JTabbedPane();
         tabbedPaneCenter.setVisible(true);

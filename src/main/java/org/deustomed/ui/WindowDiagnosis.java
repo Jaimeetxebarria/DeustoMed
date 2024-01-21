@@ -190,6 +190,7 @@ public class WindowDiagnosis extends JFrame {
         JTextArea textAreaSummary = new JTextArea("'Notas del doctor'");
         textAreaSummary.setBorder(BorderFactory.createTitledBorder(" RESUMEN DEL DIAGNÓSTICO "));
         textAreaSummary.setPreferredSize(new Dimension(200, 200));
+        textAreaSummary.setEditable(true);
         JButton registerDiagnosis = new JButton("Registrar Diagnóstico");
 
         registerDiagnosis.setBorder(emptyBorder);

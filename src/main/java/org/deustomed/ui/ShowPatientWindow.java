@@ -426,7 +426,7 @@ class ShowPatientWindow extends JFrame {
     }
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return false;
+        return true;
     }
 
     @Override
