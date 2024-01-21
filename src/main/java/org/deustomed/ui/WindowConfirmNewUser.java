@@ -85,19 +85,4 @@ public class WindowConfirmNewUser extends JFrame {
         clipboard.setContents(stringSelection, null);
         JOptionPane.showMessageDialog(null, "ID copiado al portapapeles: " + id);
     }
-
-    public static void main(String[] args) {
-        FlatLightLaf.setup();
-        FlatInterFont.install();
-
-        Patient patient = new Patient("00AAA", "Pablo", "Garcia", "Iglesias",
-                LocalDate.of(1990, 8, 12), Sex.MALE, "dni1",
-                "email1", "phone1", "address1", null);
-        new WindowConfirmNewUser(patient);
-
-//        Doctor doctor = new Doctor("00AAA", "Pablo", "Garcia", "Iglesias",
-//                LocalDate.of(1990, 8, 12), Sex.MALE, "dni1",
-//                "email1", "phone1", "address1", null, null);
-//        new WindowConfirmNewUser(doctor);
-    }
 }
