@@ -71,11 +71,8 @@ public class UserAuthenticationService implements PostgrestAuthenticationService
                     .POST(HttpRequest.BodyPublishers.ofString(postJson.toString()))
                     .build();
 
-            try {
-                client.send(request, HttpResponse.BodyHandlers.discarding());
-            } catch (IOException | InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+
+            client.sendAsync(request, HttpResponse.BodyHandlers.discarding());
         }
     }
 
