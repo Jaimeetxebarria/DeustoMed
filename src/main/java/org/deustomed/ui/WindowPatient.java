@@ -611,7 +611,7 @@ public class WindowPatient extends UserAuthenticatedWindow implements MessageChe
                     .getQuery();
 
             JsonArray jsonArray12 = postgrestClient.sendQuery(query12).getAsJsonArray();
-            postgrestClient.sendQuery(updateQuery).getAsJsonArray();
+            postgrestClient.sendQuery(updateQuery);
 
             for (JsonElement jsonElement : jsonArray12) {
                 JsonObject messageObject = jsonElement.getAsJsonObject();
