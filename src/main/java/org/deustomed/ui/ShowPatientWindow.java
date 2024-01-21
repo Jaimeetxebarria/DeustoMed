@@ -349,6 +349,13 @@ class ShowPatientWindow extends JFrame {
         return name + " " + surname1 + " " + surname2;
     }
 
+    /**
+     * Loads the medial record of a given patient in the form of a list of diagnoses. For each diagnose it also loads
+     * the corresponding appointment, which contains valuable information related to the diagnosis.
+     *
+     * @param id the id of the given patient whose medical record (diagnoses) are going to be loadded
+     * @return An ArrayList<Diagnosis> with the diagnoses of the patient.
+     */
     public static ArrayList<Diagnosis> loadPatientMedicalRecord (String id, PostgrestClient postgrestClient) {
         ArrayList<Diagnosis> resultList = new ArrayList<>();
         PostgrestQuery query = postgrestClient
