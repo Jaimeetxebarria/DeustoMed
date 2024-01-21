@@ -31,31 +31,23 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.EventObject;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class WindowDoctor extends UserAuthenticatedWindow {
     private Doctor doctor;
     private final JPanel pnlInfo;
-    private JPanel pnlCentral;
     private final JPanel pnlAppointments;
     private static Dimension screenSize;
     private final JPanel pnlDisplayAppoinments;
     private JTable tableOwnPatient;
     private JTable tableTreatedPatient;
     private JTable tableInTreatmentPatient;
-    private JTable tableToTreatPatient;
-    private JTable patientRegistry;
-    private ArrayList<Patient> fullRegistry;
     private ArrayList<Patient> ownPatients;
     private ArrayList<Patient> treatedPatients;
     private ArrayList<Patient> inTreatmentPatients;
-    private final JTable tableMedication;
     private final JTabbedPane tabbedPaneCenter;
-    private Date selectedDate = new Date();
+    private Date selectedDate;
     private static PostgrestClient postgrestClient;
     private LoadingWindow loadingWindow;
 
@@ -63,26 +55,12 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         FlatLightLaf.setup();
         FlatInterFont.install();
 
-        org.deustomed.Patient patient1 = new org.deustomed.Patient("00AAA", "Paciente1", "Surname1", "Surname2",
-                LocalDate.now(), Sex.MALE, "12345678A", "paciente1@email.com", "019283712094",
-                "Calle de Ciudad", new ArrayList<>());
-        ArrayList<Appointment> appoinments = new ArrayList<>();
-        appoinments.add(new Appointment(patient1.getId(), "doctor.getId()", LocalDateTime.of(2024, 1, 8, 12, 0), "Cita por dolor abdominal intenso", "Cita " +
-                "consulta con paciente"));
-        appoinments.add(new Appointment(patient1.getId(), "doctor.getId()", LocalDateTime.of(2024, 1, 8, 12, 30), "Cita por infección auditiva", "Cita " +
-                "consulta con paciente"));
-        appoinments.add(new Appointment(patient1.getId(), "doctor.getId()", LocalDateTime.of(2024, 1, 8, 13, 0), "Cita por malestar general", "Cita " +
-                "consulta con paciente"));
-        ArrayList<Patient> patients = new ArrayList<>();
-        patients.add(patient1);
-
-        Doctor doctor1 = new Doctor("00AAB", "Carlos", "Rodriguez", "Martinez", LocalDate.now(), Sex.MALE,
-                "12345A", "carlosrodri@gmail.com", "293472349", "Calle Random", "Medicina Familiar", appoinments);
-
         ConfigLoader configLoader = new ConfigLoader();
+        WindowDoctor winFamilyDoctor = new WindowDoctor("00AAG", new AnonymousAuthenticationService(configLoader.getAnonymousToken()));
+        winFamilyDoctor.setVisible(true);
 
-        WindowDoctor win = new WindowDoctor("00AAA", new AnonymousAuthenticationService(configLoader.getAnonymousToken()));
-        win.setVisible(true);
+        // WindowDoctor winSpecialistDoctor = new WindowDoctor("00AAA", new AnonymousAuthenticationService(configLoader.getAnonymousToken()));
+        // winSpecialistDoctor.setVisible(true);
     }
 
     public WindowDoctor(String doctorID, PostgrestAuthenticationService authenticationService) {
@@ -111,7 +89,15 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         setBounds((int) screenSize.getWidth() / 4, (int) screenSize.getHeight() / 4, (int) screenSize.getWidth(), (int) screenSize.getHeight());
         setLayout(new BorderLayout());
 
-        LoggerMaker.setlogFilePath("src/main/java/org/deustomed/logs/WindowPatient.log");
+        Comparator<Appointment> appointmentComparator = new Comparator<Appointment>() {
+            @Override
+            public int compare(Appointment o1, Appointment o2) {
+                return o1.getDate().compareTo(o2.getDate());
+            }
+        };
+
+        doctor.getAppointments().sort(appointmentComparator);
+
 
         // ------------------ pnlInfo ------------------
         pnlInfo = new JPanel();
@@ -137,9 +123,9 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         info.setPreferredSize(new Dimension(200, 30));
         info.setHorizontalAlignment(SwingConstants.CENTER);
         info.addActionListener((ActionEvent e) -> {
-                DoctorChat doctorChat = new DoctorChat(doctorID);
-                doctorChat.setVisible(true);
-            });
+            DoctorChat doctorChat = new DoctorChat(doctorID);
+            doctorChat.setVisible(true);
+        });
 
 
         JLabel name = new JLabel("Dr. " + doctor.getName());
@@ -161,9 +147,9 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         pnlInfo.add(pnlc, BorderLayout.CENTER);
         JButton singOut = new JButton("Cerrar Sesión");
         singOut.addActionListener((ActionEvent e) -> {
-                this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-                this.dispose();
-            });
+            this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+            this.dispose();
+        });
 
         pnlInfo.add(singOut, BorderLayout.SOUTH);
         add(pnlInfo, BorderLayout.WEST);
@@ -171,13 +157,8 @@ public class WindowDoctor extends UserAuthenticatedWindow {
 
         //--------------------- Panel CENTER: TabbedPane: Pacientes, Medicamentos, Char Médico-Paciente... --------------------------------
 
-        JScrollPane spTablePatient = new JScrollPane(tableOwnPatient);
-        tableMedication = new JTable();
-
         tabbedPaneCenter = new JTabbedPane();
         tabbedPaneCenter.setVisible(true);
-        Icon iconPatients = new ImageIcon("src/main/java/ui/patient.png");
-        Icon iconMedication = new ImageIcon("src/main/java/ui/medication.png");
 
         doctor.setRegistryOfPatients(Doctor.loadPatientIDs(doctor.getId(), postgrestClient, true));
         ArrayList<Patient> fullRegistry = doctor.loadPatients(postgrestClient, 0);
@@ -189,9 +170,6 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         JScrollPane spTableFullRegistry = new JScrollPane(tableTreatedPatient);
         tabbedPaneCenter.addTab("Registro Completo Pacientes", null, spTableFullRegistry);
 
-        //tabbedPaneCenter.addTab("Tabla Medicamentos", null, tableMedication);
-        //tabbedPaneCenter.addTab("Calendario", null, null);
-        //tabbedPaneCenter.addTab("Chats en Curso", null, null);
         add(tabbedPaneCenter, BorderLayout.CENTER);
 
         // Para Doctor de Medicina Familiar:
@@ -287,8 +265,6 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         for (Appointment appointment : doctor.getAppointments()) {
             LocalDateTime ldt = appointment.getDate();
             Date asDate = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
-            //System.out.println(truncateTime(asDate));
-            //System.out.println("Date: "+truncateTime(date));
 
             if (compareDateParts(asDate, date)) {
                 TitledBorder border = new TitledBorder("");
@@ -296,7 +272,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
                 panel.setLayout(new BorderLayout(3, 3));
                 panel.setPreferredSize(new Dimension(300, 200));
                 JPanel nombre = new JPanel();
-                //panel.setLayout(new GridLayout(2, 1));
+
                 JPanel pnlButton = new JPanel();
                 pnlButton.setLayout(new GridLayout(4, 1));
 
@@ -319,14 +295,6 @@ public class WindowDoctor extends UserAuthenticatedWindow {
                 pnTa.add(ta);
                 panel.add(pnTa, BorderLayout.CENTER);
 
-                JButton btn = new JButton("Más Info");
-                btn.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        // TODO: 29/12/23 Offer more information about the appointment
-                    }
-                });
-
                 JButton btn2 = new JButton("Iniciar");
                 btn2.addActionListener(new ActionListener() {
                     @Override
@@ -336,17 +304,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
                     }
                 });
 
-                JButton btn3 = new JButton("Cancelar");
-                btn2.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        doctor.getAppointments().remove(appointment);
-                    }
-                });
-
-                pnlButton.add(btn);
                 pnlButton.add(btn2);
-                pnlButton.add(btn3);
 
                 panel.add(nombre, BorderLayout.NORTH);
                 panel.add(pnlButton, BorderLayout.EAST);
@@ -408,7 +366,6 @@ public class WindowDoctor extends UserAuthenticatedWindow {
 
         }
     }
-
 
     class TablePatientEditor extends AbstractCellEditor implements TableCellEditor {
         private PatientShowButton patientShowButton;
@@ -529,20 +486,6 @@ public class WindowDoctor extends UserAuthenticatedWindow {
                 case 9 -> patient;
                 default -> null;
             };
-        }
-
-        @Override
-        public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-            Patient patient = this.patients.get(rowIndex);
-            switch (columnIndex) {
-                case 0 -> patient.setName((String) aValue);
-                case 1 -> patient.setSurname1((String) aValue);
-                case 2 -> patient.setSurname2((String) aValue);
-                case 3 -> patient.setDni((String) aValue);
-                case 4 -> patient.setEmail((String) aValue);
-                case 7 -> patient.setPhoneNumber((String) aValue);
-                case 8 -> patient.setAddress((String) aValue);
-            }
         }
 
         @Override

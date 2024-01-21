@@ -32,9 +32,7 @@ class ShowPatientWindow extends JFrame {
     private DiagnosesTableModel clinicalRecordModel;
     private JTable clinicalRecord;
     private static PostgrestClient postgrestClient;
-    private Logger logger;
     private Patient classPatient;
-    private ArrayList<JTextField> jTextFields = new ArrayList<>();
 
     public static void main(String[] args) {
         Patient patient = new Patient("00AAK", "Antonio", "Gonzalez", "Gonzalez", LocalDate.now(), Sex.MALE,
@@ -60,8 +58,6 @@ class ShowPatientWindow extends JFrame {
         String anonymousToken = configLoader.getAnonymousToken();
         postgrestClient = new PostgrestClient(hostname, endpoint, new AnonymousAuthenticationService(anonymousToken));
 
-        LoggerMaker.setlogFilePath("src/main/java/org/deustomed/logs/WindowPatient.log");
-        logger = LoggerMaker.getLogger();
 
         // ----------------------- Nombre+Apellidos (west) -------------------
         panelWest = new JPanel();
@@ -411,16 +407,26 @@ class ShowPatientWindow extends JFrame {
         this.diagnoses = new ArrayList<>(diagnoses);
     }
     @Override
-    public int getRowCount() {return diagnoses.size();}
+    public int getRowCount() {
+        return diagnoses.size();
+    }
     @Override
-    public int getColumnCount() {return cNames.length;}
+    public int getColumnCount() {
+        return cNames.length;
+    }
     @Nls
     @Override
-    public String getColumnName(int columnIndex) {return cNames[columnIndex];}
+    public String getColumnName(int columnIndex) {
+        return cNames[columnIndex];
+    }
     @Override
-    public Class<?> getColumnClass(int columnIndex) {return String.class;}
+    public Class<?> getColumnClass(int columnIndex) {
+        return String.class;
+    }
     @Override
-    public boolean isCellEditable(int rowIndex, int columnIndex) {return false;}
+    public boolean isCellEditable(int rowIndex, int columnIndex) {
+        return false;
+    }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {

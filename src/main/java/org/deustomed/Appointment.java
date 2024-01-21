@@ -13,7 +13,7 @@ public class Appointment implements Comparable<Appointment> {
     private String doctorId;
     private Patient patient;
     private Doctor doctor;
-    private LocalDateTime date;
+    private final LocalDateTime date;
     private String shortDescription;
     private String longDescription;
 
