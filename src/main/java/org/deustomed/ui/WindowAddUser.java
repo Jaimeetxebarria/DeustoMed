@@ -59,15 +59,14 @@ public class WindowAddUser extends JFrame {
         if (users.get(0) instanceof Patient) {
             patients = users.stream().map(user -> (Patient) user).collect(Collectors.toList());
             setTitle("New patient");
-            setSize(400, 390);
+            setSize(400, 410);
         } else {
             doctors = users.stream().map(user -> (Doctor) user).collect(Collectors.toList());
             setTitle("New Doctor");
-            setSize(400, 410);
+            setSize(400, 440);
         }
 
         setLayout(new BorderLayout());
-        //setResizable(false);
         setLocationRelativeTo(null);
 
         lblName = new JLabel("*Nombre:");
@@ -109,7 +108,6 @@ public class WindowAddUser extends JFrame {
             if ("date".equals(e.getPropertyName())) updateAge();
         });
 
-
         tfAge = new JTextField();
         tfAge.setEditable(false);
         tfAge.setText(String.valueOf(getAge(dateChooser.getDate())));
@@ -140,14 +138,13 @@ public class WindowAddUser extends JFrame {
 
         //Add components to the window
         JPanel pnlCenter = new JPanel(new BorderLayout());
-
+        pnlCenter.setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
         JPanel pnlPrimary = new JPanel();
         if (patients != null) {
             pnlPrimary.setLayout(new GridLayout(11, 2, 5, 5));
         } else if (doctors != null) {
             pnlPrimary.setLayout(new GridLayout(12, 2, 5, 5));
         }
-        pnlPrimary.setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
         pnlPrimary.add(lblName);
         pnlPrimary.add(tfName);
         pnlPrimary.add(lblSurname1);
@@ -191,6 +188,7 @@ public class WindowAddUser extends JFrame {
         this.add(pnlSouth, BorderLayout.SOUTH);
 
         btnSave.addActionListener(e -> {
+            //Obtain data
             String name = tfName.getText();
             String surname1 = tfSurname1.getText();
             String surname2 = tfSurname2.getText();
@@ -209,8 +207,10 @@ public class WindowAddUser extends JFrame {
                 sex = Sex.FEMALE;
             }
 
+            //Validate data
             if (!validateData()) return;
 
+            //Add users to BD
             JsonObject person = new JsonObject();
             person.addProperty("userType", patients != null ? "patient" : "doctor");
             person.addProperty("name", name);
@@ -271,6 +271,7 @@ public class WindowAddUser extends JFrame {
                 default -> throw new RuntimeException("Unexpected response code: " + response.statusCode());
             }
 
+            //Add row to the table
             DefaultTableModel model = (DefaultTableModel) tblUsers.getModel();
             String[] rowData;
             if (patients != null) {
@@ -320,7 +321,6 @@ public class WindowAddUser extends JFrame {
 
     /**
      * Validates the data introduced by the user
-     *
      * @return boolean indicating if the data is valid or not
      */
     private boolean validateData() {
@@ -367,6 +367,7 @@ public class WindowAddUser extends JFrame {
             return false;
         }
 
+        // Validate speciality
         if (doctors != null && cbSpeciality.getSelectedItem().toString().isEmpty()) {
             lblError.setText("Se requiere definir una especialidad");
             return false;
@@ -401,9 +402,7 @@ public class WindowAddUser extends JFrame {
 
     /**
      * Calculates the age of a user given the birthdate and the current date
-     *
      * @param birthday The birthday of the user
-     *
      * @return
      */
     private int getAge(Date birthday) {
@@ -418,31 +417,5 @@ public class WindowAddUser extends JFrame {
         }
 
         return age;
-    }
-
-    public static void main(String[] args) {
-        List<User> patients = new ArrayList<>();
-        patients.add(new Patient("00AAA", "Pablo", "Garcia", "Iglesias",
-                LocalDate.of(1990, 8, 12), Sex.MALE, "dni1",
-                "email1", "phone1", "address1", null));
-        patients.add(new Patient("00AAB", "Andoni", "Hernández", "Ruiz",
-                LocalDate.of(1975, 3, 1), Sex.MALE, "email2", "dni2",
-                "phone2", "address2", null));
-
-        List<User> doctors = new ArrayList<>();
-        doctors.add(new Doctor("00AAA", "Pablo", "Garcia", "Iglesias",
-                LocalDate.of(1990, 8, 12), Sex.MALE, "dni1",
-                "email1", "phone1", "address1", null, null));
-        doctors.add(new Doctor("00AAB", "Andoni", "Hernández", "Ruiz",
-                LocalDate.of(1975, 3, 1), Sex.MALE, "email2", "dni2",
-                "phone2", "address2", null, null));
-
-        FlatLightLaf.setup();
-        FlatInterFont.install();
-
-        SwingUtilities.invokeLater(() -> {
-            //new WindowAddUser(patients);
-            //new WindowAddUser(doctors);
-        });
     }
 }
