@@ -69,7 +69,7 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         postgrestClient = new PostgrestClient(hostname, endpoint, authenticationService);
 
         this.setTitle("DeustoMed");
-        this.setSize(950, 600);
+        this.setSize(1050, 600);
         this.setLocationRelativeTo(null);
         this.setLayout(new BorderLayout());
         setDefaultCloseOperation(EXIT_ON_CLOSE);

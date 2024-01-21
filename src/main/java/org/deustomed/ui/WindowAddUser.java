@@ -58,14 +58,15 @@ public class WindowAddUser extends JFrame {
         if (users.get(0) instanceof Patient) {
             patients = users.stream().map(user -> (Patient) user).collect(Collectors.toList());
             setTitle("New patient");
+            setSize(400, 390);
         } else {
             doctors = users.stream().map(user -> (Doctor) user).collect(Collectors.toList());
             setTitle("New Doctor");
+            setSize(400, 410);
         }
 
         setLayout(new BorderLayout());
         //setResizable(false);
-        setSize(400, 390);
         setLocationRelativeTo(null);
 
         lblName = new JLabel("*Nombre:");
@@ -146,7 +147,6 @@ public class WindowAddUser extends JFrame {
             pnlPrimary.setLayout(new GridLayout(12, 2, 5, 5));
         }
         pnlPrimary.setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
-
         pnlPrimary.add(lblName);
         pnlPrimary.add(tfName);
         pnlPrimary.add(lblSurname1);
