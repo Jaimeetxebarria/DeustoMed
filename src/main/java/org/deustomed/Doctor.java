@@ -132,7 +132,7 @@ public class Doctor extends User {
 
     public static ArrayList<String> loadSpecialistPatientIDs(String doctorID, PostgrestClient postgrestClient, boolean treated) {
         ArrayList<String> resultArrayList = new ArrayList<>();
-
+        System.out.println("doctor :"+doctorID);
         String sTreated = (treated) ? "TRUE" : "FALSE";
         PostgrestQuery query = postgrestClient
                 .from("in_treatment_patients")
@@ -143,10 +143,12 @@ public class Doctor extends User {
 
         JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
 
+
         for (int i = 0; i < jsonArray.size(); i++) {
             JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
-            String id = jsonObject.get("id").getAsString();
+            String id = jsonObject.get("patient_id").getAsString();
             resultArrayList.add(id);
+
         }
 
         return resultArrayList;

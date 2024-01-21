@@ -41,15 +41,15 @@ public class Diagnosis {
         PostgrestQuery query = postgrestClient
                 .from("diagnosis_medication")
                 .select("*")
-                .eq("diagnosisID", String.valueOf(diagnosisID))
-                .eq("prescribed/retired", prescribedString)
+                .eq("diagnosis_id", String.valueOf(diagnosisID))
+                .eq("add_or_remove", prescribedString)
                 .getQuery();
 
         JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
 
         for (int i = 0; i < jsonArray.size(); i++) {
             JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
-            int id = jsonObject.get("id").getAsInt();
+            int id = jsonObject.get("medication_id").getAsInt();
 
             PostgrestQuery query2 = postgrestClient
                     .from("medication")
@@ -81,18 +81,18 @@ public class Diagnosis {
         PostgrestQuery query = postgrestClient
                 .from("diagnosis_disease")
                 .select("*")
-                .eq("diagnosisID", String.valueOf(diagnosisID))
-                .eq("daignosed/cured", diagnosedString)
+                .eq("diagnosis_id", String.valueOf(diagnosisID))
+                .eq("add_or_remove", diagnosedString)
                 .getQuery();
 
         JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
 
         for (int i = 0; i < jsonArray.size(); i++) {
             JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
-            int id = jsonObject.get("id").getAsInt();
+            int id = jsonObject.get("disease_id").getAsInt();
 
             PostgrestQuery query2 = postgrestClient
-                    .from("medication")
+                    .from("disease")
                     .select("*")
                     .eq("id", String.valueOf(id))
                     .getQuery();
@@ -101,7 +101,7 @@ public class Diagnosis {
             JsonObject jsonObject2 = jsonArray2.get(0).getAsJsonObject();
 
             String name = jsonObject2.get("name").getAsString();
-            boolean chronic = jsonObject2.get("name").getAsBoolean();
+            boolean chronic = jsonObject2.get("chronic").getAsBoolean();
             boolean hereditary = jsonObject2.get("hereditary").getAsBoolean();
 
             Disease newDisease = new Disease(id, name, chronic, hereditary);

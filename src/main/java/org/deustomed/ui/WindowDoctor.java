@@ -75,13 +75,13 @@ public class WindowDoctor extends UserAuthenticatedWindow {
                 "consulta con paciente"));
         ArrayList<Patient> patients = new ArrayList<>();
         patients.add(patient1);
-        // TODO: 19/12/23 ajustar instancia a constructor
+
         Doctor doctor1 = new Doctor("00AAB", "Carlos", "Rodriguez", "Martinez", LocalDate.now(), Sex.MALE,
                 "12345A", "carlosrodri@gmail.com", "293472349", "Calle Random", "Medicina Familiar", appoinments);
 
         ConfigLoader configLoader = new ConfigLoader();
 
-        WindowDoctor win = new WindowDoctor("00AAG", new AnonymousAuthenticationService(configLoader.getAnonymousToken()));
+        WindowDoctor win = new WindowDoctor("00AAA", new AnonymousAuthenticationService(configLoader.getAnonymousToken()));
         win.setVisible(true);
     }
 
@@ -214,14 +214,16 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         } else {
             ArrayList<String> treatedPatientsIDs = Doctor.loadSpecialistPatientIDs(doctor.getId(), postgrestClient, true);
             doctor.setTreatedPatients(treatedPatientsIDs);
+
             treatedPatients = doctor.loadPatients(postgrestClient, 2);
+
             TableModelPatient tmp2 = new TableModelPatient(treatedPatients);
             tableTreatedPatient = new JTable(tmp2);
             tableTreatedPatient.setDefaultRenderer(Patient.class, new TablePatientRenderer());
             tableTreatedPatient.setDefaultEditor(Patient.class, new TablePatientEditor());
             JScrollPane spTableTreatedPatients = new JScrollPane(tableTreatedPatient);
 
-            ArrayList<String> inTreatmentPatientsIDs = Doctor.loadSpecialistPatientIDs(doctor.getId(), postgrestClient, true);
+            ArrayList<String> inTreatmentPatientsIDs = Doctor.loadSpecialistPatientIDs(doctor.getId(), postgrestClient, false);
             doctor.setTreatedPatients(inTreatmentPatientsIDs);
             inTreatmentPatients = doctor.loadPatients(postgrestClient, 3);
             TableModelPatient tmp3 = new TableModelPatient(inTreatmentPatients);

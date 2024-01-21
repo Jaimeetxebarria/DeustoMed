@@ -7,10 +7,14 @@ import org.deustomed.authentication.AnonymousAuthenticationService;
 import org.deustomed.logs.LoggerMaker;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
+import org.jetbrains.annotations.Nls;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,7 +29,7 @@ class ShowPatientWindow extends JFrame {
     private DefaultListModel<Disease> patientDiseaseModel;
     private JList<Medication> patientTreatments;
     private DefaultListModel<Medication> patientTreatmentsModel;
-    private DefaultTableModel clinicalRecordModel;
+    private DiagnosesTableModel clinicalRecordModel;
     private JTable clinicalRecord;
     private static PostgrestClient postgrestClient;
     private Logger logger;
@@ -226,7 +230,8 @@ class ShowPatientWindow extends JFrame {
         pnlCenter.add(pnlClinicalInfo, BorderLayout.CENTER);
 
         // ----------------------- Información HISTORIAL MÉDICO del paciente (CENTER + south) -------------------
-        clinicalRecordModel = new DefaultTableModel();
+        ArrayList<Diagnosis> diagnoses = loadPatientMedicalRecord(patient.getId(), postgrestClient);
+        clinicalRecordModel = new DiagnosesTableModel(diagnoses);
         clinicalRecord = new JTable(clinicalRecordModel);
 
         JScrollPane scpClinicalRecord = new JScrollPane(clinicalRecord);
@@ -371,10 +376,10 @@ class ShowPatientWindow extends JFrame {
                 String fk_patient_id = jsonObject1.get("fk_patient_id").getAsString();
                 String summary = jsonObject1.get("summary").getAsString();
                 String dateString = jsonObject1.get("date").getAsString();
-                LocalDateTime date = LocalDateTime.parse(dateString, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                LocalDateTime date = LocalDateTime.parse(dateString, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
 
                 PostgrestQuery queryAppointment = postgrestClient
-                        .from("appointment")
+                        .from("appointment_with_type")
                         .select("*")
                         .eq("fk_doctor_id", fk_doctor_id)
                         .eq("fk_patient_id",fk_patient_id)
@@ -382,11 +387,12 @@ class ShowPatientWindow extends JFrame {
                         .getQuery();
 
                 JsonArray jsonArrayAppointment = postgrestClient.sendQuery(queryAppointment).getAsJsonArray();
-                JsonObject jsonObject2 = jsonArrayAppointment.get(i).getAsJsonObject();
+                JsonObject jsonObject2 = jsonArrayAppointment.get(0).getAsJsonObject();
 
                 Appointment a = new Appointment(fk_patient_id, fk_doctor_id, date,
-                        jsonObject2.get("reason").getAsString(),
-                        jsonObject2.get("shortdescription").getAsString()
+                        "Cita de carácter "+jsonObject2.get("appointment_type").getAsString(),
+                        jsonObject2.get("reason").getAsString()
+
                 );
 
                 Diagnosis newDiagnosis = new Diagnosis( a, fk_patient_id, fk_doctor_id, summary,
@@ -397,5 +403,55 @@ class ShowPatientWindow extends JFrame {
             }
         }
         return resultList;
+    }
+} class DiagnosesTableModel extends AbstractTableModel {
+    ArrayList<Diagnosis> diagnoses;
+    String[] cNames = {"Doctor", "Fecha", "Diagnosticado", "Dado de alta", "Recetado", "Retirado", "Resumen"};
+    DiagnosesTableModel(ArrayList<Diagnosis> diagnoses) {
+        this.diagnoses = new ArrayList<>(diagnoses);
+    }
+    @Override
+    public int getRowCount() {return diagnoses.size();}
+    @Override
+    public int getColumnCount() {return cNames.length;}
+    @Nls
+    @Override
+    public String getColumnName(int columnIndex) {return cNames[columnIndex];}
+    @Override
+    public Class<?> getColumnClass(int columnIndex) {return String.class;}
+    @Override
+    public boolean isCellEditable(int rowIndex, int columnIndex) {return false;}
+
+    @Override
+    public Object getValueAt(int rowIndex, int columnIndex) {
+        Diagnosis d;
+        try {
+            d = this.diagnoses.get(rowIndex);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        StringBuilder diagnosed = new StringBuilder();
+        for(Disease disease: d.getDiagnosedDiseases()) {diagnosed.append(disease.getName()).append("; ");};
+
+        StringBuilder cured = new StringBuilder();
+        for(Disease disease: d.getCuredDiseases()) {cured.append(disease.getName()).append("; ");};
+
+        StringBuilder prescribed = new StringBuilder();
+        for(Medication m: d.getPrescribedMedication()) {prescribed.append(m.getCommercialName()).append("; ");};
+
+        StringBuilder retired = new StringBuilder();
+        for(Medication m: d.getRetiredMedication()) {retired.append(m.getCommercialName()).append("; ");};
+
+        return switch (columnIndex) {
+            case 0 -> d.getDoctor();
+            case 1 -> d.getAppointment().getDate()+"";
+            case 2 -> diagnosed.toString();
+            case 3 -> cured.toString();
+            case 4 -> prescribed.toString();
+            case 5 -> retired.toString();
+            case 6 -> d.getSummary();
+
+            default -> null;
+        };
     }
 }
