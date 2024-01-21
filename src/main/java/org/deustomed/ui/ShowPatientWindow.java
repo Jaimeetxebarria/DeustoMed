@@ -269,7 +269,7 @@ class ShowPatientWindow extends JFrame {
                 JsonArray jsonArrayDisease = postgrestClient.sendQuery(queryDisease).getAsJsonArray();
 
                 for (int j = 0; j < jsonArrayDisease.size(); j++) {
-                    JsonObject jsonObject = jsonArray.get(j).getAsJsonObject();
+                    JsonObject jsonObject = jsonArrayDisease.get(j).getAsJsonObject();
                     int disease_id = jsonObject.get("id").getAsInt();
                     String name = jsonObject.get("name").getAsString();
                     String chronic = jsonObject.get("chronic").getAsString();
@@ -291,7 +291,7 @@ class ShowPatientWindow extends JFrame {
         ArrayList<Medication> resultList = new ArrayList<>();
         PostgrestQuery query = postgrestClient
                 .from("patient_undergoes_treatment")
-                .select("medication_id")
+                .select("fk_medication_id")
                 .eq("fk_patient_id", id)
                 .getQuery();
 
@@ -300,7 +300,7 @@ class ShowPatientWindow extends JFrame {
         if (!jsonArray.isEmpty()) {
             for (int i = 0; i < jsonArray.size(); i++) {
                 JsonObject jsonObject1 = jsonArray.get(i).getAsJsonObject();
-                String treatmentID = jsonObject1.get("medication_id").getAsString();
+                String treatmentID = jsonObject1.get("fk_medication_id").getAsString();
                 PostgrestQuery queryTreatment = postgrestClient
                         .from("medication")
                         .select("*")

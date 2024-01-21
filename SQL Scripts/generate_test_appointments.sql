@@ -1,6 +1,14 @@
 insert into appointment_type values (1,'General');
 
-insert into appointment(id, date, reason, fk_patient_id, fk_doctor_id, fk_appointment_type_id) values
-('1', '2024-12-01 14:30', 'Malestar general', '00AAK', '00AAH', '1'),
-('2', '2024-01-16 18:45', 'Revision', '00AAK', '00AAJ', '1'),
-('3', '2024-03-25 10:00', 'Vacuna', '00AAK', '00AAH', '1');
+insert into appointment (reason, fk_patient_id, fk_doctor_id, fk_appointment_type_id, date) values
+    ('Malestar general', '00AAK', '00AAH', 1, '2024-12-01 14:30'),
+    ('Revisión', '00AAK', '00AAJ', 1, '2024-12-01 14:30'),
+    ('Vacuna', '00AAK', '00AAH', 1, '2024-12-01 14:30'),
+    ('Dolor abdominal', '00ABA', '00AAG', 1, '2024-01-22T12:30:00Z'),
+    ('Nauseas severas', '00ABB', '00AAG', 1, '2024-01-22T13:00:00Z'),
+    ('Dolor muscular en la rodilla', '00ABC', '00AAG', 1, '2024-01-22T13:30:00Z'),
+    ('Malestar general', '00ABA', '00AAG', 1, '2024-01-22T12:34:56Z'),
+    ('Resfriado con fuerte dolor de garganta', '00ABE', '00AAG', 1, '2024-01-22T14:00:00Z'),
+    ('Vértigos repentinos', '00ABF', '00AAG', 1, '2024-01-22T14:15:00Z'),
+    ('Dolor de oido y falta de audición', '00ABG', '00AAG', 1, '2024-01-22T14:30:00'),
+    ('Falta de motrizidad en la pierna derecha', '00ABH', '00AAG', 1, '2024-01-22T14:45:00Z');

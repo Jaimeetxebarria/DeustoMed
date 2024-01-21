@@ -1,5 +1,6 @@
 package org.deustomed.ui;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.deustomed.Appointment;
@@ -193,11 +194,13 @@ public class WindowDiagnosis extends JFrame {
         registerDiagnosis.addActionListener((ActionEvent e) -> {
             Diagnosis diagnosis = new Diagnosis(appointment, patient, appointment.getDoctorId(), textAreaSummary.getText(), prescribedMedication, retiredMedication, diagnosedDiseases, curedDiseases);
             checkLists();
-            curedDiseases.forEach( d -> removePatientRelation(patient.getId(), d.getId(), true));
-            diagnosedDiseases.forEach( d -> updatePatientRelation(patient.getId(), d.getId(), true));
-            retiredMedication.forEach( m -> removePatientRelation(patient.getId(), m.getId(), false));
-            prescribedMedication.forEach( m -> updatePatientRelation(patient.getId(), m.getId(), false));
-            registerDiagnosis(diagnosis);
+            int newDiagnosisID = registerDiagnosis(diagnosis);
+
+            Diagnosis.updateDiagnosisRelations(newDiagnosisID, patient.getId(), curedDiseases, null, true, false, postgrestClient);
+            Diagnosis.updateDiagnosisRelations(newDiagnosisID, patient.getId(), diagnosedDiseases, null, true, true, postgrestClient);
+            Diagnosis.updateDiagnosisRelations(newDiagnosisID, patient.getId(), null, retiredMedication, false, false, postgrestClient);
+            Diagnosis.updateDiagnosisRelations(newDiagnosisID, patient.getId(), null, prescribedMedication, false, true, postgrestClient);
+
             patient.getMedicalRecord().add(diagnosis);
         });
 
@@ -213,38 +216,6 @@ public class WindowDiagnosis extends JFrame {
         this.add(panelDiagnosisSummary, BorderLayout.SOUTH);
     }
 
-    public static void removePatientRelation (String patientID, int relationID, boolean disease) {
-        String additionalFK = (disease) ? "fk_disease_id" : "medication_id";
-        String table = (disease) ? "patient_suffers_disease" : "patient_undergoes_treatment";
-
-        PostgrestQuery query = postgrestClient
-                .from(table)
-                .delete()
-                .eq("fk_patient_id", patientID)
-                .eq(additionalFK, String.valueOf(relationID))
-                .getQuery();
-
-        //postgrestClient.sendQuery(query);
-        System.out.println("Remove anwser: "+String.valueOf(postgrestClient.sendQuery(query)));
-    }
-
-    public static void updatePatientRelation (String patientID, int relationID, boolean disease) {
-        String additionalFK = (disease) ? "fk_disease_id" : "medication_id";
-        String table = (disease) ? "patient_suffers_disease" : "patient_undergoes_treatment";
-
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("fk_patient_id", patientID);
-        jsonObject.addProperty(additionalFK, relationID);
-
-        PostgrestQuery query = postgrestClient
-                .from(table)
-                .insert(jsonObject)
-                .select()
-                .getQuery();
-
-        //postgrestClient.sendQuery(query);
-        System.out.println(String.valueOf(postgrestClient.sendQuery(query)));
-    }
 
     private void checkLists() {
         ArrayList<Disease> repetedDiseases = new ArrayList<>();
@@ -268,9 +239,9 @@ public class WindowDiagnosis extends JFrame {
             prescribedMedication.remove(m);
         });
     }
-    public static void registerDiagnosis (Diagnosis diagnosis) {
+    public static int registerDiagnosis (Diagnosis diagnosis) {
         JsonObject jsonObject = new JsonObject();
-        System.out.println(diagnosis.getDoctor());
+        System.out.println("Doctor id: "+diagnosis.getDoctor());
         jsonObject.addProperty("fk_doctor_id", diagnosis.getDoctor());
         jsonObject.addProperty("fk_patient_id", diagnosis.getPatient().getId());
         jsonObject.addProperty("summary", diagnosis.getSummary());
@@ -281,7 +252,10 @@ public class WindowDiagnosis extends JFrame {
                 .select()
                 .getQuery();
 
-        //postgrestClient.sendQuery(query);
-        System.out.println(String.valueOf(postgrestClient.sendQuery(query)));
+        JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
+        JsonObject jsonObject2 = jsonArray.get(0).getAsJsonObject();
+        int newDiagnosisID = jsonObject2.get("id").getAsInt();
+
+        return newDiagnosisID;
     }
 }

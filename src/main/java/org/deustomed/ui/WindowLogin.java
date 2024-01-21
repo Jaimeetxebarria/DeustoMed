@@ -122,7 +122,7 @@ public class WindowLogin extends JFrame {
                             break;
                         case 'D':
                             userAuthenticationService.login(id, password, UserType.DOCTOR);
-                            new WindowDoctor(new Doctor(id, postgrestClient), userAuthenticationService);
+                            new WindowDoctor(id, userAuthenticationService);
                             dispose();
                             break;
                         case 'A':

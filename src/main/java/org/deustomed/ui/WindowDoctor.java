@@ -12,6 +12,7 @@ import org.deustomed.logs.LoggerMaker;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
 import org.deustomed.postgrest.authentication.PostgrestAuthenticationService;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
@@ -37,7 +38,7 @@ import java.util.EventObject;
 import java.util.logging.Logger;
 
 public class WindowDoctor extends UserAuthenticatedWindow {
-    private static Doctor doctor;
+    private Doctor doctor;
     private final JPanel pnlInfo;
     private JPanel pnlCentral;
     private final JPanel pnlAppointments;
@@ -80,18 +81,42 @@ public class WindowDoctor extends UserAuthenticatedWindow {
                 "12345A", "carlosrodri@gmail.com", "293472349", "Calle Random", "Medicina Familiar", appoinments);
 
         ConfigLoader configLoader = new ConfigLoader();
-        WindowDoctor win = new WindowDoctor(doctor1, new AnonymousAuthenticationService(configLoader.getAnonymousToken()));
+
+        WindowDoctor win = new WindowDoctor("00AAG", new AnonymousAuthenticationService(configLoader.getAnonymousToken()));
         win.setVisible(true);
     }
 
-    public WindowDoctor(Doctor doctor, PostgrestAuthenticationService authenticationService) {
+    public WindowDoctor(String doctorID, PostgrestAuthenticationService authenticationService) {
         super(authenticationService instanceof UserAuthenticationService ? (UserAuthenticationService) authenticationService : null);
+
+        ConfigLoader configLoader = new ConfigLoader();
+        postgrestClient = new PostgrestClient(configLoader.getHostname(), configLoader.getEndpoint(), authenticationService);
+        PostgrestQuery query = postgrestClient
+                .from("doctor_with_personal_data")
+                .select("*")
+                .eq("id", doctorID)
+                .getQuery();
+
+        JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
+        JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
+        String nameS = jsonObject.get("name").getAsString();
+        String surname1s = jsonObject.get("surname1").getAsString();
+        String surname2s = jsonObject.get("surname2").getAsString();
+        String dateString = jsonObject.get("birthdate").getAsString();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse(dateString, formatter);
+        String sexString = jsonObject.get("sex").getAsString();
+        Sex sex = (sexString.equals("MALE")) ? Sex.MALE : Sex.FEMALE;
+        String dni = jsonObject.get("dni").getAsString();
+        String email = jsonObject.get("email").getAsString();
+        String phoneNumber = jsonObject.get("phone").getAsString();
+        String address = jsonObject.get("address").getAsString();
+        String speciality = jsonObject.get("speciality").getAsString();
+
+        this.doctor = new Doctor(doctorID, nameS, surname1s, surname2s, date, sex, dni, email , phoneNumber, address, speciality, Doctor.loadDoctorAppointments(postgrestClient, doctorID));
 
         loadingWindow = new LoadingWindow(doctor.getName() + " " + doctor.getSurname1() + " " + doctor.getSurname2() + " ");
         loadingWindow.setVisible(true);
-        ConfigLoader configLoader = new ConfigLoader();
-        postgrestClient = new PostgrestClient(configLoader.getHostname(), configLoader.getEndpoint(), authenticationService);
-        WindowDoctor.doctor = doctor;
 
         screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setBounds((int) screenSize.getWidth() / 4, (int) screenSize.getHeight() / 4, (int) screenSize.getWidth(), (int) screenSize.getHeight());
@@ -540,36 +565,6 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         }
     }
 
-    public ArrayList<Appointment> loadDoctorAppointments(String doctorID) {
-        ArrayList<Appointment> resultArrayList = new ArrayList<>();
-
-        PostgrestQuery query = postgrestClient
-                .from("appointment")
-                .select("*")
-                .eq("fk_doctor_id", doctorID)
-                .getQuery();
-
-        JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
-
-        for (int i = 0; i < jsonArray.size(); i++) {
-            JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
-
-            String reason = jsonObject.get("reason").getAsString();
-            String dateString = jsonObject.get("date").getAsString();
-            Patient appointmentPatient = getPatientWithThisID("");
-
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            LocalDateTime localDateTime = LocalDateTime.parse(dateString, formatter);
-
-            Appointment newAppointment = new Appointment(appointmentPatient.getId(), null, localDateTime, reason, "");
-            resultArrayList.add(newAppointment);
-        }
-        return resultArrayList;
-    }
-
-    public Patient getPatientWithThisID(String id) {
-        throw new UnsupportedOperationException("getPatientWithThisID not implemented yet");
-    }
 
     class LoadingWindow extends JFrame {
         private static Thread t;
@@ -578,7 +573,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
             screenSize = Toolkit.getDefaultToolkit().getScreenSize();
             setBounds((int) screenSize.getWidth() / 2 - 200, (int) screenSize.getHeight() / 2 - 60, 400, 120);
             JPanel labelPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-            Border emptyBorder = BorderFactory.createEmptyBorder(30, 40, 0,0);
+            Border emptyBorder = BorderFactory.createEmptyBorder(30, 40, 0, 0);
             labelPanel.setBorder(emptyBorder);
             String[] states = {"Cargando datos del registro de pacientes .", "Cargando datos del registro de pacientes ..", "Cargando datos del registro de pacientes ...",
                     "Cargando datos del registro de pacientes ....", "Cargando datos del registro de pacientes ....."};
@@ -608,6 +603,8 @@ public class WindowDoctor extends UserAuthenticatedWindow {
 
         public static void stopThread() {
             t.interrupt();
-        };
+        }
+
+        ;
     }
 }

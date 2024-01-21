@@ -124,11 +124,6 @@ insert into doctor_schedule (doctor_id, day_of_week, start_time, end_time) value
 
 INSERT INTO patient (id, fk_doctor_id)
 VALUES
-('00AAF', '00AAB'),
-('00AAG', '00AAB'),
-('00AAH', '00AAE'),
-('00AAI', '00AAD'),
-('00AAJ', '00AAE'),
 ('00AAK', '00AAB'),
 ('00AAL', '00AAF'),
 ('00AAM', '00AAI'),
@@ -145,11 +140,14 @@ VALUES
 ('00AAX', '00AAA'),
 ('00AAY', '00AAA'),
 ('00AAZ', '00AAE'),
-('00ABA', '00AAB'),
-('00ABB', '00AAB'),
-('00ABC', '00AAC'),
-('00ABD', '00AAF'),
-('00ABE', '00AAE');
+('00ABA', '00AAG'),
+('00ABB', '00AAG'),
+('00ABC', '00AAG'),
+('00ABD', '00AAG'),
+('00ABE', '00AAG'),
+('00ABF', '00AAG'),
+('00ABG', '00AAG'),
+('00ABH', '00AAG');
 
 -- insert into medication
 insert into medication (activesubstance, commercialname, stock, dose, company, shortdescription) values

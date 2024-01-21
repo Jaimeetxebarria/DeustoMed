@@ -74,10 +74,10 @@ public class Diagnosis {
         return resultArrayList;
     }
 
-    public static ArrayList<Disease> loadDiagnosisDiseases(int diagnosisID, PostgrestClient postgrestClient, boolean diagnosed) {
+    public static ArrayList<Disease> loadDiagnosisDiseases(int diagnosisID, PostgrestClient postgrestClient, boolean addOrRemove) {
         ArrayList<Disease> resultArrayList = new ArrayList<>();
 
-        String diagnosedString = (diagnosed) ? "TRUE" : "FALSE";
+        String diagnosedString = (addOrRemove) ? "TRUE" : "FALSE";
         PostgrestQuery query = postgrestClient
                 .from("diagnosis_disease")
                 .select("*")
@@ -111,14 +111,16 @@ public class Diagnosis {
         return resultArrayList;
     }
 
-    public static void updateDiagnosisRelations(int diagnosisID, ArrayList<Disease> diseases, ArrayList<Medication> medications, boolean diseaseOrMedication, boolean addOrRemove, PostgrestClient postgrestClient) {
+    public static void updateDiagnosisRelations(int diagnosisID, String patientID, ArrayList<Disease> diseases, ArrayList<Medication> medications, boolean diseaseOrMedication, boolean addOrRemove, PostgrestClient postgrestClient) {
         String additionalKey = (diseaseOrMedication) ? "disease_id" : "medication_id";
         String table = (diseaseOrMedication) ? "diagnosis_disease" : "diagnosis_medication";
+
         if (diseaseOrMedication) {
             for (Disease d : diseases) {
                 JsonObject jsonObject = new JsonObject();
                 jsonObject.addProperty("diagnosis_id", diagnosisID);
                 jsonObject.addProperty(additionalKey, d.getId());
+                jsonObject.addProperty("add_or_remove", addOrRemove);
 
                 PostgrestQuery query = postgrestClient
                         .from(table)
@@ -127,12 +129,18 @@ public class Diagnosis {
                         .getQuery();
 
                 System.out.println(String.valueOf(postgrestClient.sendQuery(query)));
+                if(addOrRemove){
+                    updatePatientRelation(patientID, d.getId(), true, postgrestClient);
+                } else {
+                    removePatientRelation(patientID, d.getId(), true, postgrestClient);
+                }
             }
         } else {
             for (Medication m : medications) {
                 JsonObject jsonObject = new JsonObject();
                 jsonObject.addProperty("diagnosis_id", diagnosisID);
                 jsonObject.addProperty(additionalKey, m.getId());
+                jsonObject.addProperty("add_or_remove", addOrRemove);
 
                 PostgrestQuery query = postgrestClient
                         .from(table)
@@ -141,7 +149,45 @@ public class Diagnosis {
                         .getQuery();
 
                 System.out.println(String.valueOf(postgrestClient.sendQuery(query)));
+                if(addOrRemove){
+                    updatePatientRelation(patientID, m.getId(), false, postgrestClient);
+                } else {
+                    removePatientRelation(patientID, m.getId(), false, postgrestClient);
+                }
             }
         }
+    }
+
+    public static void removePatientRelation (String patientID, int relationID, boolean diseaseOrMedication, PostgrestClient postgrestClient) {
+        String additionalFK = (diseaseOrMedication) ? "fk_disease_id" : "fk_medication_id";
+        String table = (diseaseOrMedication) ? "patient_suffers_disease" : "patient_undergoes_treatment";
+
+        PostgrestQuery query = postgrestClient
+                .from(table)
+                .delete()
+                .eq("fk_patient_id", patientID)
+                .eq(additionalFK, String.valueOf(relationID))
+                .getQuery();
+
+        //postgrestClient.sendQuery(query);
+        System.out.println("Remove anwser: "+String.valueOf(postgrestClient.sendQuery(query)));
+    }
+
+    public static void updatePatientRelation (String patientID, int relationID, boolean diseaseOrMedication, PostgrestClient postgrestClient) {
+        String additionalFK = (diseaseOrMedication) ? "fk_disease_id" : "fk_medication_id";
+        String table = (diseaseOrMedication) ? "patient_suffers_disease" : "patient_undergoes_treatment";
+
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("fk_patient_id", patientID);
+        jsonObject.addProperty(additionalFK, relationID);
+
+        PostgrestQuery query = postgrestClient
+                .from(table)
+                .insert(jsonObject)
+                .select()
+                .getQuery();
+
+        //postgrestClient.sendQuery(query);
+        System.out.println(String.valueOf(postgrestClient.sendQuery(query)));
     }
 }

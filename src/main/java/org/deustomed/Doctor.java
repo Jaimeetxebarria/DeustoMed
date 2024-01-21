@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -181,6 +182,44 @@ public class Doctor extends User {
             }
         }
 
+        return resultArrayList;
+    }
+
+    public static ArrayList<Appointment> loadDoctorAppointments(PostgrestClient postgrestClient, String doctorID) {
+        ArrayList<Appointment> resultArrayList = new ArrayList<>();
+
+        PostgrestQuery query = postgrestClient
+                .from("appointment")
+                .select("*")
+                .eq("fk_doctor_id", doctorID)
+                .getQuery();
+
+        JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
+
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
+
+            String patient_id = jsonObject.get("fk_patient_id").getAsString();
+            String doctor_id = jsonObject.get("fk_doctor_id").getAsString();
+            String reason = jsonObject.get("reason").getAsString();
+            int type = jsonObject.get("fk_appointment_type_id").getAsInt();
+            PostgrestQuery query2 = postgrestClient
+                    .from("appointment_type")
+                    .select("name")
+                    .eq("id", String.valueOf(type))
+                    .getQuery();
+            JsonArray jsonArray2 = postgrestClient.sendQuery(query2).getAsJsonArray();
+            JsonObject jsonObject2 = jsonArray2.get(0).getAsJsonObject();
+            String typeName = jsonObject2.get("name").getAsString();
+
+
+            String dateString = jsonObject.get("date").getAsString();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+            LocalDateTime date = LocalDateTime.parse(dateString, formatter);
+
+            Appointment newAppointment = new Appointment(patient_id, doctor_id, date, "Cita de catacter " + typeName, reason);
+            resultArrayList.add(newAppointment);
+        }
         return resultArrayList;
     }
 
