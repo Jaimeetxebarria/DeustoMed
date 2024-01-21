@@ -10,6 +10,7 @@ import org.deustomed.Doctor;
 import org.deustomed.Patient;
 import org.deustomed.User;
 import org.deustomed.authentication.AnonymousAuthenticationService;
+import org.deustomed.authentication.SuperuserAuthenticationService;
 import org.deustomed.authentication.UserAuthenticationService;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
@@ -585,7 +586,7 @@ public class WindowAdmin extends UserAuthenticatedWindow {
         FlatInterFont.install();
 
         ConfigLoader configLoader = new ConfigLoader();
-        SwingUtilities.invokeLater(() -> new WindowAdmin(new AnonymousAuthenticationService(configLoader.getAnonymousToken())));
+        SwingUtilities.invokeLater(() -> new WindowAdmin(new SuperuserAuthenticationService(configLoader.getAnonymousToken(), configLoader.getSuperuserToken())));
     }
 }
 
