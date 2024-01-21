@@ -2,19 +2,17 @@ package org.deustomed.ui;
 
 import com.formdev.flatlaf.FlatLightLaf;
 import com.formdev.flatlaf.fonts.inter.FlatInterFont;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.toedter.calendar.JDateChooser;
-import org.deustomed.*;
+import org.deustomed.Appointment;
+import org.deustomed.ConfigLoader;
+import org.deustomed.Doctor;
+import org.deustomed.Patient;
 import org.deustomed.authentication.AnonymousAuthenticationService;
 import org.deustomed.authentication.UserAuthenticationService;
-import org.deustomed.logs.LoggerMaker;
 import org.deustomed.postgrest.PostgrestClient;
-import org.deustomed.postgrest.PostgrestQuery;
 import org.deustomed.postgrest.authentication.PostgrestAuthenticationService;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.TableModelListener;
@@ -26,13 +24,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.geom.Ellipse2D;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.EventObject;
 import java.util.*;
-import java.util.logging.Logger;
 
 public class WindowDoctor extends UserAuthenticatedWindow {
     private Doctor doctor;
@@ -55,22 +54,6 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         FlatLightLaf.setup();
         FlatInterFont.install();
 
-        org.deustomed.Patient patient1 = new org.deustomed.Patient("00AAA", "Paciente1", "Surname1", "Surname2",
-                LocalDate.now(), Sex.MALE, "12345678A", "paciente1@email.com", "019283712094",
-                "Calle de Ciudad", new ArrayList<>());
-        ArrayList<Appointment> appoinments = new ArrayList<>();
-        appoinments.add(new Appointment(patient1.getId(), "doctor.getId()", LocalDateTime.of(2024, 1, 8, 12, 0), "Cita por dolor abdominal intenso", "Cita " +
-                "consulta con paciente"));
-        appoinments.add(new Appointment(patient1.getId(), "doctor.getId()", LocalDateTime.of(2024, 1, 8, 12, 30), "Cita por infección auditiva", "Cita " +
-                "consulta con paciente"));
-        appoinments.add(new Appointment(patient1.getId(), "doctor.getId()", LocalDateTime.of(2024, 1, 8, 13, 0), "Cita por malestar general", "Cita " +
-                "consulta con paciente"));
-        ArrayList<Patient> patients = new ArrayList<>();
-        patients.add(patient1);
-
-        Doctor doctor1 = new Doctor("00AAB", "Carlos", "Rodriguez", "Martinez", LocalDate.now(), Sex.MALE,
-                "12345A", "carlosrodri@gmail.com", "293472349", "Calle Random", "Medicina Familiar", appoinments);
-
         ConfigLoader configLoader = new ConfigLoader();
         WindowDoctor winFamilyDoctor = new WindowDoctor("00AAG", new AnonymousAuthenticationService(configLoader.getAnonymousToken()));
         winFamilyDoctor.setVisible(true);
@@ -91,15 +74,11 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         this.doctor = new Doctor(doctorID, postgrestClient);
 
         screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setBounds((int) screenSize.getWidth() / 4, (int) screenSize.getHeight() / 4, (int) screenSize.getWidth(), (int) screenSize.getHeight());
+        setBounds((int) screenSize.getWidth() / 4, (int) screenSize.getHeight() / 4,
+                (int) screenSize.getWidth(), (int) screenSize.getHeight());
         setLayout(new BorderLayout());
 
-        Comparator<Appointment> appointmentComparator = new Comparator<Appointment>() {
-            @Override
-            public int compare(Appointment o1, Appointment o2) {
-                return o1.getDate().compareTo(o2.getDate());
-            }
-        };
+        Comparator<Appointment> appointmentComparator = (o1, o2) -> o1.getDate().compareTo(o2.getDate());
 
         doctor.getAppointments().sort(appointmentComparator);
 
@@ -242,14 +221,14 @@ public class WindowDoctor extends UserAuthenticatedWindow {
                 Date newDate = (Date) e.getNewValue();
                 System.out.println("Selected date changed to: " + newDate);
                 selectedDate = newDate;
-                visualiseAppoinments(newDate);
+                visualiseAppointments(newDate);
             }
         });
         dateChooser.setPreferredSize(new Dimension(200, 25));
         pnlDateChooser.add(dateChooser);
         pnlAppointments.add(pnlDateChooser, BorderLayout.NORTH);
 
-        visualiseAppoinments(new Date());
+        visualiseAppointments(new Date());
 
         this.addWindowListener(new WindowAdapter() {
             @Override
@@ -264,7 +243,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
     }
 
-    public void visualiseAppoinments(Date date) {
+    public void visualiseAppointments(Date date) {
         pnlDisplayAppoinments.removeAll();
         pnlDisplayAppoinments.updateUI();
         JPanel pnlModApp = new JPanel();
@@ -287,7 +266,8 @@ public class WindowDoctor extends UserAuthenticatedWindow {
                 panel.setBorder(border);
                 Patient pat = appointment.getPatient(postgrestClient);
                 nombre.setLayout(new BoxLayout(nombre, BoxLayout.Y_AXIS));
-                JLabel appointmentDate = new JLabel("                            " + capitalizeFirstLetter(ldt.getDayOfWeek().toString()) + ", " + ldt.getDayOfMonth() + " " + capitalizeFirstLetter(ldt.getMonth().toString()) + " " + ldt.toLocalTime());
+                JLabel appointmentDate = new JLabel("                            " + capitalizeFirstLetter(ldt.getDayOfWeek().toString()) +
+                        ", " + ldt.getDayOfMonth() + " " + capitalizeFirstLetter(ldt.getMonth().toString()) + " " + ldt.toLocalTime());
                 JLabel name = new JLabel(pat.getName() + " " + pat.getSurname1() + " " + pat.getSurname2());
                 name.setHorizontalAlignment(SwingConstants.LEFT);
                 name.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -351,15 +331,16 @@ public class WindowDoctor extends UserAuthenticatedWindow {
     }
 
 
-    class TablePatientRenderer extends DefaultTableCellRenderer {
+    static class TablePatientRenderer extends DefaultTableCellRenderer {
 
         @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                                                       boolean hasFocus, int row, int column) {
             return new PatientShowButton((Patient) value);
         }
     }
 
-    class PatientShowButton extends JButton {
+    static class PatientShowButton extends JButton {
         private Patient patient;
 
         public Patient getButtonPatient() {
@@ -434,7 +415,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         }
     }
 
-    public class TableModelPatient extends AbstractTableModel {
+    public static class TableModelPatient extends AbstractTableModel {
         private final ArrayList<Patient> patients;
 
         public TableModelPatient(ArrayList<Patient> data) {
@@ -473,7 +454,6 @@ public class WindowDoctor extends UserAuthenticatedWindow {
 
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
-
             org.deustomed.Patient patient = null;
             try {
                 patient = this.patients.get(rowIndex);
