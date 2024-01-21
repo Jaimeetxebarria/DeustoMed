@@ -48,7 +48,7 @@ class ShowPatientWindow extends JFrame {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setTitle("Ventana del paciente " + patient.getName() + " " + patient.getSurname1() + " " + patient.getSurname2());
         screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setBounds((int) screenSize.getWidth() / 4 - 70, (int) screenSize.getHeight() / 4 - 60, (int) (screenSize.getWidth() / 2 + 140), (int) (screenSize.getHeight() / 2 + 120));
+        setBounds((int) screenSize.getWidth() / 4 - 110, (int) screenSize.getHeight() / 4 - 90, (int) (screenSize.getWidth() / 2 + 220), (int) (screenSize.getHeight() / 2 + 180));
         setLayout(new BorderLayout());
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -231,7 +231,7 @@ class ShowPatientWindow extends JFrame {
         clinicalRecord = new JTable(clinicalRecordModel);
 
         JScrollPane scpClinicalRecord = new JScrollPane(clinicalRecord);
-        scpClinicalRecord.setPreferredSize(new Dimension(550, 100));
+        scpClinicalRecord.setPreferredSize(new Dimension(700, 150));
         JPanel subPanel = new JPanel();
 
         JPanel pnlClinicalRecord = new JPanel();

@@ -11,6 +11,11 @@ import org.deustomed.gsonutils.GsonUtils;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.PostgrestQuery;
 
+/**
+ * This class symbolises a Diagnosis, instance in which relations between diseases, medications and patients are established.
+ * A patient can be diagnosed a disease, have a disease cured, be prescribed medication or have medication withdrawn.
+ * For each diagnosis, these data are stored in the lists prescribedMedication, retiredMedication, diagnosedDiseases, curedDiseases
+ */
 @Getter @Setter
 public class Diagnosis {
     private Appointment appointment;
@@ -33,7 +38,12 @@ public class Diagnosis {
         this.curedDiseases = curedDiseases;
     }
 
-
+    /**
+     * Returns a list with medications that have been added or removed in a specific diagnosis
+     *
+     * @param diagnosisID the ID of the diagnosis whose medications are going to be loaded
+     * @param prescribed determines whether the medications were added or removed in that diagnosed
+     */
     public static ArrayList<Medication> loadDiagnosisMedication(int diagnosisID, PostgrestClient postgrestClient, boolean prescribed) {
         ArrayList<Medication> resultArrayList = new ArrayList<>();
 
@@ -74,6 +84,10 @@ public class Diagnosis {
         return resultArrayList;
     }
 
+    /**
+     * Similar use to the previous one. Returns a list with diseases that have been added or removed in a specific diagnosis
+     *
+     */
     public static ArrayList<Disease> loadDiagnosisDiseases(int diagnosisID, PostgrestClient postgrestClient, boolean addOrRemove) {
         ArrayList<Disease> resultArrayList = new ArrayList<>();
 
@@ -111,6 +125,19 @@ public class Diagnosis {
         return resultArrayList;
     }
 
+    /**
+     * Updates the relations between diseases, medication and a diagnosis, so that each disease/medication that has
+     * been added or removed during the diagnosis process. Though receiving two lists, only one of the two is used
+     * depending on the values of the variables addOrRemove and diseaseOrMedication.
+     *
+     * @param diagnosisID ID of the diagnosis whose data has to be updated
+     * @param patientID ID of the patient who has received this diagnosis
+     * @param diseases list of diseases that have been added or removed during the diagnosis
+     * @param medications list of diseases that have been added or removed during the diagnosis
+     * @param diseaseOrMedication boolean which tells whether the data to be stored is related to the diseases or medications
+     * @param addOrRemove boolean which tells whether those dieases/medications were added (diagnosed, prescribed) or
+     *                    removed(
+     */
     public static void updateDiagnosisRelations(int diagnosisID, String patientID, ArrayList<Disease> diseases, ArrayList<Medication> medications, boolean diseaseOrMedication, boolean addOrRemove, PostgrestClient postgrestClient) {
         String additionalKey = (diseaseOrMedication) ? "disease_id" : "medication_id";
         String table = (diseaseOrMedication) ? "diagnosis_disease" : "diagnosis_medication";
@@ -158,6 +185,11 @@ public class Diagnosis {
         }
     }
 
+    /**
+     * Interacts with the tables 'patient_suffers_disease' and 'patient_undergoes_treatment' in the DB. In case a disease
+     * has been cured or a medication removed that relation is stored in the DB.
+     *
+     */
     public static void removePatientRelation (String patientID, int relationID, boolean diseaseOrMedication, PostgrestClient postgrestClient) {
         String additionalFK = (diseaseOrMedication) ? "fk_disease_id" : "fk_medication_id";
         String table = (diseaseOrMedication) ? "patient_suffers_disease" : "patient_undergoes_treatment";
@@ -173,6 +205,11 @@ public class Diagnosis {
         System.out.println("Remove anwser: "+String.valueOf(postgrestClient.sendQuery(query)));
     }
 
+    /**
+     * Interacts similarly as the previous method, with the tables 'patient_suffers_disease' and 'patient_undergoes_treatment'
+     * in the DB. In case a disease has been diagnosed or a medication added that relation is stored in the DB.
+     *
+     */
     public static void updatePatientRelation (String patientID, int relationID, boolean diseaseOrMedication, PostgrestClient postgrestClient) {
         String additionalFK = (diseaseOrMedication) ? "fk_disease_id" : "fk_medication_id";
         String table = (diseaseOrMedication) ? "patient_suffers_disease" : "patient_undergoes_treatment";

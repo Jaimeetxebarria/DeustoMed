@@ -8,6 +8,7 @@ import org.deustomed.ConfigLoader;
 import org.deustomed.Doctor;
 import org.deustomed.Patient;
 import org.deustomed.authentication.AnonymousAuthenticationService;
+import org.deustomed.authentication.SuperuserAuthenticationService;
 import org.deustomed.authentication.UserAuthenticationService;
 import org.deustomed.postgrest.PostgrestClient;
 import org.deustomed.postgrest.authentication.PostgrestAuthenticationService;
@@ -55,7 +56,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         FlatInterFont.install();
 
         ConfigLoader configLoader = new ConfigLoader();
-        WindowDoctor winFamilyDoctor = new WindowDoctor("00AAG", new AnonymousAuthenticationService(configLoader.getAnonymousToken()));
+        WindowDoctor winFamilyDoctor = new WindowDoctor("00AAG", new SuperuserAuthenticationService(configLoader.getAnonymousToken(), configLoader.getSuperuserToken()));
         winFamilyDoctor.setVisible(true);
 
         // WindowDoctor winSpecialistDoctor = new WindowDoctor("00AAA", new AnonymousAuthenticationService(configLoader.getAnonymousToken()));
@@ -68,10 +69,10 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         ConfigLoader configLoader = new ConfigLoader();
         postgrestClient = new PostgrestClient(configLoader.getHostname(), configLoader.getEndpoint(), authenticationService);
 
-        loadingWindow = new LoadingWindow("Loading Screen");
-        loadingWindow.setVisible(true);
-
         this.doctor = new Doctor(doctorID, postgrestClient);
+
+        loadingWindow = new LoadingWindow(doctor.getName()+" "+doctor.getSurname1()+" "+doctor.getSurname2());
+        loadingWindow.setVisible(true);
 
         screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setBounds((int) screenSize.getWidth() / 4, (int) screenSize.getHeight() / 4,
@@ -277,7 +278,9 @@ public class WindowDoctor extends UserAuthenticatedWindow {
                 JPanel pnTa = new JPanel();
                 pnTa.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 0));
                 JTextArea ta = new JTextArea(appointment.getShortDescription());
-                ta.setEditable(false);
+                ta.setEditable(true);
+                ta.setLineWrap(true);
+                ta.setWrapStyleWord(true);
                 ta.setPreferredSize(new Dimension(200, 140));
                 ta.setBorder(BorderFactory.createTitledBorder(""));
                 pnTa.add(ta);

@@ -108,6 +108,14 @@ public class Doctor extends User {
                 '}';
     }
 
+    /**
+     * Returns a list with the IDs of patients. Depending on the fullRegistry variable, it would be loaded all the patients
+     * from the patient registry or just the patients assigned to the doctor whose id matches doctorID.
+     *
+     * @param doctorID the ID (char(5)) of the doctor whose patients are going to be loaded
+     * @param postgrestClient connection to execute the query
+     * @param fullResgistry determines whether the IDs of all the patients in the patient registry should be loaded
+     */
     public static ArrayList<String> loadPatientIDs(String doctorID, PostgrestClient postgrestClient, boolean fullResgistry) {
         ArrayList<String> resultArrayList = new ArrayList<>();
         PostgrestQuery query;
@@ -135,6 +143,14 @@ public class Doctor extends User {
         return resultArrayList;
     }
 
+    /**
+     * Returns a list with the IDs of patients related to a specialist doctor. Depending on the treated variable, it would load from the
+     * in_treatment_patients table, either the patients whose treatment is still being carried out or has already finished.
+     *
+     * @param doctorID the ID (char(5)) of the doctor whose patients are going to be loaded
+     * @param postgrestClient connection to execute the query
+     * @param treated determines whether the IDs should correspond to already treated or being treated patients
+     */
     public static ArrayList<String> loadSpecialistPatientIDs(String doctorID, PostgrestClient postgrestClient, boolean treated) {
         ArrayList<String> resultArrayList = new ArrayList<>();
         System.out.println("doctor :"+doctorID);
@@ -159,7 +175,16 @@ public class Doctor extends User {
         return resultArrayList;
     }
 
-
+    /**
+     * Based on the two previous methods, loads the patient instances whose IDs are in this class' lists
+     * (registryOfPatients, ownPatients, inTreatmentPatients, treatedPatients) in_treatment_patients table,
+     * either the patients whose treatment is still being carried out or has already finished.
+     *
+     * @param sourceListNumber use to determine which kind of patients are going to be loaded.
+     *                         Four values: 0 -> the patients of the full registry of patients, 1 -> the doctor instance is a familyDoctor so the ownPatients of them are loaded
+     *                         2 -> the doctor instance is a SpecialistDoctor and the patients that are being treated will be loaded
+     *                         3 -> the doctor instance is a SpecialistDoctor and the ones whose treatment has finished are loaded
+     */
     public ArrayList<Patient> loadPatients(PostgrestClient postgrestClient, int sourceListNumber) {
 
         ArrayList<String> sourceArraylist = switch (sourceListNumber) {
