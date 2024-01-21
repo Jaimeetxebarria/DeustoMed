@@ -211,7 +211,7 @@ class ShowPatientWindow extends JFrame {
         JScrollPane scpTreatments = new JScrollPane(patientTreatments);
         Medication m = new Medication(0, "Medication", "Medication", 100, 100, "Company", "");
         patientTreatmentsModel.addElement(m);
-        // TODO: 27/12/23 develope loadPatientTreatment and loadPatientDiseases methods: Problem with JSonArray/Object
+
         ArrayList<Medication> listTreatments = loadPatientTreatments(patient.getId(), postgrestClient);
         listTreatments.forEach( treatment -> patientTreatmentsModel.addElement(treatment));
 

@@ -99,21 +99,9 @@ public class WindowDoctor extends UserAuthenticatedWindow {
 
         JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
         JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
-        String nameS = jsonObject.get("name").getAsString();
-        String surname1s = jsonObject.get("surname1").getAsString();
-        String surname2s = jsonObject.get("surname2").getAsString();
-        String dateString = jsonObject.get("birthdate").getAsString();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate date = LocalDate.parse(dateString, formatter);
-        String sexString = jsonObject.get("sex").getAsString();
-        Sex sex = (sexString.equals("MALE")) ? Sex.MALE : Sex.FEMALE;
-        String dni = jsonObject.get("dni").getAsString();
-        String email = jsonObject.get("email").getAsString();
-        String phoneNumber = jsonObject.get("phone").getAsString();
-        String address = jsonObject.get("address").getAsString();
-        String speciality = jsonObject.get("speciality").getAsString();
 
-        this.doctor = new Doctor(doctorID, nameS, surname1s, surname2s, date, sex, dni, email , phoneNumber, address, speciality, Doctor.loadDoctorAppointments(postgrestClient, doctorID));
+        this.doctor = new Doctor(jsonObject);
+        this.doctor.setAppointments(Doctor.loadDoctorAppointments(postgrestClient, doctorID));
 
         loadingWindow = new LoadingWindow(doctor.getName() + " " + doctor.getSurname1() + " " + doctor.getSurname2() + " ");
         loadingWindow.setVisible(true);

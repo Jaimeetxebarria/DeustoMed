@@ -38,26 +38,7 @@ public class Patient extends User {
 
     public Patient(@NotNull String id, @NotNull PostgrestClient postgrestClient) {
         super(id, postgrestClient);
-/*
-        //Get medical record (appointments)
-        PostgrestQuery query = postgrestClient.from("appointment_with_type").select().eq("fk_patient_id", id).getQuery();
-        JsonElement responseJson = postgrestClient.sendQuery(query);
-        if (!responseJson.isJsonArray()) throw new RuntimeException("Doctor not found"); //TODO: Use Postgrest custom exception
 
-        ArrayList<Appointment> appointments = new ArrayList<>();
-
-        for (JsonElement jsonElement : responseJson.getAsJsonArray()) {
-            JsonObject appointmentJson = jsonElement.getAsJsonObject();
-            appointments.add(new Appointment(
-                    appointmentJson.get("fk_patient_id").getAsString(),
-                    appointmentJson.get("fk_doctor_id").getAsString(),
-                    LocalDateTime.parse(appointmentJson.get("date").getAsString()),
-                    GsonUtils.getStringOrNull(appointmentJson, "reason"),
-                    appointmentJson.get("appointment_type").getAsString()));
-        }
-
-        setMedicalRecord(appointments);
- */
     }
 
     public void setMedicalRecord(ArrayList<Diagnosis> medicalRecord) {
@@ -80,4 +61,7 @@ public class Patient extends User {
                 super.toString() + '\'' +
                 '}';
     }
+
+
+
 }

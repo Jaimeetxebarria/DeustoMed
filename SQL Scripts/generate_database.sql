@@ -234,9 +234,9 @@ create table
 drop table if exists in_treatment_patients cascade;
 create table
   in_treatment_patients (
-    patient_id character not null references patient,
-    specialist_doctor_id character null references doctor,
-    treated boolean null,
+    patient_id character(5) not null references patient,
+    specialist_doctor_id character(5) not null references doctor,
+    treated boolean not null,
     constraint in_treatment_patients_pkey primary key (patient_id)
   );
 

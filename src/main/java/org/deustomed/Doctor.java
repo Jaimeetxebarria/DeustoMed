@@ -201,7 +201,7 @@ public class Doctor extends User {
 
             String patient_id = jsonObject.get("fk_patient_id").getAsString();
             String doctor_id = jsonObject.get("fk_doctor_id").getAsString();
-            String reason = jsonObject.get("reason").getAsString();
+            String reason = GsonUtils.getStringOrNull(jsonObject, "reason");
             int type = jsonObject.get("fk_appointment_type_id").getAsInt();
             PostgrestQuery query2 = postgrestClient
                     .from("appointment_type")
