@@ -118,7 +118,7 @@ public class WindowAddUser extends JFrame {
         pfPassword = new JPasswordField();
 
         if (doctors != null) {
-            lblSpeciality = new JLabel("Especialidad:");
+            lblSpeciality = new JLabel("*Especialidad:");
             cbSpeciality = new JComboBox<>();
 
             PostgrestQuery specialityQuery = postgrestClient
@@ -340,7 +340,7 @@ public class WindowAddUser extends JFrame {
                 group.getSelection() == null ||
                 dateChooser.getDate() == null ||
                 new String(pfPassword.getPassword()).isBlank()) {
-            lblError.setText("Hay campos obligatorios sin rellenar. Recuerde que los que tienen un '*' son obligatorios");
+            lblError.setText("Hay campos obligatorios sin rellenar. Recuerde que los que tienen un '*' son datos obligatorios");
             return false;
         }
 
