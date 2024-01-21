@@ -190,7 +190,7 @@ public class WindowAdmin extends UserAuthenticatedWindow {
                             rowData[3].toString(),                      //name
                             rowData[1].toString(),                      //surname1
                             rowData[2].toString(),                      //surname2
-                            LocalDate.parse(rowData[9].toString()),     //birthdate
+                            LocalDate.parse(rowData[10].toString()),     //birthdate
                             originalPatient.getSex(),                   //sex
                             rowData[6].toString(),                      //dni
                             rowData[5].toString(),                      //email
