@@ -9,6 +9,7 @@ public class ConfigLoader {
     private String hostname;
     private String endpoint;
     private String anonymousToken;
+    private String superuserToken;
     private String authServerBaseUrl;
 
     public ConfigLoader() {
@@ -18,6 +19,7 @@ public class ConfigLoader {
             hostname = prop.getProperty("hostname");
             endpoint = prop.getProperty("endpoint");
             anonymousToken = prop.getProperty("anonymous_token");
+            superuserToken = prop.getProperty("superuser_token");
             authServerBaseUrl = prop.getProperty("auth_server_base_url");
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -35,6 +37,8 @@ public class ConfigLoader {
     public String getAnonymousToken() {
         return anonymousToken;
     }
+
+    public String getSuperuserToken() {return superuserToken;}
 
     public String getAuthServerBaseUrl() {
         return authServerBaseUrl;
