@@ -1,9 +1,9 @@
 package org.deustomed;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import org.deustomed.DoctorMsgCode;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class DoctorMsgCodeTest {
 
