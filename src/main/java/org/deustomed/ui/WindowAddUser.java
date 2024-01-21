@@ -319,17 +319,6 @@ public class WindowAddUser extends JFrame {
     }
 
     /**
-     * Creates centered JLabels
-     *
-     * @param text JLabel string content
-     */
-    private JLabel createCenteredLabel(String text) {
-        JLabel label = new JLabel(text);
-        label.setHorizontalAlignment(JLabel.CENTER);
-        return label;
-    }
-
-    /**
      * Validates the data introduced by the user
      *
      * @return boolean indicating if the data is valid or not
