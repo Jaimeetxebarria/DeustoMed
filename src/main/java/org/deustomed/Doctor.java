@@ -185,6 +185,7 @@ public class Doctor extends User {
         return resultArrayList;
     }
 
+    // Fuera
     public static ArrayList<Appointment> loadDoctorAppointments(PostgrestClient postgrestClient, String doctorID) {
         ArrayList<Appointment> resultArrayList = new ArrayList<>();
 

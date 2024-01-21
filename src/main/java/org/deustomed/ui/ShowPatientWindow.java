@@ -13,6 +13,8 @@ import javax.swing.border.Border;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
@@ -44,7 +46,7 @@ class ShowPatientWindow extends JFrame {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setTitle("Ventana del paciente " + patient.getName() + " " + patient.getSurname1() + " " + patient.getSurname2());
         screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setBounds((int) screenSize.getWidth() / 4 - 50, (int) screenSize.getHeight() / 4 - 60, (int) (screenSize.getWidth() / 2 + 100), (int) (screenSize.getHeight() / 2 + 120));
+        setBounds((int) screenSize.getWidth() / 4 - 70, (int) screenSize.getHeight() / 4 - 60, (int) (screenSize.getWidth() / 2 + 140), (int) (screenSize.getHeight() / 2 + 120));
         setLayout(new BorderLayout());
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -118,7 +120,7 @@ class ShowPatientWindow extends JFrame {
         JLabel sex = new JLabel("Sex: ");
         JLabel dni = new JLabel("DNI: ");
         JLabel birthdate = new JLabel("F. Nacimiento:      ");
-        JLabel nss = new JLabel("NSS: ");
+
         JLabel phone = new JLabel("Tlf.: ");
         JLabel email = new JLabel("Email: ");
         JLabel address = new JLabel("Dirección:             ");
@@ -127,7 +129,7 @@ class ShowPatientWindow extends JFrame {
         JTextField tfSex = new JTextField("Sex");
         JTextField tfDNI = new JTextField("DNI");
         JTextField tfBirthdate = new JTextField("Birthdate");
-        JTextField tfNSS = new JTextField("NSS");
+
         JTextField tfPhone = new JTextField("Phone");
         JTextField tfEmail = new JTextField("Email");
         JTextField tfAddress = new JTextField("Address");
@@ -142,8 +144,7 @@ class ShowPatientWindow extends JFrame {
         tfBirthdate.setEditable(false);
         LocalDate date = classPatient.getBirthDate();
         tfBirthdate.setText(date.toString());
-        tfNSS.setEditable(false);
-        tfNSS.setText("NSS NO IMPLEMENTADO");
+
         tfPhone.setEditable(false);
         tfPhone.setText(classPatient.getPhoneNumber());
         tfEmail.setEditable(false);
@@ -160,8 +161,6 @@ class ShowPatientWindow extends JFrame {
         pnlInfoPatient.add(dni);
         pnlInfoPatient.add(tfDNI);
 
-        pnlContactPatient.add(nss);
-        pnlContactPatient.add(tfNSS);
         pnlContactPatient.add(phone);
         pnlContactPatient.add(tfPhone);
         pnlContactPatient.add(email);
@@ -199,8 +198,7 @@ class ShowPatientWindow extends JFrame {
         patientDiseases.setPreferredSize(new Dimension(220, 100));
         patientDiseases.setCellRenderer(new ListCellRenderer());
         JScrollPane scpDiseases = new JScrollPane(patientDiseases);
-        Disease d = new Disease(0, "Disease", true, true);
-        patientDiseaseModel.addElement(d);
+
         ArrayList<Disease> list = loadPatientDiseases(patient.getId(), postgrestClient);
         list.forEach( disease -> patientDiseaseModel.addElement(disease));
 
@@ -209,8 +207,6 @@ class ShowPatientWindow extends JFrame {
         patientTreatments.setPreferredSize(new Dimension(220, 100));
         patientTreatments.setCellRenderer(new ListCellRenderer());
         JScrollPane scpTreatments = new JScrollPane(patientTreatments);
-        Medication m = new Medication(0, "Medication", "Medication", 100, 100, "Company", "");
-        patientTreatmentsModel.addElement(m);
 
         ArrayList<Medication> listTreatments = loadPatientTreatments(patient.getId(), postgrestClient);
         listTreatments.forEach( treatment -> patientTreatmentsModel.addElement(treatment));
@@ -329,24 +325,6 @@ class ShowPatientWindow extends JFrame {
         return resultList;
     }
 
-    class ListCellRenderer extends DefaultListCellRenderer {
-        @Override
-        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-            if (value instanceof Disease) {
-                Disease disease = (Disease) value;
-
-                label.setText(disease.getName());
-            }
-            if (value instanceof Medication) {
-                Medication medication = (Medication) value;
-
-                label.setText(medication.getCommercialName());
-            }
-            return label;
-        }
-    }
-
     public static String findDoctorName(Patient patient) {
         PostgrestQuery query = postgrestClient
                 .from("patient")
@@ -373,5 +351,51 @@ class ShowPatientWindow extends JFrame {
         String surname2 = jsonObject1.get("surname2").getAsString();
 
         return name + " " + surname1 + " " + surname2;
+    }
+
+    public static ArrayList<Diagnosis> loadPatientMedicalRecord (String id, PostgrestClient postgrestClient) {
+        ArrayList<Diagnosis> resultList = new ArrayList<>();
+        PostgrestQuery query = postgrestClient
+                .from("diagnosis")
+                .select("*")
+                .eq("fk_patient_id", id)
+                .getQuery();
+
+        JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
+
+        if (!jsonArray.isEmpty()) {
+            for (int i = 0; i < jsonArray.size(); i++) {
+                JsonObject jsonObject1 = jsonArray.get(i).getAsJsonObject();
+                int diagnosis_id = jsonObject1.get("id").getAsInt();
+                String fk_doctor_id = jsonObject1.get("fk_doctor_id").getAsString();
+                String fk_patient_id = jsonObject1.get("fk_patient_id").getAsString();
+                String summary = jsonObject1.get("summary").getAsString();
+                String dateString = jsonObject1.get("date").getAsString();
+                LocalDateTime date = LocalDateTime.parse(dateString, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+                PostgrestQuery queryAppointment = postgrestClient
+                        .from("appointment")
+                        .select("*")
+                        .eq("fk_doctor_id", fk_doctor_id)
+                        .eq("fk_patient_id",fk_patient_id)
+                        .eq("date", dateString)
+                        .getQuery();
+
+                JsonArray jsonArrayAppointment = postgrestClient.sendQuery(queryAppointment).getAsJsonArray();
+                JsonObject jsonObject2 = jsonArrayAppointment.get(i).getAsJsonObject();
+
+                Appointment a = new Appointment(fk_patient_id, fk_doctor_id, date,
+                        jsonObject2.get("reason").getAsString(),
+                        jsonObject2.get("shortdescription").getAsString()
+                );
+
+                Diagnosis newDiagnosis = new Diagnosis( a, fk_patient_id, fk_doctor_id, summary,
+                        Diagnosis.loadDiagnosisMedication(diagnosis_id, postgrestClient, true), Diagnosis.loadDiagnosisMedication(diagnosis_id, postgrestClient, false),
+                        Diagnosis.loadDiagnosisDiseases(diagnosis_id, postgrestClient, true), Diagnosis.loadDiagnosisDiseases(diagnosis_id, postgrestClient, false));
+
+                resultList.add(newDiagnosis);
+            }
+        }
+        return resultList;
     }
 }

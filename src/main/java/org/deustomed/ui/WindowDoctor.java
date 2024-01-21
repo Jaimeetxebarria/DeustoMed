@@ -57,7 +57,6 @@ public class WindowDoctor extends UserAuthenticatedWindow {
     private final JTabbedPane tabbedPaneCenter;
     private Date selectedDate = new Date();
     private static PostgrestClient postgrestClient;
-    private final Logger logger;
     private LoadingWindow loadingWindow;
 
     public static void main(String[] args) {
@@ -100,6 +99,8 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         JsonArray jsonArray = postgrestClient.sendQuery(query).getAsJsonArray();
         JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
 
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+
         this.doctor = new Doctor(jsonObject);
         this.doctor.setAppointments(Doctor.loadDoctorAppointments(postgrestClient, doctorID));
 
@@ -111,7 +112,6 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         setLayout(new BorderLayout());
 
         LoggerMaker.setlogFilePath("src/main/java/org/deustomed/logs/WindowPatient.log");
-        logger = LoggerMaker.getLogger();
 
         // ------------------ pnlInfo ------------------
         pnlInfo = new JPanel();
@@ -133,15 +133,14 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         JPanel panelButtons = new JPanel();
         panelButtons.setLayout(new GridLayout(3, 1));
 
-        JButton info = new JButton("Infomación Personal");
+        JButton info = new JButton("Chats en curso");
         info.setPreferredSize(new Dimension(200, 30));
         info.setHorizontalAlignment(SwingConstants.CENTER);
+        info.addActionListener((ActionEvent e) -> {
+                DoctorChat doctorChat = new DoctorChat(doctorID);
+                doctorChat.setVisible(true);
+            });
 
-        JButton info2 = new JButton("Visualización Calendario");
-        info2.setPreferredSize(new Dimension(200, 30));
-
-        JButton info3 = new JButton("Servicio Técnico");
-        info3.setPreferredSize(new Dimension(200, 30));
 
         JLabel name = new JLabel("Dr. " + doctor.getName());
         JLabel surname1 = new JLabel(doctor.getSurname1());
@@ -157,12 +156,15 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         pnlc.add(new JLabel("Doctor especialista en " + doctor.getSpeciality()));
         pnlc.add(Box.createVerticalStrut(200));
         panelButtons.add(info);
-        panelButtons.add(info2);
-        panelButtons.add(info3);
         pnlc.add(panelButtons);
 
         pnlInfo.add(pnlc, BorderLayout.CENTER);
         JButton singOut = new JButton("Cerrar Sesión");
+        singOut.addActionListener((ActionEvent e) -> {
+                this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+                this.dispose();
+            });
+
         pnlInfo.add(singOut, BorderLayout.SOUTH);
         add(pnlInfo, BorderLayout.WEST);
 
@@ -269,6 +271,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
             public void windowOpened(WindowEvent e) {
                 loadingWindow.dispose();
                 LoadingWindow.stopThread();
+                setVisible(true);
             }
         });
     }
@@ -473,7 +476,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
 
         String[] columns = {"Nombre", "1º Apellido", "2º Apellido", "DNI", "Correo", "Día de Nacimiento", "Edad", "nº Teléfono", "Direcci" +
                 "ón", ""};
-        Class[] columnClass = {String.class, String.class, String.class, String.class, String.class, Date.class, Integer.class,
+        Class[] columnClass = {String.class, String.class, String.class, String.class, String.class, LocalDate.class, Integer.class,
                 String.class, String.class, Patient.class};
 
         @Override
@@ -503,7 +506,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
 
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
-            //System.out.println(doctor.getPatients().size());
+
             org.deustomed.Patient patient = null;
             try {
                 patient = this.patients.get(rowIndex);
@@ -517,7 +520,7 @@ public class WindowDoctor extends UserAuthenticatedWindow {
                 case 2 -> patient.getSurname2();
                 case 3 -> patient.getDni();
                 case 4 -> patient.getEmail();
-                //case 5 -> patient.getBirthDate().toString();
+                case 5 -> patient.getBirthDate();
                 case 6 -> patient.getAgeInYears();
                 case 7 -> patient.getPhoneNumber();
                 case 8 -> patient.getAddress();
@@ -535,8 +538,6 @@ public class WindowDoctor extends UserAuthenticatedWindow {
                 case 2 -> patient.setSurname2((String) aValue);
                 case 3 -> patient.setDni((String) aValue);
                 case 4 -> patient.setEmail((String) aValue);
-                //case 5 -> patient.setBirthDate((LocalDate) aValue);
-                //case 6 -> {//FIXME: Cannot edit age, only birthdate}
                 case 7 -> patient.setPhoneNumber((String) aValue);
                 case 8 -> patient.setAddress((String) aValue);
             }
@@ -553,46 +554,4 @@ public class WindowDoctor extends UserAuthenticatedWindow {
         }
     }
 
-
-    class LoadingWindow extends JFrame {
-        private static Thread t;
-
-        public LoadingWindow(String name) {
-            screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-            setBounds((int) screenSize.getWidth() / 2 - 200, (int) screenSize.getHeight() / 2 - 60, 400, 120);
-            JPanel labelPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-            Border emptyBorder = BorderFactory.createEmptyBorder(30, 40, 0, 0);
-            labelPanel.setBorder(emptyBorder);
-            String[] states = {"Cargando datos del registro de pacientes .", "Cargando datos del registro de pacientes ..", "Cargando datos del registro de pacientes ...",
-                    "Cargando datos del registro de pacientes ....", "Cargando datos del registro de pacientes ....."};
-            setTitle("Cargando ventana del Dr. " + name);
-            JLabel loadingData = new JLabel();
-            loadingData.setHorizontalAlignment(SwingConstants.LEFT);
-            loadingData.setVerticalAlignment(SwingConstants.CENTER);
-            loadingData.setFont(new Font(loadingData.getFont().getName(), 3, 15));
-            labelPanel.add(loadingData);
-            loadingData.getAlignmentX();
-            this.add(labelPanel);
-            t = new Thread(() -> {
-                int counter = 0;
-                while (counter < 5) {
-                    loadingData.setText(states[counter]);
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                    }
-                    counter++;
-                    if (counter == 5) counter = 0;
-                }
-            }
-            );
-            t.start();
-        }
-
-        public static void stopThread() {
-            t.interrupt();
-        }
-
-        ;
-    }
 }

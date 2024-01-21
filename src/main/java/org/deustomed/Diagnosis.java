@@ -14,7 +14,7 @@ import org.deustomed.postgrest.PostgrestQuery;
 @Getter @Setter
 public class Diagnosis {
     private Appointment appointment;
-    private Patient patient;
+    private String patient;
     private String doctor;
     private String summary;
     private ArrayList<Medication> prescribedMedication;
@@ -22,7 +22,7 @@ public class Diagnosis {
     private ArrayList<Disease> diagnosedDiseases;
     private ArrayList<Disease> curedDiseases;
 
-    public Diagnosis(Appointment appointment, Patient patient, String doctor, String summary, ArrayList<Medication> prescribedMedication, ArrayList<Medication> retiredMedication, ArrayList<Disease> diagnosedDiseases, ArrayList<Disease> curedDiseases) {
+    public Diagnosis(Appointment appointment, String patient, String doctor, String summary, ArrayList<Medication> prescribedMedication, ArrayList<Medication> retiredMedication, ArrayList<Disease> diagnosedDiseases, ArrayList<Disease> curedDiseases) {
         this.appointment = appointment;
         this.patient = patient;
         this.doctor = doctor;
@@ -34,14 +34,14 @@ public class Diagnosis {
     }
 
 
-    public static ArrayList<Medication> loadDiagnosisMedication(String diagnosisID, PostgrestClient postgrestClient, boolean prescribed) {
+    public static ArrayList<Medication> loadDiagnosisMedication(int diagnosisID, PostgrestClient postgrestClient, boolean prescribed) {
         ArrayList<Medication> resultArrayList = new ArrayList<>();
 
         String prescribedString = (prescribed) ? "TRUE" : "FALSE";
         PostgrestQuery query = postgrestClient
                 .from("diagnosis_medication")
                 .select("*")
-                .eq("diagnosisID", diagnosisID)
+                .eq("diagnosisID", String.valueOf(diagnosisID))
                 .eq("prescribed/retired", prescribedString)
                 .getQuery();
 

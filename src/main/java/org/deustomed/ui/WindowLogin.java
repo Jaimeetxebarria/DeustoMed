@@ -122,7 +122,8 @@ public class WindowLogin extends JFrame {
                             break;
                         case 'D':
                             userAuthenticationService.login(id, password, UserType.DOCTOR);
-                            new WindowDoctor(id, userAuthenticationService);
+                            WindowDoctor wd = new WindowDoctor(id, userAuthenticationService);
+                            wd.setVisible(true);
                             dispose();
                             break;
                         case 'A':

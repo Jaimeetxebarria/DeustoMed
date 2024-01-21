@@ -1,2 +1,6 @@
 dic 18, 2023 12:05:58 A. M. org.deustomed.ui.WindowPatient saveChatToFile
 INFO: Chat guardado en C:\Users\Alvaro\Desktop\a por el paciente 00AAK.
+Jan 21, 2024 2:23:23 PM org.deustomed.ui.DoctorChat <init>
+INFO: DoctorChat iniciado por el doctor 00AAG.
+Jan 21, 2024 2:25:03 PM org.deustomed.ui.DoctorChat <init>
+INFO: DoctorChat iniciado por el doctor 00AAG.
