@@ -11,6 +11,6 @@ insert into appointment (reason, fk_patient_id, fk_doctor_id, fk_appointment_typ
     ('Resfriado con fuerte dolor de garganta', '00ABE', '00AAG', 1, '2024-01-22T14:00:00Z'),
     ('Vértigos repentinos', '00ABF', '00AAG', 1, '2024-01-22T14:15:00Z'),
     ('Dolor de oido y falta de audición', '00ABG', '00AAG', 1, '2024-01-22T14:30:00'),
-    ('Falta de motrizidad en la pierna derecha', '00ABH', '00AAG', 1, '2024-01-22T14:45:00Z'),
+    ('Falta de motricidad en la pierna derecha', '00ABH', '00AAG', 1, '2024-01-22T14:45:00Z'),
     ('Posible choque anafiláctico leve', '00ABG', '00AAA', 1, '2024-01-22T14:30:00'),
-    ('Síntomas de alérgia', '00ABH', '00AAA', 1, '2024-01-22T14:45:00Z');
+    ('Síntomas de alergia', '00ABH', '00AAA', 1, '2024-01-22T14:45:00Z');
